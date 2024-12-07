@@ -5,17 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generate Counter Image</title>
     <style>
-        /* Style to make the image fill the entire screen */
+        /* Ensure no margin, padding, or background */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
+            background: none; /* No background */
         }
+
+        /* Style to make the image fill the entire screen */
         img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: cover; /* Ensures the image covers the entire screen */
         }
     </style>
 </head>
@@ -51,7 +54,7 @@
         img.src = counterUrl;
         img.alt = 'Visit Counter';
 
-        // Append the image to the body of the page to display it full screen
+        // Append the image to the body to display it full screen
         document.body.appendChild(img);
     </script>
 </body>
