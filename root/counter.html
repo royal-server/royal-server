@@ -13,16 +13,15 @@
             overflow: hidden;
             background: none; /* No background */
         }
-
-        /* Style to make the image fill the entire screen */
-        img {
+        canvas {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensures the image covers the entire screen */
+            display: block;
         }
     </style>
 </head>
 <body>
+    <canvas id="counterCanvas"></canvas>
     <script>
         // Function to get the value of a URL parameter by its name
         function getURLParameter(name) {
@@ -41,21 +40,33 @@
         const darkmode = getURLParameter('darkmode') || 'auto';   // Default to 'auto' if not provided
         const num = getURLParameter('num');  // 'num' is optional, no default
 
-        // Construct the counter URL
-        let counterUrl = `https://count.getloli.com/@${name}?name=@${name}&theme=${theme}&padding=${padding}&offset=${offset}&align=${align}&scale=${scale}&pixelated=${pixelated}&darkmode=${darkmode}`;
+        // Get the canvas and its context
+        const canvas = document.getElementById('counterCanvas');
+        const ctx = canvas.getContext('2d');
 
-        // Add 'num' parameter if it exists
-        if (num) {
-            counterUrl += `&num=${num}`;
-        }
+        // Set canvas size to the window size
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        // Create an image element and set its source to the generated counter URL
-        const img = document.createElement('img');
-        img.src = counterUrl;
-        img.alt = 'Visit Counter';
+        // Example: Drawing text (replace with your actual counter generation logic)
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '30px Arial';
+        ctx.fillText(`Counter for: ${name}`, 50, 50);
+        
+        // Optional: Add any other drawing code to render the counter or design as needed
 
-        // Append the image to the body to display it full screen
-        document.body.appendChild(img);
+        // Convert the canvas to a data URL (base64 encoded image)
+        const imageUrl = canvas.toDataURL('image/png');
+
+        // Display the image on the page (for testing, can be removed later)
+        const img = new Image();
+        img.src = imageUrl;
+        document.body.appendChild(img); // Optionally append the image to the body for testing
+
+        // Log the base64 data URL (this can be used for Discord embeds)
+        console.log(imageUrl);  // You can use this in your Discord embed
+
+        // Now you can upload this image to a service that accepts base64 images and hosts them
     </script>
 </body>
 </html>
