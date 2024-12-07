@@ -140,7 +140,7 @@
         const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
         const discordWidgetUrl = "https://discord.com/api/guilds/1228678846023335936/widget.json"; // Discord widget API URL for instant invite
-
+        
         // Example of Discord Embed Settings as a JSON object in JavaScript
         const discordEmbedSettings = {
             "title": "List Of Active Artefact Boost",
@@ -348,10 +348,29 @@
         }
 
         // Load settings and content on page load
-        window.onload = () => {
-            loadSettings(); // Load settings from GitHub
-            fetchDiscordInvite(); // Fetch Discord invite URL from the widget API
-        };
+        window.onload = async () => {
+    // Load settings from GitHub
+    await loadSettings(); 
+
+    // Fetch Discord invite URL from the widget API
+    await fetchDiscordInvite(); 
+
+    // The counter URL that you want to make the request to
+    const counterUrl = "https://count.getloli.com/@Artefact-Boost-Active001?name=@Artefact-Boost-Active001&theme=gelbooru&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto";
+
+    // Make the fetch request to the counter URL
+    try {
+        const response = await fetch(counterUrl);
+        if (response.ok) {
+            console.log('Request sent to counter URL successfully');
+        } else {
+            console.error('Failed to send request to counter URL');
+        }
+    } catch (error) {
+        console.error('Error making the request:', error);
+    }
+};
+
 
 
 
