@@ -33,7 +33,7 @@
             font-size: 2em;
             text-align: center;
             margin-top: 20px;
-            color: white; /* Always white */
+            color: white; /* Forced white color */
         }
 
         .formatted-text {
@@ -105,10 +105,16 @@
             text-decoration: underline;
         }
 
-        /* White color for "Join us on Discord" text and link */
-        #support-section p,
-        #support-section a {
-            color: white; /* Change both the text and link color to white */
+        /* White color for "List Of Active Artefact Boost" title */
+        h1 {
+            color: white !important;
+        }
+
+        /* Adjust the Discord banner styling */
+        #discord-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
         }
     </style>
 </head>
@@ -120,10 +126,10 @@
     <h1>List Of Active Artefact Boost</h1>
     <div id="output" class="formatted-text">Loading...</div>
 
-    <!-- Support Section -->
+    <!-- Support Section with Discord banner image -->
     <div id="support-section">
         <a id="discord-link" href="#" target="_blank">
-            <p>Click here to join the Discord server</p>
+            <img src="https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3" alt="Discord Invite Banner" />
         </a>
         <div class="support-list" id="support-list"></div>
     </div>
