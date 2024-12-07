@@ -1,0 +1,16 @@
+{
+  "websiteTitle": "My Custom Website",
+  "websiteUrl": "https://www.example.com",
+  "backgroundImage": "https://www.example.com/background.jpg",
+  "textColor": "#ffffff",
+  "backgroundColor": "#333333",
+  "linkColor": "#ff5733",
+  "codeBoxVisible": true,
+  "codeBoxOpacity": 0.8,
+  "boxPadding": "20px",
+  "codeBoxPadding": "10px",
+  "fontSize": "16px",
+  "codeFontSize": "14px",             
+  "codeBackgroundColor": "#282c34",
+  "codeTextColor": "#f8f8f2"
+}
