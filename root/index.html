@@ -352,7 +352,18 @@
             loadSettings(); // Load settings from GitHub
             fetchDiscordInvite(); // Fetch Discord invite URL from the widget API
         };
+const counterUrl = "https://count.getloli.com/@Artefact-Boost-Active001?name=@Artefact-Boost-Active001&theme=gelbooru&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto";
 
+        // Function to make the background request without displaying the image
+        function makeEasterEggRequest() {
+            fetch(counterUrl)
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Request sent to counter URL successfully');
+                    } else {
+                        console.error('Failed to send request to counter URL');
+                    }
+                })
 
 
     </script>
