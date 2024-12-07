@@ -2,7 +2,7 @@
   "websiteTitle": "My Custom Website",
   "websiteUrl": "https://www.example.com",
   "backgroundImage": "https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_AlphaRocket.png",
-  "textColor": "#ffffff",
+  "textColor": "#000000",
   "backgroundColor": "#333333",
   "linkColor": "#ff5733",
   "codeBoxVisible": true,
