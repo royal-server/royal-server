@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generate Counter URL</title>
+    <title>Generate Counter Image</title>
+    <style>
+        /* Style to make the image fill the entire screen */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
     <script>
@@ -32,8 +46,13 @@
             counterUrl += `&num=${num}`;
         }
 
-        // Redirect to the generated counter URL
-        window.location.href = counterUrl;
+        // Create an image element and set its source to the generated counter URL
+        const img = document.createElement('img');
+        img.src = counterUrl;
+        img.alt = 'Visit Counter';
+
+        // Append the image to the body of the page to display it full screen
+        document.body.appendChild(img);
     </script>
 </body>
 </html>
