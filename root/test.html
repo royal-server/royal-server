@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get URL Parameter</title>
+</head>
+<body>
+    <h1>URL Parameter Example</h1>
+    <p id="output">Waiting for query parameter...</p>
+
+    <script>
+        // Function to get the URL parameter 'x'
+        function getParameter(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        // Get the 'x' parameter from the URL
+        const xValue = getParameter('x');
+
+        // Display the value of 'x' on the page
+        if (xValue) {
+            document.getElementById('output').textContent = `The value of 'x' is: ${xValue}`;
+        } else {
+            document.getElementById('output').textContent = "No 'x' parameter found in the URL.";
+        }
+    </script>
+</body>
+</html>
