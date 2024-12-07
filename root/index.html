@@ -3,29 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON Viewer</title>
+    <title>Discord Timestamp Parser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f9f9f9;
+        }
+    </style>
 </head>
 <body>
-    <h1>JSON Data Viewer</h1>
-    <pre id="json-output"></pre>
+    <h1>Discord Timestamp Parser</h1>
+    <textarea id="input" rows="5" cols="50" placeholder="Paste Discord text here..."></textarea>
+    <button onclick="parseTimestamps()">Convert Timestamps</button>
+
+    <div id="output"></div>
 
     <script>
-        // URL to the JSON file hosted on GitHub
-        const jsonUrl = "https://raw.githubusercontent.com/CapricanDRJ/HadesStarCommunityData/refs/heads/main/whitestar_scoreboard.json";
+        function parseTimestamps() {
+            const input = document.getElementById('input').value;
+            const output = document.getElementById('output');
 
-        // Fetch and display the JSON
-        fetch(jsonUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+            // Regex to match Discord timestamps like <t:1234567890> or <t:1234567890:R>
+            const regex = /<t:(\d+)(?::([a-zA-Z]))?>/g;
+
+            // Replace matched timestamps with formatted time
+            const result = input.replace(regex, (match, unixTime, format) => {
+                const timestamp = new Date(parseInt(unixTime) * 1000);
+                switch (format) {
+                    case 'R': // Relative time
+                        return timeSince(timestamp);
+                    default: // Default to full date and time
+                        return timestamp.toLocaleString();
                 }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById("json-output").textContent = JSON.stringify(data, null, 4);
-            })
-            .catch(error => console.error("Error fetching the JSON file:", error));
+            });
+
+            output.textContent = result;
+        }
+
+        // Helper function to calculate relative time
+        function timeSince(date) {
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+
+            return Math.floor(seconds) + " seconds ago";
+        }
     </script>
 </body>
 </html>
+
 
