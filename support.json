@@ -1,0 +1,12 @@
+[
+    {
+        "name": "Person Name",
+        "redirectUrl": "https://discord.com/users/123456789",
+        "iconUrl": "https://example.com/icon.jpg"
+    },
+    {
+        "name": "Another Person",
+        "redirectUrl": "https://discord.com/users/987654321",
+        "iconUrl": "https://example.com/icon2.jpg"
+    }
+]
