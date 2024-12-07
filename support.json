@@ -15,7 +15,7 @@
         "iconUrl": "https://cdn.discordapp.com/avatars/582882137842122773/c41d183fba78b9f49bb590a1fc8e33a9.png?size=4096"
     },
     {
-        "name": "R.T.S.",
+        "name": "R.T.S. Bot",
         "redirectUrl": "https://discord.com/oauth2/authorize?client_id=1045060846654603305&permissions=563465416997952&response_type=code&redirect_uri=https%3A%2F%2Fx8ki-letl-twmt.n7.xano.io%2Fapi%3ACSSYcyUF%2Fauth_join%3Fkey%3D9e0279b8-d925-41c8-aeb0-d5a088f7609c&integration_type=0&scope=identify+bot",
         "iconUrl": "https://cdn.discordapp.com/avatars/1045060846654603305/22f6600332c594ca796daf8ab12e92af.png?size=4096"
     }
