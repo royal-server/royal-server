@@ -18,10 +18,10 @@
     <div id="content">Loading content...</div>
 
     <script>
-        // URL to fetch the base64 encoded HTML
+        // URL to fetch the URL-encoded Base64 content
         const url = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/version.base64";
 
-        // Function to decode base64 and update the webpage
+        // Function to decode URL-encoded Base64 content and update the webpage
         function loadBase64Content() {
             fetch(url)
                 .then(response => {
@@ -30,19 +30,19 @@
                     }
                     return response.text();
                 })
-                .then(base64Data => {
-                    // Remove newline and space characters from base64 data
-                    const cleanedBase64 = base64Data.replace(/[\n\r\s]/g, "");
-
-                    // Decode the cleaned base64 content
-                    const decodedHTML = atob(cleanedBase64);
+                .then(encodedData => {
+                    // First, URL-decode the content
+                    const decodedUrl = decodeURIComponent(encodedData);
                     
+                    // Now decode the Base64 string
+                    const decodedBase64 = atob(decodedUrl);
+
                     // Replace the content inside the div
-                    document.getElementById('content').innerHTML = decodedHTML;
+                    document.getElementById('content').innerHTML = decodedBase64;
 
                     // Update the title dynamically if the decoded content contains a title tag
                     const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = decodedHTML;
+                    tempDiv.innerHTML = decodedBase64;
                     const titleElement = tempDiv.querySelector('title');
                     if (titleElement) {
                         document.getElementById('website-title').innerText = titleElement.innerText;
@@ -54,7 +54,7 @@
                 });
         }
 
-        // Load the base64 content on page load
+        // Load the Base64 content on page load
         document.addEventListener('DOMContentLoaded', loadBase64Content);
     </script>
 </body>
