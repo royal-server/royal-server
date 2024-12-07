@@ -1,7 +1,7 @@
 {
   "websiteTitle": "My Custom Website",
   "websiteUrl": "https://www.example.com",
-  "backgroundImage": "https://www.example.com/background.jpg",
+  "backgroundImage": "https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_AlphaRocket.png",
   "textColor": "#ffffff",
   "backgroundColor": "#333333",
   "linkColor": "#ff5733",
