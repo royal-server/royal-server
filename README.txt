@@ -1,4 +1,1 @@
-a
-b
-c
-d
+{url1}\n{url2}
