@@ -20,7 +20,7 @@
         // URL of the base64-encoded content
         const url = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/version.base64";
 
-        // Function to fetch, decode base64, and then URL-decode the content
+        // Function to fetch, decode base64, and URL-decode the content
         function loadBase64Content() {
             document.getElementById('content').innerHTML = 'Fetching data...';
 
@@ -78,7 +78,7 @@
             const newHeadContent = newDoc.head.innerHTML;
             const newBodyContent = newDoc.body.innerHTML;
 
-            // Replace the head content
+            // Replace the head content (style, meta, title, etc.)
             document.head.innerHTML = newHeadContent;
 
             // Replace the body content
