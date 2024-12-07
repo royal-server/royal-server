@@ -17,6 +17,25 @@
             background-position: center;
             height: 100vh;
         }
+
+        /* Error Popup Styling */
+        #error-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f44336; /* Red */
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none; /* Initially hidden */
+            width: auto;
+            max-width: 80%;
+            text-align: center;
+        }
+
         .formatted-text {
             white-space: pre-wrap; /* Preserve newlines */
             word-wrap: break-word; /* Handle long words */
@@ -26,13 +45,16 @@
             margin: 20px;
             font-size: 16px; /* Default font size */
         }
+
         h1 {
             font-size: 2em;
         }
+
         a {
             color: inherit;
             text-decoration: none;
         }
+
         button {
             padding: 10px 20px;
             cursor: pointer;
@@ -41,23 +63,53 @@
             border: none;
             border-radius: 5px;
         }
-        pre {
-            background-color: #282c34; /* Default code background color */
-            color: #f8f8f2;             /* Default code text color */
-            padding: 10px;
-            font-size: 14px;             /* Default code font size */
+
+        #support-section {
+            margin-top: 20px;
+            text-align: center;
         }
-        code {
-            background-color: #282c34;  /* Inline code background */
-            color: #f8f8f2;              /* Inline code text color */
-            padding: 5px;
-            font-size: 14px;             /* Inline code font size */
+
+        #support-section img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .support-list {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .support-list .support-item {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .support-list img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
         }
     </style>
 </head>
 <body>
+    <!-- Error Popup -->
+    <div id="error-popup">Error loading settings. Using default settings...</div>
+
     <h1>Discord Text Formatter</h1>
     <div id="output" class="formatted-text">Loading...</div>
+
+    <!-- Support Section -->
+    <div id="support-section">
+        <!-- Discord banner image with dynamic link -->
+        <a id="discord-link" href="#" target="_blank">
+            <img id="support-image" src="https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3" alt="Support Banner" />
+        </a>
+        <p>Join us on Discord: <a id="support-url" href="#" target="_blank">Click here</a></p>
+        <div class="support-list" id="support-list"></div>
+    </div>
 
     <script>
         // GitHub API URL for the settings JSON file
@@ -65,6 +117,28 @@
 
         // GitHub API URL for the text file (URL-encoded content)
         const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
+
+        // GitHub API URL for the support JSON file
+        const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
+
+        // Default settings
+        const defaultSettings = {
+            "websiteTitle": "My Custom Website",
+            "websiteUrl": "https://www.example.com",
+            "backgroundImage": "https://www.example.com/background.jpg",
+            "textColor": "#ffffff",
+            "backgroundColor": "#333333",
+            "linkColor": "#ff5733",
+            "codeBoxVisible": true,
+            "codeBoxOpacity": 0.8,
+            "boxPadding": "20px",
+            "codeBoxPadding": "10px",
+            "fontSize": "16px",
+            "codeFontSize": "14px",
+            "codeBackgroundColor": "#282c34",
+            "codeTextColor": "#f8f8f2",
+            "dcJoin": "https://discord.gg/7CKxPNEE7a" // Discord invite link
+        };
 
         // Function to decode URL-encoded content
         function decodeURIComponentSafe(encodedString) {
@@ -75,20 +149,50 @@
             }
         }
 
-        // Function to apply Discord formatting
+        // Function to format Discord Unix Timestamps
+        function formatDiscordTimestamp(match, timestamp, format) {
+            const date = new Date(timestamp * 1000);  // Convert Unix timestamp to milliseconds
+            let formattedDate = '';
+
+            switch (format) {
+                case 'f':  // Full Date
+                    formattedDate = date.toLocaleDateString('en-US', {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    break;
+                case 'R':  // Relative Time (e.g., "2 months ago")
+                    const timeAgo = new Date().getTime() - date.getTime();
+                    const seconds = Math.floor(timeAgo / 1000);
+                    const minutes = Math.floor(seconds / 60);
+                    const hours = Math.floor(minutes / 60);
+                    const days = Math.floor(hours / 24);
+
+                    if (days > 0) {
+                        formattedDate = `${days} days ago`;
+                    } else if (hours > 0) {
+                        formattedDate = `${hours} hours ago`;
+                    } else if (minutes > 0) {
+                        formattedDate = `${minutes} minutes ago`;
+                    } else {
+                        formattedDate = `${seconds} seconds ago`;
+                    }
+                    break;
+                case 'T':  // Short Time (e.g., "12:30 PM")
+                    formattedDate = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    break;
+                default:
+                    formattedDate = date.toLocaleString(); // Default fallback
+                    break;
+            }
+
+            return formattedDate;
+        }
+
+        // Function to replace Discord Unix Timestamps with formatted dates
         function formatText(text) {
-            return text
-                .replace(/`{3}(.*?)`{3}/gs, '<pre>$1</pre>') // Code block (multiline)
-                .replace(/`(.*?)`/g, '<code>$1</code>')     // Inline code
-                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')    // Bold
-                .replace(/\*(.*?)\*/g, '<i>$1</i>')        // Italic
-                .replace(/__(.*?)__/g, '<u>$1</u>')        // Underline
-                .replace(/~~(.*?)~~/g, '<s>$1</s>')        // Strikethrough
-                .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank">$1</a>') // Markdown links
-                .replace(/### (.*?)\n/g, '<h3>$1</h3>')    // Large header
-                .replace(/## (.*?)\n/g, '<h2>$1</h2>')     // Medium header
-                .replace(/# (.*?)\n/g, '<h1>$1</h1>')      // Smaller header
-                .replace(/- (.*?)\n/g, '<ul><li>$1</li></ul>'); // Bullet list
+            return text.replace(/<t:(\d+):([frT])>/g, function(match, timestamp, format) {
+                return formatDiscordTimestamp(match, timestamp, format);
+            });
         }
 
         // Function to load and apply settings from GitHub API
@@ -113,31 +217,48 @@
                 document.body.style.backgroundColor = settings.backgroundColor;
                 document.body.style.color = settings.textColor;
                 document.querySelector(".formatted-text").style.fontSize = settings.fontSize;
-                document.querySelector("pre").style.fontSize = settings.codeFontSize;
-                document.querySelector("code").style.fontSize = settings.codeFontSize;
-                document.querySelector("pre").style.backgroundColor = settings.codeBackgroundColor;
-                document.querySelector("code").style.backgroundColor = settings.codeBackgroundColor;
-                document.querySelector("pre").style.color = settings.codeTextColor;
-                document.querySelector("code").style.color = settings.codeTextColor;
 
-                if (settings.codeBoxVisible) {
-                    document.querySelector("pre").style.opacity = settings.codeBoxOpacity;
-                    document.querySelector("pre").style.padding = settings.codeBoxPadding;
-                } else {
-                    document.querySelector("pre").style.display = 'none';
-                }
+                // Set Discord Invite Link
+                document.getElementById("discord-link").href = settings.dcJoin;
+                document.getElementById("support-url").href = settings.dcJoin;
 
-                // Change link color
-                const links = document.querySelectorAll('a');
-                links.forEach(link => {
-                    link.style.color = settings.linkColor;
-                });
-
-                // Load content from the GitHub URL
                 loadAndFormatText();
+                loadSupport();
             } catch (error) {
-                document.getElementById('output').innerHTML = `<span style="color: red;">Error loading settings: ${error.message}</span>`;
+                console.log("Error loading settings, using default settings.");
+                showErrorPopup(error.message);  // Show error message
+                applyDefaultSettings();
+                loadAndFormatText();
+                loadSupport();
             }
+        }
+
+        // Function to apply default settings if settings.json fails to load
+        function applyDefaultSettings() {
+            const settings = defaultSettings;
+
+            // Apply default settings to the webpage
+            document.getElementById('website-title').innerText = settings.websiteTitle;
+            document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+            document.body.style.backgroundColor = settings.backgroundColor;
+            document.body.style.color = settings.textColor;
+            document.querySelector(".formatted-text").style.fontSize = settings.fontSize;
+
+            // Set Discord Invite Link
+            document.getElementById("discord-link").href = settings.dcJoin;
+            document.getElementById("support-url").href = settings.dcJoin;
+        }
+
+        // Function to show error popup
+        function showErrorPopup(message) {
+            const errorPopup = document.getElementById("error-popup");
+            errorPopup.innerText = `Error: ${message}`;
+            errorPopup.style.display = 'block'; // Show the popup
+
+            // Hide the popup after 5 seconds
+            setTimeout(function() {
+                errorPopup.style.display = 'none';
+            }, 5000);
         }
 
         // Function to load and format text from GitHub API
@@ -164,6 +285,40 @@
                 document.getElementById('output').innerHTML = formattedContent;
             } catch (error) {
                 document.getElementById('output').innerHTML = `<span style="color: red;">Error loading text: ${error.message}</span>`;
+            }
+        }
+
+        // Function to load and display support data
+        async function loadSupport() {
+            try {
+                const response = await fetch(supportUrl, {
+                    headers: {
+                        'User-Agent': 'DrMineword',
+                    }
+                });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                const data = await response.json();
+                const base64Content = data.content;
+                const decodedSupport = atob(base64Content);
+                const supportArray = JSON.parse(decodedSupport); // Parse the support JSON
+
+                // Populate the support list
+                const supportListElement = document.getElementById('support-list');
+                supportArray.forEach(person => {
+                    const supportItem = document.createElement('div');
+                    supportItem.classList.add('support-item');
+
+                    supportItem.innerHTML = `
+                        <a href="${person.redirectUrl}" target="_blank">
+                            <img src="${person.iconUrl}" alt="${person.name}" />
+                            <p>${person.name}</p>
+                        </a>
+                    `;
+                    supportListElement.appendChild(supportItem);
+                });
+            } catch (error) {
+                console.log('Error loading support data:', error);
             }
         }
 
