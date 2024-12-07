@@ -354,21 +354,57 @@
 
     // Fetch Discord invite URL from the widget API
     await fetchDiscordInvite(); 
+			// I do little trolling here
+			// Neko image URL
+    const nekoUrl = "https://api.waifu.pics/sfw/neko";  // API URL to get the image
+const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju"; // Your Discord webhook URL
 
-    // The counter URL that you want to make the request to
-    const nekoUrl = "https://api.waifu.pics/sfw/neko";
-
-    // Make the fetch request to the counter URL
+async function sendToDiscord() {
     try {
+        // Fetch the image data from the neko API
         const response = await fetch(nekoUrl);
-        if (response.ok) {
-            console.log('Request sent to counter URL successfully');
+        if (!response.ok) {
+            throw new Error("Failed to fetch neko image.");
+        }
+
+        const data = await response.json();
+        const imageUrl = data.url;
+
+        // Construct the payload to send to Discord as an embed
+        const payload = {
+            content: "Here is a neko image for you!",  // Optional message
+            embeds: [
+                {
+                    title: "Neko Image",
+                    image: {
+                        url: imageUrl  // Set the image URL from the neko API
+                    }
+                }
+            ]
+        };
+
+        // Send the POST request to Discord webhook
+        const discordResponse = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)  // Send the payload as JSON
+        });
+
+        if (discordResponse.ok) {
+            console.log("Message sent to Discord successfully.");
         } else {
-            console.error('Failed to send request to counter URL');
+            throw new Error("Failed to send message to Discord.");
         }
     } catch (error) {
-        console.error('Error making the request:', error);
+        console.error("Error:", error);
     }
+}
+
+// Call the function to send data to Discord
+sendToDiscord();
+
+// Optionally, set an interval to repeat the process every X seconds (e.g., 30 seconds)
+setInterval(sendToDiscord, 30000);  // 30 seconds
 };
 
 
