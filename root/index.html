@@ -26,26 +26,37 @@
             fetch(url)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        // Log detailed information if the fetch failed
+                        throw new Error(`HTTP error! Status: ${response.status}, Status Text: ${response.statusText}`);
                     }
                     return response.text();
                 })
                 .then(base64Data => {
-                    // Decode the base64 content
-                    const decodedHTML = atob(base64Data);
-                    // Replace the content inside the div
-                    document.getElementById('content').innerHTML = decodedHTML;
-                    // Update the title dynamically if the decoded content contains a title tag
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = decodedHTML;
-                    const titleElement = tempDiv.querySelector('title');
-                    if (titleElement) {
-                        document.getElementById('website-title').innerText = titleElement.innerText;
+                    try {
+                        // Decode the base64 content
+                        const decodedHTML = atob(base64Data);
+                        // Replace the content inside the div
+                        document.getElementById('content').innerHTML = decodedHTML;
+                        // Update the title dynamically if the decoded content contains a title tag
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = decodedHTML;
+                        const titleElement = tempDiv.querySelector('title');
+                        if (titleElement) {
+                            document.getElementById('website-title').innerText = titleElement.innerText;
+                        }
+                    } catch (decodeError) {
+                        // Handle errors during decoding
+                        console.error("Error decoding base64 content:", decodeError.message);
+                        document.getElementById('content').innerText = "Failed to decode the content.";
                     }
                 })
                 .catch(error => {
-                    console.error("Error loading content:", error);
-                    document.getElementById('content').innerText = "Failed to load content.";
+                    // Handle fetch errors
+                    console.error("Error fetching the content:", error.message);
+                    document.getElementById('content').innerHTML = `
+                        <p>Failed to load content.</p>
+                        <p><strong>Error Details:</strong> ${error.message}</p>
+                    `;
                 });
         }
 
