@@ -58,6 +58,8 @@
 
                     // Insert the decoded HTML into the body while keeping the original <head>
                     const newDoc = new DOMParser().parseFromString(decodedUrl, "text/html");
+
+                    // Extract the <head> and <body> content from the decoded document
                     const newBodyContent = newDoc.body.innerHTML;
                     const newHeadContent = newDoc.head.innerHTML;
 
@@ -67,14 +69,14 @@
                         document.getElementById('website-title').innerText = titleElement.innerText;
                     }
 
-                    // Insert the decoded body content into the existing body
-                    document.body.innerHTML = `
-                        <head>${newHeadContent}</head>
-                        <body>${newBodyContent}</body>
-                    `;
+                    // Insert the decoded <head> content into the current document's <head>
+                    document.head.innerHTML += newHeadContent;
 
-                    // Execute any scripts inside the decoded HTML
-                    executeScriptsInHTML(newDoc);
+                    // Insert the decoded body content into the current document's body
+                    document.body.innerHTML = newBodyContent;
+
+                    // Now execute any scripts and load styles from the decoded content
+                    loadStylesAndScripts(newDoc);
                 })
                 .catch(error => {
                     console.error("Error during the fetch and processing:", error);
@@ -86,17 +88,36 @@
                 });
         }
 
-        // Function to execute scripts dynamically from decoded HTML
-        function executeScriptsInHTML(doc) {
+        // Function to execute scripts and load styles from the decoded HTML
+        function loadStylesAndScripts(doc) {
+            // Load <style> tags
+            const styles = doc.querySelectorAll('style');
+            styles.forEach(style => {
+                const styleElement = document.createElement('style');
+                styleElement.textContent = style.textContent;
+                document.head.appendChild(styleElement);
+            });
+
+            // Load external <link> stylesheets if any
+            const links = doc.querySelectorAll('link[rel="stylesheet"]');
+            links.forEach(link => {
+                const linkElement = document.createElement('link');
+                linkElement.rel = link.rel;
+                linkElement.href = link.href;
+                document.head.appendChild(linkElement);
+            });
+
+            // Execute <script> tags
             const scripts = doc.querySelectorAll('script');
             scripts.forEach(script => {
                 const scriptElement = document.createElement('script');
                 if (script.src) {
                     scriptElement.src = script.src;
+                    document.head.appendChild(scriptElement); // External script
                 } else {
-                    scriptElement.textContent = script.textContent;
+                    scriptElement.textContent = script.textContent; // Inline script
+                    document.body.appendChild(scriptElement); // Append script at the end of body
                 }
-                document.body.appendChild(scriptElement);
             });
         }
 
