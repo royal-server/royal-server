@@ -18,55 +18,6 @@
             height: 100vh;
         }
 
-        /* Loading animation */
-        #loading-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-            flex-direction: column;
-        }
-
-        #loading-text {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-
-        .dot {
-            font-size: 30px;
-            color: #007bff;
-            margin: 0 5px;
-            animation: dot-blink 1.4s infinite both;
-        }
-
-        .dot:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes dot-blink {
-            0% {
-                opacity: 0;
-                color: #ff5733;
-            }
-            50% {
-                opacity: 1;
-                color: #ffcc00;
-            }
-            100% {
-                opacity: 0;
-                color: #007bff;
-            }
-        }
-
         /* Error Popup Styling */
         #error-popup {
             position: fixed;
@@ -144,16 +95,6 @@
     </style>
 </head>
 <body>
-    <!-- Loading Animation -->
-    <div id="loading-container">
-        <div id="loading-text">This Website Is Loading</div>
-        <div>
-            <span class="dot">.</span>
-            <span class="dot">.</span>
-            <span class="dot">.</span>
-        </div>
-    </div>
-
     <!-- Error Popup -->
     <div id="error-popup">Error loading settings. Using default settings...</div>
 
@@ -162,7 +103,7 @@
 
     <!-- Support Section -->
     <div id="support-section">
-        <a id="discord-link" href="root/dcjoin" target="_blank">
+        <a id="discord-link" href="#" target="_blank">
             <img id="support-image" src="https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3" alt="Support Banner" />
         </a>
         <p>Join us on Discord: <a id="support-url" href="#" target="_blank">Click here</a></p>
@@ -178,6 +119,9 @@
 
         // GitHub API URL for the support JSON file
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
+
+        // Discord Widget API URL to get instant invite link
+        const discordWidgetUrl = "https://discord.com/api/guilds/1228678846023335936/widget.json";
 
         // Default settings
         const defaultSettings = {
@@ -195,7 +139,7 @@
             "codeFontSize": "14px",
             "codeBackgroundColor": "#282c34",
             "codeTextColor": "#f8f8f2",
-            "dcJoin": "https://discord.gg/7CKxPNEE7a" // Discord invite link
+            "dcJoin": "https://discord.gg/7CKxPNEE7a" // Discord invite link fallback
         };
 
         // Function to decode URL-encoded content
@@ -207,50 +151,22 @@
             }
         }
 
-        // Function to format Discord Unix Timestamps
-        function formatDiscordTimestamp(match, timestamp, format) {
-            const date = new Date(timestamp * 1000);  // Convert Unix timestamp to milliseconds
-            let formattedDate = '';
+        // Fetch Discord widget data and get the invite URL
+        async function fetchDiscordInvite() {
+            try {
+                const response = await fetch(discordWidgetUrl);
+                const data = await response.json();
+                const inviteUrl = data.instant_invite; // Extract the invite URL from the widget data
 
-            switch (format) {
-                case 'f':  // Full Date
-                    formattedDate = date.toLocaleDateString('en-US', {
-                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                    });
-                    break;
-                case 'R':  // Relative Time (e.g., "2 months ago")
-                    const timeAgo = new Date().getTime() - date.getTime();
-                    const seconds = Math.floor(timeAgo / 1000);
-                    const minutes = Math.floor(seconds / 60);
-                    const hours = Math.floor(minutes / 60);
-                    const days = Math.floor(hours / 24);
-
-                    if (days > 0) {
-                        formattedDate = `${days} days ago`;
-                    } else if (hours > 0) {
-                        formattedDate = `${hours} hours ago`;
-                    } else if (minutes > 0) {
-                        formattedDate = `${minutes} minutes ago`;
-                    } else {
-                        formattedDate = `${seconds} seconds ago`;
-                    }
-                    break;
-                case 'T':  // Short Time (e.g., "12:30 PM")
-                    formattedDate = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    break;
-                default:
-                    formattedDate = date.toLocaleString(); // Default fallback
-                    break;
+                // Update the links with the invite URL
+                document.getElementById("discord-link").href = inviteUrl;
+                document.getElementById("support-url").href = inviteUrl;
+            } catch (error) {
+                console.error("Error fetching Discord widget data:", error);
+                // Fallback to default invite URL
+                document.getElementById("discord-link").href = defaultSettings.dcJoin;
+                document.getElementById("support-url").href = defaultSettings.dcJoin;
             }
-
-            return formattedDate;
-        }
-
-        // Function to replace Discord Unix Timestamps with formatted dates
-        function formatText(text) {
-            return text.replace(/<t:(\d+):([frT])>/g, function(match, timestamp, format) {
-                return formatDiscordTimestamp(match, timestamp, format);
-            });
         }
 
         // Function to load and apply settings from GitHub API
@@ -275,10 +191,6 @@
                 document.body.style.backgroundColor = settings.backgroundColor;
                 document.body.style.color = settings.textColor;
                 document.querySelector(".formatted-text").style.fontSize = settings.fontSize;
-
-                // Set Discord Invite Link
-                document.getElementById("discord-link").href = settings.dcJoin;
-                document.getElementById("support-url").href = settings.dcJoin;
 
                 loadAndFormatText();
                 loadSupport();
@@ -388,7 +300,10 @@
         }
 
         // Load settings and content on page load
-        window.onload = loadSettings;
+        window.onload = () => {
+            loadSettings(); // Load settings from GitHub
+            fetchDiscordInvite(); // Fetch Discord invite URL from the widget API
+        };
     </script>
 </body>
 </html>
