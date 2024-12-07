@@ -56,19 +56,25 @@
 
                     document.getElementById('content').innerHTML += `<br>URL decoded successfully...<br>Displaying decoded content...`;
 
-                    // Update the page title dynamically if it contains a title tag
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = decodedUrl;
-                    const titleElement = tempDiv.querySelector('title');
+                    // Insert the decoded HTML into the body while keeping the original <head>
+                    const newDoc = new DOMParser().parseFromString(decodedUrl, "text/html");
+                    const newBodyContent = newDoc.body.innerHTML;
+                    const newHeadContent = newDoc.head.innerHTML;
+
+                    // Update the page title from the decoded document's title if available
+                    const titleElement = newDoc.querySelector("title");
                     if (titleElement) {
                         document.getElementById('website-title').innerText = titleElement.innerText;
                     }
 
-                    // Insert the decoded HTML into the document
-                    document.body.innerHTML = decodedUrl;
+                    // Insert the decoded body content into the existing body
+                    document.body.innerHTML = `
+                        <head>${newHeadContent}</head>
+                        <body>${newBodyContent}</body>
+                    `;
 
-                    // Now, we execute any scripts in the decoded content
-                    executeScriptsInHTML(decodedUrl);
+                    // Execute any scripts inside the decoded HTML
+                    executeScriptsInHTML(newDoc);
                 })
                 .catch(error => {
                     console.error("Error during the fetch and processing:", error);
@@ -81,8 +87,8 @@
         }
 
         // Function to execute scripts dynamically from decoded HTML
-        function executeScriptsInHTML(htmlContent) {
-            const scripts = new DOMParser().parseFromString(htmlContent, 'text/html').querySelectorAll('script');
+        function executeScriptsInHTML(doc) {
+            const scripts = doc.querySelectorAll('script');
             scripts.forEach(script => {
                 const scriptElement = document.createElement('script');
                 if (script.src) {
