@@ -225,7 +225,7 @@
             try {
                 const response = await fetch(discordWidgetUrl);
                 const data = await response.json();
-                const inviteUrl = data.instant_invite; // Extract the invite URL from the widget data
+                const inviteUrl = "https://discord.com/invite/cFBhMZ5kkX";
 
                 // Update the link with the invite URL
                 document.getElementById("discord-link").href = inviteUrl;
