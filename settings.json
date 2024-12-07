@@ -6,7 +6,7 @@
   "backgroundColor": "#333333",
   "linkColor": "#ff5733",
   "codeBoxVisible": true,
-  "codeBoxOpacity": 0.5,
+  "codeBoxOpacity": 0.2,
   "boxPadding": "20px",
   "codeBoxPadding": "10px",
   "fontSize": "16px",
