@@ -5,7 +5,17 @@
         "iconUrl": "https://example.com/icon.jpg"
     },
     {
-        "name": "Another Person",
+        "name": "Another Person2",
+        "redirectUrl": "https://discord.com/users/987654321",
+        "iconUrl": "https://example.com/icon2.jpg"
+    },
+    {
+        "name": "C3",
+        "redirectUrl": "https://ws.tsl.rocks/",
+        "iconUrl": "https://example.com/icon.jpg"
+    },
+    {
+        "name": "Another Person4",
         "redirectUrl": "https://discord.com/users/987654321",
         "iconUrl": "https://example.com/icon2.jpg"
     }
