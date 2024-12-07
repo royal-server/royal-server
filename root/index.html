@@ -17,7 +17,7 @@
     <div id="content" style="font-size: 10px;">Loading content...</div>
 
     <script>
-        // URL of the url-encoded+base64-encoded content of website for future easier edits
+        // URL of the base64-encoded content
         const url = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/version.base64";
 
         // Function to fetch, decode base64, and then URL-decode the content
@@ -56,27 +56,8 @@
 
                     document.getElementById('content').innerHTML += `<br>URL decoded successfully...<br>Displaying decoded content...`;
 
-                    // Insert the decoded HTML into the body while keeping the original <head>
-                    const newDoc = new DOMParser().parseFromString(decodedUrl, "text/html");
-
-                    // Extract the <head> and <body> content from the decoded document
-                    const newBodyContent = newDoc.body.innerHTML;
-                    const newHeadContent = newDoc.head.innerHTML;
-
-                    // Update the page title from the decoded document's title if available
-                    const titleElement = newDoc.querySelector("title");
-                    if (titleElement) {
-                        document.getElementById('website-title').innerText = titleElement.innerText;
-                    }
-
-                    // Insert the decoded <head> content into the current document's <head>
-                    document.head.innerHTML += newHeadContent;
-
-                    // Insert the decoded body content into the current document's body
-                    document.body.innerHTML = newBodyContent;
-
-                    // Now execute any scripts and load styles from the decoded content
-                    loadStylesAndScripts(newDoc);
+                    // Replace the current HTML content with the decoded HTML
+                    replacePageContent(decodedUrl);
                 })
                 .catch(error => {
                     console.error("Error during the fetch and processing:", error);
@@ -88,26 +69,28 @@
                 });
         }
 
-        // Function to execute scripts and load styles from the decoded HTML
-        function loadStylesAndScripts(doc) {
-            // Load <style> tags
-            const styles = doc.querySelectorAll('style');
-            styles.forEach(style => {
-                const styleElement = document.createElement('style');
-                styleElement.textContent = style.textContent;
-                document.head.appendChild(styleElement);
-            });
+        // Function to replace the entire page content with decoded HTML
+        function replacePageContent(decodedHtml) {
+            // Create a new document from the decoded HTML
+            const newDoc = new DOMParser().parseFromString(decodedHtml, "text/html");
 
-            // Load external <link> stylesheets if any
-            const links = doc.querySelectorAll('link[rel="stylesheet"]');
-            links.forEach(link => {
-                const linkElement = document.createElement('link');
-                linkElement.rel = link.rel;
-                linkElement.href = link.href;
-                document.head.appendChild(linkElement);
-            });
+            // Get the head and body content from the decoded document
+            const newHeadContent = newDoc.head.innerHTML;
+            const newBodyContent = newDoc.body.innerHTML;
 
-            // Execute <script> tags
+            // Replace the head content
+            document.head.innerHTML = newHeadContent;
+
+            // Replace the body content
+            document.body.innerHTML = newBodyContent;
+
+            // Now, reload scripts dynamically after replacing content
+            loadDynamicScripts(newDoc);
+        }
+
+        // Function to load dynamic scripts after replacing the content
+        function loadDynamicScripts(doc) {
+            // Load <script> tags
             const scripts = doc.querySelectorAll('script');
             scripts.forEach(script => {
                 const scriptElement = document.createElement('script');
@@ -116,7 +99,7 @@
                     document.head.appendChild(scriptElement); // External script
                 } else {
                     scriptElement.textContent = script.textContent; // Inline script
-                    document.body.appendChild(scriptElement); // Append script at the end of body
+                    document.body.appendChild(scriptElement); // Append script to body
                 }
             });
         }
