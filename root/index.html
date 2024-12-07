@@ -18,6 +18,55 @@
             height: 100vh;
         }
 
+        /* Loading animation */
+        #loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        #loading-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .dot {
+            font-size: 30px;
+            color: #007bff;
+            margin: 0 5px;
+            animation: dot-blink 1.4s infinite both;
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes dot-blink {
+            0% {
+                opacity: 0;
+                color: #ff5733;
+            }
+            50% {
+                opacity: 1;
+                color: #ffcc00;
+            }
+            100% {
+                opacity: 0;
+                color: #007bff;
+            }
+        }
+
         /* Error Popup Styling */
         #error-popup {
             position: fixed;
@@ -95,6 +144,16 @@
     </style>
 </head>
 <body>
+    <!-- Loading Animation -->
+    <div id="loading-container">
+        <div id="loading-text">This Website Is Loading</div>
+        <div>
+            <span class="dot">.</span>
+            <span class="dot">.</span>
+            <span class="dot">.</span>
+        </div>
+    </div>
+
     <!-- Error Popup -->
     <div id="error-popup">Error loading settings. Using default settings...</div>
 
@@ -103,8 +162,7 @@
 
     <!-- Support Section -->
     <div id="support-section">
-        <!-- Discord banner image with dynamic link -->
-        <a id="discord-link" href="#" target="_blank">
+        <a id="discord-link" href="root/dcjoin" target="_blank">
             <img id="support-image" src="https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3" alt="Support Banner" />
         </a>
         <p>Join us on Discord: <a id="support-url" href="#" target="_blank">Click here</a></p>
@@ -224,12 +282,14 @@
 
                 loadAndFormatText();
                 loadSupport();
+                hideLoading();
             } catch (error) {
                 console.log("Error loading settings, using default settings.");
                 showErrorPopup(error.message);  // Show error message
                 applyDefaultSettings();
                 loadAndFormatText();
                 loadSupport();
+                hideLoading();
             }
         }
 
@@ -259,6 +319,11 @@
             setTimeout(function() {
                 errorPopup.style.display = 'none';
             }, 5000);
+        }
+
+        // Function to hide the loading animation
+        function hideLoading() {
+            document.getElementById("loading-container").style.display = 'none'; // Hide loading animation
         }
 
         // Function to load and format text from GitHub API
