@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Counter URL</title>
+</head>
+<body>
+    <script>
+        // Function to get the value of a URL parameter by its name
+        function getURLParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.has(name) ? urlParams.get(name) : null;
+        }
+
+        // Extract parameters from the URL, applying defaults if not present
+        const name = getURLParameter('name') || 'defaultName';  // Default to 'defaultName' if not provided
+        const theme = getURLParameter('theme') || 'gelbooru';    // Default to 'gelbooru' if not provided
+        const padding = getURLParameter('padding') || '7';        // Default to '7' if not provided
+        const offset = getURLParameter('offset') || '0';          // Default to '0' if not provided
+        const align = getURLParameter('align') || 'top';          // Default to 'top' if not provided
+        const scale = getURLParameter('scale') || '1';            // Default to '1' if not provided
+        const pixelated = getURLParameter('pixelated') || '1';    // Default to '1' if not provided
+        const darkmode = getURLParameter('darkmode') || 'auto';   // Default to 'auto' if not provided
+        const num = getURLParameter('num');  // 'num' is optional, no default
+
+        // Construct the counter URL
+        let counterUrl = `https://count.getloli.com/@${name}?name=@${name}&theme=${theme}&padding=${padding}&offset=${offset}&align=${align}&scale=${scale}&pixelated=${pixelated}&darkmode=${darkmode}`;
+
+        // Add 'num' parameter if it exists
+        if (num) {
+            counterUrl += `&num=${num}`;
+        }
+
+        // Redirect to the generated counter URL
+        window.location.href = counterUrl;
+    </script>
+</body>
+</html>
