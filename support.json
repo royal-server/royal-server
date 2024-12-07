@@ -10,13 +10,8 @@
         "iconUrl": "https://cdn.discordapp.com/icons/800598168906760202/bf522862eab686114b70b618561b50e1.webp?size=640"
     },
     {
-        "name": "C3",
-        "redirectUrl": "https://ws.tsl.rocks/",
-        "iconUrl": "https://example.com/icon.jpg"
-    },
-    {
-        "name": "Another Person4",
-        "redirectUrl": "https://discord.com/users/987654321",
-        "iconUrl": "https://example.com/icon2.jpg"
+        "name": "mentalisit api",
+        "redirectUrl": "https://ws.mentalisit.myds.me/",
+        "iconUrl": "https://cdn.discordapp.com/avatars/582882137842122773/c41d183fba78b9f49bb590a1fc8e33a9.png?size=4096"
     }
 ]
