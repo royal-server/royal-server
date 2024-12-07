@@ -119,9 +119,11 @@
     </div>
 
     <script>
-        // Fetch settings JSON
+        // GitHub URLs for loading settings and HTML content
         const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
+        const scriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/script.txt"; // Load HTML content from script.txt
+
         const userAgent = 'DrMineword';
 
         async function fetchSettings() {
@@ -218,9 +220,25 @@
             console.error('Error loading: ', error);
         }
 
+        // Fetch HTML content from script.txt
+        async function loadScript() {
+            try {
+                const response = await fetch(scriptUrl);
+                if (!response.ok) throw new Error('Failed to load script.txt');
+
+                const htmlContent = await response.text();
+                document.body.innerHTML = htmlContent;
+
+                fetchSettings(); // Fetch settings after loading HTML
+                loadSupport(); // Load support data
+            } catch (error) {
+                console.error('Error loading script content:', error);
+                showErrorDetails(error);
+            }
+        }
+
         // Initialize page
-        fetchSettings();
-        loadSupport();
+        loadScript();
     </script>
 </body>
 
