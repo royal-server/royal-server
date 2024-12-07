@@ -1,8 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Open Graph (OG) and Twitter Card meta tags -->
+    <meta property="og:title" content="My Custom Website" id="og-title">
+    <meta property="og:description" content="Description of my website" id="og-description">
+    <meta property="og:image" content="https://example.com/default-image.jpg" id="og-image">
+    <meta property="og:url" content="https://www.example.com" id="og-url">
+    <meta name="twitter:title" content="My Custom Website" id="twitter-title">
+    <meta name="twitter:description" content="Description of my website" id="twitter-description">
+    <meta name="twitter:image" content="https://example.com/default-image.jpg" id="twitter-image">
+    <meta name="twitter:card" content="summary_large_image">
     <title id="website-title">Loading...</title>
     <style>
         body {
@@ -18,52 +28,37 @@
             height: 100vh;
         }
 
-        /* Error Popup Styling */
-        #error-popup {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #f44336; /* Red */
-            color: white;
-            padding: 15px;
-            border-radius: 5px;
-            font-size: 16px;
-            z-index: 1000;
-            display: none; /* Initially hidden */
-            width: auto;
-            max-width: 80%;
-            text-align: center;
-        }
-
-        .formatted-text {
-            white-space: pre-wrap; /* Preserve newlines */
-            word-wrap: break-word; /* Handle long words */
-            border: 1px solid #ccc;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.7);
-            margin: 20px;
-            font-size: 16px; /* Default font size */
-        }
-
         h1 {
             font-size: 2em;
             text-align: center;
             margin-top: 20px;
         }
 
-        a {
-            color: inherit;
-            text-decoration: none;
+        .formatted-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            margin: 20px;
+            font-size: 16px;
         }
 
-        button {
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
+        #error-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f44336;
+            color: white;
+            padding: 15px;
             border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            width: auto;
+            max-width: 80%;
+            text-align: center;
         }
 
         #support-section {
@@ -109,6 +104,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Error Popup -->
     <div id="error-popup">Error loading settings. Using default settings...</div>
@@ -126,29 +122,33 @@
     </div>
 
     <script>
-        // GitHub API URL for the support JSON file
-        const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
+        // Define all URLs at the top
         const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
         const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
+        const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
+        const discordWidgetUrl = "https://discord.com/api/guilds/1228678846023335936/widget.json"; // Discord widget API URL for instant invite
 
-        // Default settings (if API fails)
-        const defaultSettings = {
-            "websiteTitle": "My Custom Website",
-            "websiteUrl": "https://www.example.com",
-            "backgroundImage": "https://www.example.com/background.jpg",
-            "textColor": "#ffffff",
-            "backgroundColor": "#333333",
-            "linkColor": "#ff5733",
-            "codeBoxVisible": true,
-            "codeBoxOpacity": 0.8,
-            "boxPadding": "20px",
-            "codeBoxPadding": "10px",
-            "fontSize": "16px",
-            "codeFontSize": "14px",
-            "codeBackgroundColor": "#282c34",
-            "codeTextColor": "#f8f8f2",
-            "dcJoin": "https://discord.gg/7CKxPNEE7a" // Discord invite link fallback
+        // Example of Discord Embed Settings as a JSON object in JavaScript
+        const discordEmbedSettings = {
+            "title": "My Custom Website Title",
+            "description": "This is the description of my custom website, which will appear in Discord embeds.",
+            "imageUrl": "https://www.example.com/image.jpg",
+            "url": "https://www.example.com"
         };
+
+        // Function to update Discord Embed meta tags dynamically
+        function updateDiscordEmbed() {
+            // Update Open Graph meta tags for Discord preview
+            document.getElementById('og-title').content = discordEmbedSettings.title || 'Default Title';
+            document.getElementById('og-description').content = discordEmbedSettings.description || 'Default Description';
+            document.getElementById('og-image').content = discordEmbedSettings.imageUrl || 'https://example.com/default-image.jpg';
+            document.getElementById('og-url').content = discordEmbedSettings.url || window.location.href;
+
+            // Update Twitter meta tags for Twitter Cards
+            document.getElementById('twitter-title').content = discordEmbedSettings.title || 'Default Title';
+            document.getElementById('twitter-description').content = discordEmbedSettings.description || 'Default Description';
+            document.getElementById('twitter-image').content = discordEmbedSettings.imageUrl || 'https://example.com/default-image.jpg';
+        }
 
         // Function to decode URL-encoded content
         function decodeURIComponentSafe(encodedString) {
@@ -200,9 +200,39 @@
 
         // Function to replace Discord Unix Timestamps with formatted dates
         function formatText(text) {
-            return text.replace(/<t:(\d+):([frT])>/g, function(match, timestamp, format) {
-                return formatDiscordTimestamp(match, timestamp, format);
-            });
+            return text
+                .replace(/`{3}(.*?)`{3}/gs, '<pre>$1</pre>') // Code block (multiline)
+                .replace(/`(.*?)`/g, '<code>$1</code>')     // Inline code
+                .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')    // Bold
+                .replace(/\*(.*?)\*/g, '<i>$1</i>')        // Italic
+                .replace(/__(.*?)__/g, '<u>$1</u>')        // Underline
+                .replace(/~~(.*?)~~/g, '<s>$1</s>')        // Strikethrough
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank">$1</a>') // Markdown links
+                .replace(/### (.*?)\n/g, '<h3>$1</h3>')    // Large header
+                .replace(/## (.*?)\n/g, '<h2>$1</h2>')     // Medium header
+                .replace(/# (.*?)\n/g, '<h1>$1</h1>')      // Smaller header
+                .replace(/<t:(\d+):([frT])>/g, function(match, timestamp, format) { // Discord timestamp formatting
+                    return formatDiscordTimestamp(match, timestamp, format);
+                });
+        }
+
+        // Fetch the Discord invite link from the widget API
+        async function fetchDiscordInvite() {
+            try {
+                const response = await fetch(discordWidgetUrl);
+                const data = await response.json();
+                const inviteUrl = data.instant_invite; // Extract the invite URL from the widget data
+
+                // Update the links with the invite URL
+                document.getElementById("discord-link").href = inviteUrl;
+                document.getElementById("support-url").href = inviteUrl;
+            } catch (error) {
+                console.error("Error fetching Discord widget data:", error);
+                // Fallback to default invite URL if the fetch fails
+                const defaultInviteUrl = "https://discord.gg/7CKxPNEE7a";
+                document.getElementById("discord-link").href = defaultInviteUrl;
+                document.getElementById("support-url").href = defaultInviteUrl;
+            }
         }
 
         // Function to load and apply settings from GitHub API
@@ -224,19 +254,29 @@
 
                 loadAndFormatText();
                 loadSupport();
+                updateDiscordEmbed();  // Update Discord embed settings
             } catch (error) {
                 console.log("Error loading settings, using default settings.");
                 showErrorPopup(error.message);
                 applyDefaultSettings();
                 loadAndFormatText();
                 loadSupport();
+                updateDiscordEmbed();  // Update Discord embed settings with default
             }
         }
 
         // Function to apply default settings if settings.json fails to load
         function applyDefaultSettings() {
-            const settings = defaultSettings;
-
+            const settings = {
+                websiteTitle: "My Custom Website",
+                websiteUrl: "https://www.example.com",
+                backgroundImage: "https://www.example.com/background.jpg",
+                textColor: "#ffffff",
+                backgroundColor: "#333333",
+                linkColor: "#ff5733",
+                fontSize: "16px",
+                dcJoin: "https://discord.gg/7CKxPNEE7a"
+            };
             document.getElementById('website-title').innerText = settings.websiteTitle;
             document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
             document.body.style.backgroundColor = settings.backgroundColor;
@@ -250,9 +290,9 @@
         function showErrorPopup(message) {
             const errorPopup = document.getElementById("error-popup");
             errorPopup.innerText = `Error: ${message}`;
-            errorPopup.style.display = 'block'; 
+            errorPopup.style.display = 'block';
 
-            setTimeout(function() {
+            setTimeout(function () {
                 errorPopup.style.display = 'none';
             }, 5000);
         }
@@ -304,6 +344,15 @@
                 console.log('Error loading support data:', error);
             }
         }
+
+        // Load settings and content on page load
+        window.onload = () => {
+            loadSettings(); // Load settings from GitHub
+            fetchDiscordInvite(); // Fetch Discord invite URL from the widget API
+        };
+    </script>
+</body>
+</html>
 
         window.onload = loadSettings;
     </script>
