@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Custom Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-image: url('https://www.example.com/background.jpg');
+            background-size: cover;
+        }
+
+        #loading {
+            font-size: 24px;
+            color: #fff;
+            padding: 50px;
+            display: none;
+        }
+
+        #error {
+            color: red;
+            display: none;
+        }
+
+        #content {
+            margin-top: 50px;
+            padding: 20px;
+            background-color: rgba(40, 44, 52, 0.8);
+            border-radius: 10px;
+            display: inline-block;
+            text-align: left;
+        }
+
+        .support-item {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 5px;
+        }
+
+        .support-item img {
+            width: 30px;
+            height: 30px;
+            vertical-align: middle;
+        }
+
+        .support-item p {
+            display: inline;
+            margin-left: 10px;
+        }
+
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #ff5733;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #e04f2f;
+        }
+
+        /* Loading animation */
+        .dots {
+            display: inline-block;
+            font-size: 30px;
+            color: #fff;
+        }
+
+        .dots span {
+            animation: blink 1s infinite alternate;
+            padding: 0 5px;
+        }
+
+        .dots span:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .dots span:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .dots span:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading">
+        <p>This website is loading <span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+    </div>
+
+    <div id="content" style="display:none;">
+        <h2>Welcome to My Website</h2>
+        <div id="support-list"></div>
+
+        <div id="support"></div>
+    </div>
+
+    <div id="error" style="display:none;">
+        <p>Error loading text. Please check your settings or try again later.</p>
+    </div>
+
+    <script>
+        // Fetch settings JSON
+        const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
+        const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
+        const userAgent = 'DrMineword';
+
+        async function fetchSettings() {
+            try {
+                const response = await fetch(settingsUrl, {
+                    headers: {
+                        'User-Agent': userAgent,
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to load settings');
+
+                const data = await response.json();
+                const base64Content = data.content;
+                const decodedSettings = atob(base64Content);
+                const settings = JSON.parse(decodedSettings);
+
+                applySettings(settings);
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                loadDefaultSettings();
+            }
+        }
+
+        function loadDefaultSettings() {
+            // Default settings
+            const defaultSettings = {
+                websiteTitle: "My Custom Website",
+                websiteUrl: "https://www.example.com",
+                backgroundImage: "https://www.example.com/background.jpg",
+                textColor: "#ffffff",
+                backgroundColor: "#333333",
+                linkColor: "#ff5733",
+                codeBoxVisible: true,
+                codeBoxOpacity: 0.8,
+                boxPadding: "20px",
+                codeBoxPadding: "10px",
+                fontSize: "16px",
+                codeFontSize: "14px",
+                codeBackgroundColor: "#282c34",
+                codeTextColor: "#f8f8f2"
+            };
+            applySettings(defaultSettings);
+        }
+
+        function applySettings(settings) {
+            document.title = settings.websiteTitle;
+            document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+            document.body.style.backgroundColor = settings.backgroundColor;
+            document.body.style.color = settings.textColor;
+        }
+
+        async function loadSupport() {
+            try {
+                const response = await fetch(supportUrl, {
+                    headers: {
+                        'User-Agent': userAgent,
+                    }
+                });
+                if (!response.ok) throw new Error('Failed to load support data');
+
+                const data = await response.json();
+                const base64Content = data.content;
+                const decodedSupport = atob(base64Content);
+                const supportArray = JSON.parse(decodedSupport);
+
+                const seen = new Set();
+                const supportListElement = document.getElementById('support-list');
+                supportArray.forEach(person => {
+                    if (!seen.has(person.name)) {
+                        const supportItem = document.createElement('div');
+                        supportItem.classList.add('support-item');
+                        supportItem.innerHTML = `
+                            <a href="${person.redirectUrl}" target="_blank">
+                                <img src="${person.iconUrl}" alt="${person.name}" />
+                                <p>${person.name}</p>
+                            </a>
+                        `;
+                        supportListElement.appendChild(supportItem);
+                        seen.add(person.name);
+                    }
+                });
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading support data:', error);
+                showErrorDetails(error);
+            }
+        }
+
+        function showErrorDetails(error) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            console.error('Error loading: ', error);
+        }
+
+        // Initialize page
+        fetchSettings();
+        loadSupport();
+    </script>
+</body>
+
+</html>
