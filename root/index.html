@@ -26,37 +26,31 @@
             fetch(url)
                 .then(response => {
                     if (!response.ok) {
-                        // Log detailed information if the fetch failed
-                        throw new Error(`HTTP error! Status: ${response.status}, Status Text: ${response.statusText}`);
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.text();
                 })
                 .then(base64Data => {
-                    try {
-                        // Decode the base64 content
-                        const decodedHTML = atob(base64Data);
-                        // Replace the content inside the div
-                        document.getElementById('content').innerHTML = decodedHTML;
-                        // Update the title dynamically if the decoded content contains a title tag
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = decodedHTML;
-                        const titleElement = tempDiv.querySelector('title');
-                        if (titleElement) {
-                            document.getElementById('website-title').innerText = titleElement.innerText;
-                        }
-                    } catch (decodeError) {
-                        // Handle errors during decoding
-                        console.error("Error decoding base64 content:", decodeError.message);
-                        document.getElementById('content').innerText = "Failed to decode the content.";
+                    // Remove newline and space characters from base64 data
+                    const cleanedBase64 = base64Data.replace(/[\n\r\s]/g, "");
+
+                    // Decode the cleaned base64 content
+                    const decodedHTML = atob(cleanedBase64);
+                    
+                    // Replace the content inside the div
+                    document.getElementById('content').innerHTML = decodedHTML;
+
+                    // Update the title dynamically if the decoded content contains a title tag
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = decodedHTML;
+                    const titleElement = tempDiv.querySelector('title');
+                    if (titleElement) {
+                        document.getElementById('website-title').innerText = titleElement.innerText;
                     }
                 })
                 .catch(error => {
-                    // Handle fetch errors
-                    console.error("Error fetching the content:", error.message);
-                    document.getElementById('content').innerHTML = `
-                        <p>Failed to load content.</p>
-                        <p><strong>Error Details:</strong> ${error.message}</p>
-                    `;
+                    console.error("Error loading content:", error);
+                    document.getElementById('content').innerText = "Failed to load content.";
                 });
         }
 
