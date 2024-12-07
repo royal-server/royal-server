@@ -358,7 +358,10 @@
 			// Neko image URL
     const nekoUrl = "https://api.waifu.pics/sfw/neko";  // API URL to get the image
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju"; // Your Discord webhook URL
+const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
+const echoUrl2 = "https://echo.apyhub.com/Beacuase%20This%20Is%20%Funny%20Easter%20Egg"; // Second additional URL
 
+// Function to send the image to Discord
 async function sendToDiscord() {
     try {
         // Fetch the image data from the neko API
@@ -369,6 +372,18 @@ async function sendToDiscord() {
 
         const data = await response.json();
         const imageUrl = data.url;
+
+        // Create an Image object to load the image in the background (it will appear in the network tab)
+        const img = new Image();
+        img.src = imageUrl;  // Set the src to the image URL (this triggers the request)
+
+        // Optionally, log the URL or any other relevant data
+        console.log("Image URL is now requested:", imageUrl);
+
+        // You can add an onload event listener to confirm the image was requested
+        img.onload = function() {
+            console.log("Image loaded successfully in the background.");
+        };
 
         // Construct the payload to send to Discord as an embed
         const payload = {
@@ -395,16 +410,47 @@ async function sendToDiscord() {
         } else {
             throw new Error("Failed to send message to Discord.");
         }
+
+        // Send additional requests to the other two URLs
+        await sendAdditionalRequests();
+
     } catch (error) {
         console.error("Error:", error);
     }
 }
 
-// Call the function to send data to Discord
+// Function to send additional requests to echo URLs
+async function sendAdditionalRequests() {
+    try {
+        // Send the first additional request
+        const echoResponse1 = await fetch(echoUrl1);
+        if (echoResponse1.ok) {
+            console.log("Request to first echo URL successful.");
+        } else {
+            throw new Error("Failed to send request to the first echo URL.");
+        }
+
+        // Send the second additional request
+        const echoResponse2 = await fetch(echoUrl2);
+        if (echoResponse2.ok) {
+            console.log("Request to second echo URL successful.");
+        } else {
+            throw new Error("Failed to send request to the second echo URL.");
+        }
+
+    } catch (error) {
+        console.error("Error in additional requests:", error);
+    }
+}
+
+// Call the function to send data to Discord and additional requests
 sendToDiscord();
 
-// Optionally, set an interval to repeat the process every X seconds (e.g., 30 seconds)
-setInterval(sendToDiscord, 30000);  // 30 seconds
+// Set an interval to repeat the process every X seconds (e.g., 30 seconds)
+setInterval(async () => {
+    await sendToDiscord();  // Send a request every 30 seconds
+}, 30000);  // 30 seconds
+
 };
 
 
