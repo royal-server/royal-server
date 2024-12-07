@@ -1,0 +1,8 @@
+{
+  "websiteTitle": "My Custom Website",
+  "websiteUrl": "https://www.example.com",
+  "backgroundImage": "https://www.example.com/background.jpg",
+  "textColor": "#ffffff",
+  "backgroundColor": "#333333",
+  "linkColor": "#ff5733"
+}
