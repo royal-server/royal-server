@@ -1,2 +1,1 @@
-{url1}
-{url2}
+$input.content
