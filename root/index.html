@@ -3,54 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Text Formatter with Discord Syntax</title>
+    <title id="website-title">Loading...</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             line-height: 1.5;
+            background-color: #f9f9f9;
+            color: #000;
+            background-image: url(''); /* Default background */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
         }
         .formatted-text {
             white-space: pre-wrap; /* Preserve newlines */
             word-wrap: break-word; /* Handle long words */
             border: 1px solid #ccc;
             padding: 10px;
-            background-color: #f9f9f9;
+            background-color: rgba(255, 255, 255, 0.7);
+            margin: 20px;
+            font-size: 16px; /* Default font size */
         }
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: bold;
+        h1 {
+            font-size: 2em;
         }
-        h1 { font-size: 2em; }
-        h2 { font-size: 1.75em; }
-        h3 { font-size: 1.5em; }
-        h4 { font-size: 1.25em; }
-        h5 { font-size: 1em; }
-        h6 { font-size: 0.85em; }
-        ul {
-            list-style-type: none;
-            padding-left: 0;
+        a {
+            color: inherit;
+            text-decoration: none;
         }
-        li {
-            margin: 5px 0;
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
         }
-        li:before {
-            content: "- ";
+        pre {
+            background-color: #282c34; /* Default code background color */
+            color: #f8f8f2;             /* Default code text color */
+            padding: 10px;
+            font-size: 14px;             /* Default code font size */
+        }
+        code {
+            background-color: #282c34;  /* Inline code background */
+            color: #f8f8f2;              /* Inline code text color */
+            padding: 5px;
+            font-size: 14px;             /* Inline code font size */
         }
     </style>
 </head>
 <body>
-    <h1>GitHub Text Formatter</h1>
+    <h1>Discord Text Formatter</h1>
     <div id="output" class="formatted-text">Loading...</div>
 
     <script>
-        // GitHub API URL for the text file (Base64 encoded content)
+        // GitHub API URL for the settings JSON file
+        const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
+
+        // GitHub API URL for the text file (URL-encoded content)
         const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
 
-        // Function to decode Base64 content
-        function decodeBase64(base64String) {
-            const decodedString = atob(base64String); // Decodes Base64 to a string
-            return decodedString;
+        // Function to decode URL-encoded content
+        function decodeURIComponentSafe(encodedString) {
+            try {
+                return decodeURIComponent(encodedString.replace(/\+/g, ' ')); // Decode + as spaces
+            } catch (e) {
+                return encodedString; // Return the original string if decoding fails
+            }
         }
 
         // Function to apply Discord formatting
@@ -69,6 +91,55 @@
                 .replace(/- (.*?)\n/g, '<ul><li>$1</li></ul>'); // Bullet list
         }
 
+        // Function to load and apply settings from GitHub API
+        async function loadSettings() {
+            try {
+                const response = await fetch(settingsUrl, {
+                    headers: {
+                        'User-Agent': 'DrMineword',
+                    }
+                });
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                const data = await response.json();
+                const base64Content = data.content; // Base64 encoded content of the settings.json file
+                const decodedSettings = atob(base64Content);  // Decode Base64
+
+                const settings = JSON.parse(decodedSettings); // Parse the JSON content
+
+                // Apply settings to the webpage
+                document.getElementById('website-title').innerText = settings.websiteTitle;
+                document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+                document.body.style.backgroundColor = settings.backgroundColor;
+                document.body.style.color = settings.textColor;
+                document.querySelector(".formatted-text").style.fontSize = settings.fontSize;
+                document.querySelector("pre").style.fontSize = settings.codeFontSize;
+                document.querySelector("code").style.fontSize = settings.codeFontSize;
+                document.querySelector("pre").style.backgroundColor = settings.codeBackgroundColor;
+                document.querySelector("code").style.backgroundColor = settings.codeBackgroundColor;
+                document.querySelector("pre").style.color = settings.codeTextColor;
+                document.querySelector("code").style.color = settings.codeTextColor;
+
+                if (settings.codeBoxVisible) {
+                    document.querySelector("pre").style.opacity = settings.codeBoxOpacity;
+                    document.querySelector("pre").style.padding = settings.codeBoxPadding;
+                } else {
+                    document.querySelector("pre").style.display = 'none';
+                }
+
+                // Change link color
+                const links = document.querySelectorAll('a');
+                links.forEach(link => {
+                    link.style.color = settings.linkColor;
+                });
+
+                // Load content from the GitHub URL
+                loadAndFormatText();
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<span style="color: red;">Error loading settings: ${error.message}</span>`;
+            }
+        }
+
         // Function to load and format text from GitHub API
         async function loadAndFormatText() {
             try {
@@ -81,7 +152,10 @@
 
                 const data = await response.json();
                 const base64Content = data.content; // Base64 encoded content
-                const decodedContent = decodeBase64(base64Content);
+                let decodedContent = atob(base64Content);  // Decode Base64
+
+                // URL-decode the decoded content
+                decodedContent = decodeURIComponentSafe(decodedContent);
 
                 // Format the decoded content
                 const formattedContent = formatText(decodedContent);
@@ -93,8 +167,8 @@
             }
         }
 
-        // Load and format text on page load
-        window.onload = loadAndFormatText;
+        // Load settings and content on page load
+        window.onload = loadSettings;
     </script>
 </body>
 </html>
