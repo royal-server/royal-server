@@ -5,11 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Open Graph (OG) and Twitter Card meta tags -->
-    <meta property="og:title" content="My Custom Website" id="og-title">
+    <meta property="og:title" content="List Of Active Artefact Boost" id="og-title">
     <meta property="og:description" content="Description of my website" id="og-description">
     <meta property="og:image" content="https://example.com/default-image.jpg" id="og-image">
     <meta property="og:url" content="https://www.example.com" id="og-url">
-    <meta name="twitter:title" content="My Custom Website" id="twitter-title">
+    <meta name="twitter:title" content="List Of Active Artefact Boost" id="twitter-title">
     <meta name="twitter:description" content="Description of my website" id="twitter-description">
     <meta name="twitter:image" content="https://example.com/default-image.jpg" id="twitter-image">
     <meta name="twitter:card" content="summary_large_image">
@@ -25,6 +25,7 @@
             background-image: url(''); /* Default background */
             background-size: cover;
             background-position: center;
+            background-attachment: fixed; /* Prevent background image from scrolling */
             height: 100vh;
         }
 
@@ -32,7 +33,7 @@
             font-size: 2em;
             text-align: center;
             margin-top: 20px;
-            color: white; 
+            color: white; /* Always white */
         }
 
         .formatted-text {
@@ -103,6 +104,12 @@
         .support-item a:hover {
             text-decoration: underline;
         }
+
+        /* White color for "Join us on Discord" text and link */
+        #support-section p,
+        #support-section a {
+            color: white; /* Change both the text and link color to white */
+        }
     </style>
 </head>
 
@@ -116,9 +123,8 @@
     <!-- Support Section -->
     <div id="support-section">
         <a id="discord-link" href="#" target="_blank">
-            <img id="support-image" src="https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3" alt="Support Banner" />
+            <p>Click here to join the Discord server</p>
         </a>
-        <p>Join us on Discord: <a id="support-url" href="#" target="_blank">Click here</a></p>
         <div class="support-list" id="support-list"></div>
     </div>
 
@@ -131,8 +137,8 @@
 
         // Example of Discord Embed Settings as a JSON object in JavaScript
         const discordEmbedSettings = {
-            "title": "My Custom Website Title",
-            "description": "This is the description of my custom website, which will appear in Discord embeds.",
+            "title": "List Of Active Artefact Boost",
+            "description": "This is the description of the active Artefact boost list, which will appear in Discord embeds.",
             "imageUrl": "https://www.example.com/image.jpg",
             "url": "https://www.example.com"
         };
@@ -224,15 +230,13 @@
                 const data = await response.json();
                 const inviteUrl = data.instant_invite; // Extract the invite URL from the widget data
 
-                // Update the links with the invite URL
+                // Update the link with the invite URL
                 document.getElementById("discord-link").href = inviteUrl;
-                document.getElementById("support-url").href = inviteUrl;
             } catch (error) {
                 console.error("Error fetching Discord widget data:", error);
                 // Fallback to default invite URL if the fetch fails
                 const defaultInviteUrl = "https://discord.gg/7CKxPNEE7a";
                 document.getElementById("discord-link").href = defaultInviteUrl;
-                document.getElementById("support-url").href = defaultInviteUrl;
             }
         }
 
@@ -269,7 +273,7 @@
         // Function to apply default settings if settings.json fails to load
         function applyDefaultSettings() {
             const settings = {
-                websiteTitle: "My Custom Website",
+                websiteTitle: "List Of Active Artefact Boost",
                 websiteUrl: "https://www.example.com",
                 backgroundImage: "https://www.example.com/background.jpg",
                 textColor: "#ffffff",
@@ -352,8 +356,5 @@
             fetchDiscordInvite(); // Fetch Discord invite URL from the widget API
         };
     </script>
-</body>
-</html>
- </script>
 </body>
 </html>
