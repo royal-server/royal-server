@@ -15,42 +15,73 @@
     <title id="website-title">Loading...</title>
 </head>
 <body>
-    <div id="content">Loading content...</div>
+    <div id="content" style="font-size: 10px;">Loading content...</div>
 
     <script>
-        // URL to fetch the URL-encoded Base64 content
-        const url = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/version.base64";
+        // URL of the base64-encoded content
+        const url = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/version.base64";
 
-        // Function to decode URL-encoded Base64 content and update the webpage
+        // Function to fetch, decode base64, and then URL-decode the content
         function loadBase64Content() {
+            document.getElementById('content').innerHTML = 'Fetching data...';
+
             fetch(url)
                 .then(response => {
+                    // Log the response status and headers
+                    console.log("Response status:", response.status);
+                    console.log("Response headers:", response.headers);
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.text();
                 })
-                .then(encodedData => {
-                    // First, URL-decode the content
-                    const decodedUrl = decodeURIComponent(encodedData);
-                    
-                    // Now decode the Base64 string
-                    const decodedBase64 = atob(decodedUrl);
+                .then(base64Data => {
+                    // Show the status of the fetched base64 data
+                    document.getElementById('content').innerHTML = `Base64 data fetched: ${base64Data.substring(0, 50)}...<br>Decoding Base64...`;
 
-                    // Replace the content inside the div
-                    document.getElementById('content').innerHTML = decodedBase64;
+                    // Base64 Decode the data
+                    let decodedBase64;
+                    try {
+                        decodedBase64 = atob(base64Data);
+                        console.log("Decoded Base64:", decodedBase64);
+                    } catch (e) {
+                        throw new Error("Base64 decoding failed: " + e.message);
+                    }
 
-                    // Update the title dynamically if the decoded content contains a title tag
+                    // Show the Base64 decoded content (part of it)
+                    document.getElementById('content').innerHTML += `<br>Base64 decoded successfully...<br>Decoding URL encoded content...`;
+
+                    // URL Decode the content
+                    let decodedUrl;
+                    try {
+                        decodedUrl = decodeURIComponent(decodedBase64);
+                        console.log("Decoded URL:", decodedUrl);
+                    } catch (e) {
+                        throw new Error("URL decoding failed: " + e.message);
+                    }
+
+                    // Show URL decoded content (part of it)
+                    document.getElementById('content').innerHTML += `<br>URL decoded successfully...<br>Displaying decoded content...`;
+
+                    // Replace the content inside the div with the decoded HTML
+                    document.getElementById('content').innerHTML += `<br><br>Content loaded successfully!<br><br>Displaying content...<br>${decodedUrl}`;
+
+                    // Update the page title dynamically if it contains a title tag
                     const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = decodedBase64;
+                    tempDiv.innerHTML = decodedUrl;
                     const titleElement = tempDiv.querySelector('title');
                     if (titleElement) {
                         document.getElementById('website-title').innerText = titleElement.innerText;
                     }
                 })
                 .catch(error => {
-                    console.error("Error loading content:", error);
-                    document.getElementById('content').innerText = "Failed to load content.";
+                    // Handle errors and log the issue
+                    console.error("Error during the fetch and processing:", error);
+                    document.getElementById('content').innerHTML = `
+                        <strong>Error:</strong> ${error.message}<br><br>
+                        <strong>Response Status:</strong> ${error.status || 'N/A'}<br>
+                        <strong>Raw Data:</strong> ${error.rawData || 'N/A'}
+                    `;
                 });
         }
 
