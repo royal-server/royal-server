@@ -4,5 +4,13 @@
   "backgroundImage": "https://www.example.com/background.jpg",
   "textColor": "#ffffff",
   "backgroundColor": "#333333",
-  "linkColor": "#ff5733"
+  "linkColor": "#ff5733",
+  "codeBoxVisible": true,             // Whether the code box is visible
+  "codeBoxOpacity": 0.8,              // Opacity of the code box (0 to 1)
+  "boxPadding": "20px",               // Padding around the text box
+  "codeBoxPadding": "10px",           // Padding inside the code box
+  "fontSize": "16px",                 // Font size for the content
+  "codeFontSize": "14px",             // Font size for code blocks
+  "codeBackgroundColor": "#282c34",  // Background color of code blocks
+  "codeTextColor": "#f8f8f2"         // Text color for code blocks
 }
