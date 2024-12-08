@@ -14,15 +14,8 @@
       ]
     },
     {
-      "header": "Page List:",
-      "desc": "Learn more about what we do and how we strive to make the world better!",
-      "imgurl": [
-        ""
-      ]
-    },
-    {
-      "header": "#99aab5>About Us",
-      "desc": "Learn more about what we do and how we strive to make the world better!",
+      "header": "<color=#99aab5>Page List:</color>",
+      "desc": "<color=#4e5d94><b>1)</b>[List Of Active Artefacts Boost](https://drmineword.github.io/Artefact-Boost-Active/root/index.html)</color>",
       "imgurl": [
         ""
       ]
