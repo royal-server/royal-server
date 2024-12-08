@@ -317,7 +317,7 @@
                 const currentData = localStorage.getItem('apiResponse');
                 if (currentData !== decodedContent) {
                     localStorage.setItem('apiResponse', decodedContent);
-                    showNotification("New data available!");
+                    showNotification("Hello User<br>The data has been updated since your last visit!!");
                 }
 
             } catch (error) {
@@ -333,7 +333,7 @@
 
             setTimeout(function () {
                 notification.style.display = 'none';
-            }, 5000);
+            }, 15000);
         }
 
         // Function to load and display support data
