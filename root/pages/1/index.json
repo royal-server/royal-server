@@ -7,10 +7,7 @@
   "fontSize": "16px",
   "data": [
     {
-      "header": "Welcome to <color=#0000ff>W</color><color=#004cff>h</color><color=#0099ff>i</color><color=#00d4ff>t</color><color=#00ffff>e</color>
-<color=#00ffff>S</color><color=#00d4ff>t</color><color=#0099ff>a</color><color=#004cff>r</color>
-<color=#0000ff>C</color><color=#004cff>o</color><color=#0099ff>r</color><color=#00d4ff>p</color><color=#00ffff>o</color><color=#00ffff>r</color><color=#00d4ff>a</color><color=#0099ff>t</color><color=#004cff>i</color><color=#0000ff>o</color><color=#004cff>n</color><color=#0099ff>s</color>
-<color=#00d4ff>D</color><color=#00ffff>a</color><color=#00ffff>t</color><color=#00d4ff>a</color>",
+      "header": "Welcome to <color=#0000ff>W</color><color=#004cff>h</color><color=#0099ff>i</color><color=#00d4ff>t</color><color=#00ffff>e</color>\n<color=#00ffff>S</color><color=#00d4ff>t</color><color=#0099ff>a</color><color=#004cff>r</color>\n<color=#0000ff>C</color><color=#004cff>o</color><color=#0099ff>r</color><color=#00d4ff>p</color><color=#00ffff>o</color><color=#00ffff>r</color><color=#00d4ff>a</color><color=#0099ff>t</color><color=#004cff>i</color><color=#0000ff>o</color><color=#004cff>n</color><color=#0099ff>s</color>\n<color=#00d4ff>D</color><color=#00ffff>a</color><color=#00ffff>t</color><color=#00d4ff>a</color>",
       "desc": "Join The <color=	#7289da>Discord</color>\n<div style=\"text-align: center;\"><a href=\"https://discord.gg/7CKxPNEE7a\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3\" alt=\"Discord Server Banner\" style=\"max-width: 100%; height: auto;\"></a></div>",
       "imgurl": [
         "https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_YellowStar.png"
@@ -20,7 +17,14 @@
       "header": "About Us",
       "desc": "Learn more about what we do and how we strive to make the world better!",
       "imgurl": [
-        "https://example.com/about1.jpg"
+        ""
+      ]
+    },
+    {
+      "header": "#99aab5>About Us",
+      "desc": "Learn more about what we do and how we strive to make the world better!",
+      "imgurl": [
+        ""
       ]
     }
   ]
