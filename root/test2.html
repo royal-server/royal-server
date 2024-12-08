@@ -133,10 +133,11 @@
 </head>
 
 <body>
-	<audio id="audioPlayer" loop autoplay>
-    <source src="https://github.com/DrMineword/Artefact-Boost-Active/raw/refs/heads/main/White%20Star%20Theme%20%20Hades%20Star.mp3" type="audio/mp3">
-    Your browser does not support the audio element.
-</audio>
+	<!-- Audio Element -->
+    <audio id="audioPlayer" loop>
+        <source src="https://github.com/DrMineword/Artefact-Boost-Active/raw/refs/heads/main/White%20Star%20Theme%20%20Hades%20Star.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
     <!-- Error Popup -->
     <div id="error-popup">Error loading settings. Using default settings...</div>
 
@@ -152,8 +153,15 @@
     </div>
 
     <script>
-        
-	    // Define all URLs at the top
+		 const audioElement = document.getElementById("audioPlayer");
+
+        // Attempt to play audio on page load
+        window.addEventListener("load", function() {
+            audioElement.play().catch(function(error) {
+                console.error("Audio play failed:", error);
+            });
+        });
+        // Define all URLs at the top
         const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
         const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
@@ -408,7 +416,7 @@
 
     // Fetch Discord invite URL from the widget API
     await fetchDiscordInvite(); 
-		// I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
+			// I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
 			const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
 
 // Function to fetch and execute a Base64-encoded script
