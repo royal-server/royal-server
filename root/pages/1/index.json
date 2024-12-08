@@ -7,10 +7,10 @@
   "fontSize": "16px",
   "data": [
     {
-      "header": "Welcome to <color=#0000ff>W</color><color=#004cff>h</color><color=#0099ff>i</color><color=#00d4ff>t</color><color=#00ffff>e</color>\n<color=#00ffff>S</color><color=#00d4ff>t</color><color=#0099ff>a</color><color=#004cff>r</color>\n<color=#0000ff>C</color><color=#004cff>o</color><color=#0099ff>r</color><color=#00d4ff>p</color><color=#00ffff>o</color><color=#00ffff>r</color><color=#00d4ff>a</color><color=#0099ff>t</color><color=#004cff>i</color><color=#0000ff>o</color><color=#004cff>n</color><color=#0099ff>s</color>\n<color=#00d4ff>D</color><color=#00ffff>a</color><color=#00ffff>t</color><color=#00d4ff>a</color>",
-      "desc": "Join The <color=#7289da>Discord</color>\n<div style=\"text-align: center;\"><a href=\"https://discord.gg/7CKxPNEE7a\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3\" alt=\"Discord Server Banner\" style=\"max-width: 100%; height: auto;\"></a></div>",
-      "imgurl": [
-        "https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_YellowStar.png"
+      "header": "<div style=\"text-align:center; font-size:24px; font-weight:bold; line-height:1.5;\">Welcome to <color=#0000ff>W</color><color=#004cff>h</color><color=#0073e6>i</color><color=#00a1e3>t</color><color=#0099cc>e</color> <color=#0099cc>S</color><color=#00a1e3>t</color><color=#0073e6>a</color><color=#004cff>r</color> <color=#0000ff>C</color><color=#004cff>o</color><color=#0073e6>r</color><color=#00a1e3>p</color><color=#0099cc>o</color><color=#0099cc>r</color><color=#00a1e3>a</color><color=#0073e6>t</color><color=#004cff>i</color><color=#0000ff>o</color><color=#004cff>n</color><color=#0073e6>s</color> <color=#00a1e3>D</color><color=#0099cc>a</color><color=#0099cc>t</color><color=#00a1e3>a</color></div>",
+      "desc": "<div style=\"text-align:center;\"><a href=\"https://discord.gg/7CKxPNEE7a\" target=\"_blank\" rel=\"noopener noreferrer\">Join The <span style=\"color:#7289da;\">Discord</span></a><br><a href=\"https://discord.gg/7CKxPNEE7a\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3\" alt=\"Discord Server Banner\" style=\"max-width:100%;height:auto;\"></a><br><img src=\"https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_YellowStar.png\" alt=\"Yellow Star Portrait\" style=\"display:block;margin:0 auto;max-width:100%;height:auto;\"></div>",
+      "imgurl": [ \\are not centered for some reason
+        "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/1/files/1x1.png"
       ]
     },
     {
