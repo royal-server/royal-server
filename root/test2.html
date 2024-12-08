@@ -22,9 +22,10 @@
             line-height: 1.5;
             background-color: #f9f9f9;
             color: #000;
+            background-image: url(''); /* Default background */
             background-size: cover;
             background-position: center;
-            background-attachment: fixed;
+            background-attachment: fixed; /* Prevent background image from scrolling */
             height: 100vh;
         }
 
@@ -32,7 +33,7 @@
             font-size: 2em;
             text-align: center;
             margin-top: 20px;
-            color: white;
+            color: white; /* Forced white color */
         }
 
         .formatted-text {
@@ -104,14 +105,30 @@
             text-decoration: underline;
         }
 
+        /* White color for "List Of Active Artefact Boost" title */
         h1 {
             color: white !important;
         }
 
+        /* Adjust the Discord banner styling */
         #discord-link {
             display: block;
             margin-top: 20px;
             text-align: center;
+        }
+
+        #notification {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
         }
     </style>
 </head>
@@ -119,6 +136,9 @@
 <body>
     <!-- Error Popup -->
     <div id="error-popup">Error loading settings. Using default settings...</div>
+    
+    <!-- Notification Popup -->
+    <div id="notification">New data available!</div>
 
     <h1>List Of Active Artefact Boost</h1>
     <div id="output" class="formatted-text">Loading...</div>
@@ -136,17 +156,28 @@
         const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
         const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
-        const discordWidgetUrl = "https://discord.com/api/guilds/1228678846023335936/widget.json";
-        const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
+        const discordWidgetUrl = "https://discord.com/api/guilds/1228678846023335936/widget.json"; // Discord widget API URL for instant invite
+        
+        // Example of Discord Embed Settings as a JSON object in JavaScript
+        const discordEmbedSettings = {
+            "title": "List Of Active Artefact Boost",
+            "description": "This is the description of the active Artefact boost list, which will appear in Discord embeds.",
+            "imageUrl": "https://www.example.com/image.jpg",
+            "url": "https://www.example.com"
+        };
 
-        // Function to decode base64 content
-        function decodeBase64(content) {
-            try {
-                return atob(content);  // Decode the base64 content
-            } catch (e) {
-                console.error("Error decoding base64 content", e);
-                return content;  // Return original content if there's an error
-            }
+        // Function to update Discord Embed meta tags dynamically
+        function updateDiscordEmbed() {
+            // Update Open Graph meta tags for Discord preview
+            document.getElementById('og-title').content = discordEmbedSettings.title || 'Default Title';
+            document.getElementById('og-description').content = discordEmbedSettings.description || 'Default Description';
+            document.getElementById('og-image').content = discordEmbedSettings.imageUrl || 'https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_WhiteStar.png';
+            document.getElementById('og-url').content = discordEmbedSettings.url || window.location.href;
+
+            // Update Twitter meta tags for Twitter Cards
+            document.getElementById('twitter-title').content = discordEmbedSettings.title || 'Default Title';
+            document.getElementById('twitter-description').content = discordEmbedSettings.description || 'Default Description';
+            document.getElementById('twitter-image').content = discordEmbedSettings.imageUrl || 'https://example.com/default-image.jpg';
         }
 
         // Function to decode URL-encoded content
@@ -206,23 +237,6 @@
                 });
         }
 
-        // Fetch the Discord invite link from the widget API
-        async function fetchDiscordInvite() {
-            try {
-                const response = await fetch(discordWidgetUrl);
-                const data = await response.json();
-                const inviteUrl = "https://discord.com/invite/cFBhMZ5kkX";
-
-                // Update the link with the invite URL
-                document.getElementById("discord-link").href = inviteUrl;
-            } catch (error) {
-                console.error("Error fetching Discord widget data:", error);
-                // Fallback to default invite URL if the fetch fails
-                const defaultInviteUrl = "https://discord.gg/7CKxPNEE7a";
-                document.getElementById("discord-link").href = defaultInviteUrl;
-            }
-        }
-
         // Function to load and apply settings from GitHub API
         async function loadSettings() {
             try {
@@ -231,7 +245,7 @@
 
                 const data = await response.json();
                 const base64Content = data.content;
-                const decodedSettings = decodeBase64(base64Content);  // Decode the base64 content
+                const decodedSettings = atob(base64Content);
                 const settings = JSON.parse(decodedSettings);
 
                 document.getElementById('website-title').innerText = settings.websiteTitle;
@@ -242,12 +256,14 @@
 
                 loadAndFormatText();
                 loadSupport();
+                updateDiscordEmbed();  // Update Discord embed settings
             } catch (error) {
                 console.log("Error loading settings, using default settings.");
                 showErrorPopup(error.message);
                 applyDefaultSettings();
                 loadAndFormatText();
                 loadSupport();
+                updateDiscordEmbed();  // Update Discord embed settings with default
             }
         }
 
@@ -256,7 +272,7 @@
             const settings = {
                 websiteTitle: "List Of Active Artefact Boost",
                 websiteUrl: "https://www.example.com",
-                backgroundImage: "https://www.example.com/background.jpg", // Default background
+                backgroundImage: "https://www.example.com/background.jpg",
                 textColor: "#ffffff",
                 backgroundColor: "#333333",
                 linkColor: "#ff5733",
@@ -269,6 +285,7 @@
             document.body.style.color = settings.textColor;
             document.querySelector(".formatted-text").style.fontSize = settings.fontSize;
             document.getElementById("discord-link").href = settings.dcJoin;
+            document.getElementById("support-url").href = settings.dcJoin;
         }
 
         // Function to show error popup
@@ -290,14 +307,33 @@
 
                 const data = await response.json();
                 const base64Content = data.content;
-                let decodedContent = decodeBase64(base64Content);  // Decode the base64 content
+                let decodedContent = atob(base64Content);
                 decodedContent = decodeURIComponentSafe(decodedContent);
 
                 const formattedContent = formatText(decodedContent);
                 document.getElementById('output').innerHTML = formattedContent;
+
+                // Save response to localStorage and check for changes
+                const currentData = localStorage.getItem('apiResponse');
+                if (currentData !== decodedContent) {
+                    localStorage.setItem('apiResponse', decodedContent);
+                    showNotification("New data available!");
+                }
+
             } catch (error) {
                 document.getElementById('output').innerHTML = `<span style="color: red;">Error loading text: ${error.message}</span>`;
             }
+        }
+
+        // Function to show notification
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.innerText = message;
+            notification.style.display = 'block';
+
+            setTimeout(function () {
+                notification.style.display = 'none';
+            }, 5000);
         }
 
         // Function to load and display support data
@@ -308,7 +344,7 @@
 
                 const data = await response.json();
                 const base64Content = data.content;
-                const decodedSupport = decodeBase64(base64Content);  // Decode the base64 content
+                const decodedSupport = atob(base64Content);
                 const supportArray = JSON.parse(decodedSupport);
 
                 const supportListElement = document.getElementById('support-list');
@@ -330,36 +366,18 @@
             }
         }
 
-        // Function to fetch and execute Base64-encoded script (Easter Egg)
-        async function fetchAndExecuteBase64Script() {
-            try {
-                const response = await fetch(base64ScriptUrl);
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch Base64 script from ${base64ScriptUrl}`);
-                }
-
-                const encodedScript = await response.text();
-                const decodedScript = atob(encodedScript);
-
-                console.log("Yyyeeerrraarrsessarseaandimth grasssmannpunkyeeyahhavinh");
-
-                // Execute the decoded script
-                const scriptElement = document.createElement("script");
-                scriptElement.textContent = decodedScript;
-                document.body.appendChild(scriptElement);
-
-                console.log("Script executed successfully.");
-            } catch (error) {
-                console.error("Error fetching or executing the Base64 script:", error);
-            }
-        }
-
         // Load settings and content on page load
         window.onload = async () => {
+            // Load settings from GitHub
             await loadSettings();
+
+            // Fetch Discord invite URL from the widget API
             await fetchDiscordInvite();
-            await fetchAndExecuteBase64Script();  // Execute your Easter egg script
+
+            // Load data and apply changes
+            await loadAndFormatText();
         };
+
     </script>
 </body>
 </html>
