@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <style id="dynamic-styles"></style>
+</head>
+<body>
+    <div id="content-wrapper" style="display: none;">
+        <div id="header">
+            <h1 id="website-title"></h1>
+        </div>
+        <div id="main-content">
+            <p>Welcome to our website!</p>
+            <a id="discord-link" href="#" target="_blank">Join our Discord</a>
+        </div>
+        <div id="code-box" style="display: none;">
+            <pre style="margin: 0;"><code>This is a code box.</code></pre>
+        </div>
+    </div>
+    <script>
+        async function loadSettings() {
+            const settingsUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/settings.json";
+            const response = await fetch(settingsUrl);
+            const settings = await response.json();
+
+            document.title = settings.websiteTitle;
+            document.getElementById("website-title").textContent = settings.websiteTitle;
+
+            const styles = `
+                body {
+                    background-color: ${settings.backgroundColor};
+                    background-image: url(${settings.backgroundImage});
+                    background-size: cover;
+                    color: ${settings.textColor};
+                    font-size: ${settings.fontSize};
+                }
+                a {
+                    color: ${settings.linkColor};
+                }
+                #code-box {
+                    background-color: ${settings.codeBackgroundColor};
+                    color: ${settings.codeTextColor};
+                    opacity: ${settings.codeBoxOpacity};
+                    padding: ${settings.codeBoxPadding};
+                }
+                #content-wrapper {
+                    padding: ${settings.boxPadding};
+                }
+            `;
+            document.getElementById("dynamic-styles").textContent = styles;
+
+            document.getElementById("discord-link").href = settings.dcjoin;
+
+            if (settings.codeBoxVisible) {
+                document.getElementById("code-box").style.display = "block";
+            }
+
+            document.getElementById("content-wrapper").style.display = "block";
+        }
+
+        loadSettings().catch(error => {
+            console.error("Failed to load settings:", error);
+        });
+    </script>
+</body>
+</html>
