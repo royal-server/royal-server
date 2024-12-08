@@ -1,1 +1,25 @@
-{}
+{
+  "websiteTitle": "My Dynamic Website",
+  "backgroundColor": "#f0f0f0",
+  "backgroundImage": "https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/BlackCitadel.jpg",
+  "textColor": "#333333",
+  "linkColor": "#0066cc",
+  "fontSize": "16px",
+  "data": [
+    {
+      "header": "Welcome to <color=#ff0000>Our Website</color>",
+      "desc": "Explore amazing features and join our community by clicking [here](https://discord.gg/example).",
+      "imgurl": [
+        "https://example.com/image1.jpg",
+        "https://example.com/image2.jpg"
+      ]
+    },
+    {
+      "header": "About Us",
+      "desc": "Learn more about what we do and how we strive to make the world better!",
+      "imgurl": [
+        "https://example.com/about1.jpg"
+      ]
+    }
+  ]
+}
