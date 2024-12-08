@@ -19,6 +19,13 @@
       "imgurl": [
         "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/1/files/1x1.png"
       ]
+    },
+    {
+      "header": "<color=#99aab5>Page List Redirect URl To Art Boost Countdown:</color>",
+      "desc": "<script>fetch('https://api.github.com/repos/DrMineword/Artefact-Boost-Active/commits?path=root/redirecturl/artboost', {headers: {Accept: 'application/vnd.github.v3+json'}}).then(response => response.json()).then(data => {let list=''; data.forEach((commit, index) => {commit.files.forEach(file => {if(file.filename.endsWith('.html')) {list += `<p>[${index + 1} ${commit.commit.message}](https://drmineword.github.io/Artefact-Boost-Active/root/redirecturl/artboost/${file.filename})</p>`}})}); document.body.innerHTML = list;});</script>",
+      "imgurl": [
+        "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/1/files/1x1.png"
+      ]
     }
   ]
 }
