@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Open Graph (OG) and Twitter Card meta tags -->
+    <meta property="og:title" content="List Of Active Artefact Boost" id="og-title">
+    <meta property="og:description" content="Artefact Boost List By DrMineword" id="og-description">
+    <meta property="og:image" content="https://example.com/default-image.jpg" id="og-image">
+    <meta property="og:url" content="https://www.example.com" id="og-url">
+    <meta name="twitter:title" content="List Of Active Artefact Boost" id="twitter-title">
+    <meta name="twitter:description" content="Artefact Boost List By DrMineword" id="twitter-description">
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_WhiteStar.png" id="twitter-image">
+    <meta name="twitter:card" content="summary_large_image">
+    <title id="website-title">Loading...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            background-color: #f9f9f9;
+            color: #000;
+            background-image: url(''); /* Default background */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Prevent background image from scrolling */
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 2em;
+            text-align: center;
+            margin-top: 20px;
+            color: white; /* Forced white color */
+        }
+
+        .formatted-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            margin: 20px;
+            font-size: 16px;
+        }
+
+        #error-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            width: auto;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        #notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            width: auto;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        #support-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #support-section img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .support-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .support-item {
+            background-color: #f1f1f1;
+            padding: 10px;
+            width: 80%;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .support-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .support-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .support-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* White color for "List Of Active Artefact Boost" title */
+        h1 {
+            color: white !important;
+        }
+
+        /* Adjust the Discord banner styling */
+        #discord-link {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Error Popup -->
+    <div id="error-popup">Error loading settings. Using default settings...</div>
+    <!-- Notification -->
+    <div id="notification">Data has changed! Refresh to see the updates.</div>
+
+    <h1>List Of Active Artefact Boost</h1>
+    <div id="output" class="formatted-text">Loading...</div>
+
+    <!-- Support Section with Discord banner image -->
+    <div id="support-section">
+        <a id="discord-link" href="#" target="_blank">
+            <img src="https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3" alt="Discord Invite Banner" />
+        </a>
+        <div class="support-list" id="support-list"></div>
+    </div>
+
+    <script>
+        // Define all URLs at the top
+        const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
+        const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
+        const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
+        const discordWidgetUrl = "https://discord.com/api/guilds/1228678846023335936/widget.json"; // Discord widget API URL for instant invite
+        
+        // Function to update Discord Embed meta tags dynamically
+        function updateDiscordEmbed() {
+            // Update Open Graph meta tags for Discord preview
+            document.getElementById('og-title').content = 'List Of Active Artefact Boost';
+            document.getElementById('og-description').content = 'Artefact Boost List By DrMineword';
+            document.getElementById('og-image').content = 'https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_WhiteStar.png';
+            document.getElementById('og-url').content = window.location.href;
+
+            // Update Twitter meta tags for Twitter Cards
+            document.getElementById('twitter-title').content = 'List Of Active Artefact Boost';
+            document.getElementById('twitter-description').content = 'Artefact Boost List By DrMineword';
+            document.getElementById('twitter-image').content = 'https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/portrait_WhiteStar.png';
+        }
+
+        // Function to decode URL-encoded content
+        function decodeURIComponentSafe(encodedString) {
+            try {
+                return decodeURIComponent(encodedString.replace(/\+/g, ' ')); // Decode + as spaces
+            } catch (e) {
+                return encodedString; // Return the original string if decoding fails
+            }
+        }
+
+        // Function to format Discord Unix Timestamps
+        function formatDiscordTimestamp(match, timestamp, format) {
+            const date = new Date(timestamp * 1000);  // Convert Unix timestamp to milliseconds
+            let formattedDate = '';
+
+            switch (format) {
+                case 'f':  // Full Date
+                    formattedDate = date.toLocaleDateString('en-US', {
+                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    break;
+                case 'R':  // Relative Time (e.g., "2 months ago")
+                    const timeAgo = new Date().getTime() - date.getTime();
+                    const seconds = Math.floor(timeAgo / 1000);
+                    const minutes = Math.floor(seconds / 60);
+                    const hours = Math.floor(minutes / 60);
+                    const days = Math.floor(hours / 24);
+
+                    if (days > 0) {
+                        formattedDate = `${days} days ago`;
+                    } else if (hours > 0) {
+                        formattedDate = `${hours} hours ago`;
+                    } else if (minutes > 0) {
+                        formattedDate = `${minutes} minutes ago`;
+                    } else {
+                        formattedDate = `${seconds} seconds ago`;
+                    }
+                    break;
+                case 'T':  // Short Time (e.g., "12:30 PM")
+                    formattedDate = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    break;
+                default:
+                    formattedDate = date.toLocaleString(); // Default fallback
+                    break;
+            }
+
+            return formattedDate;
+        }
+
+        // Function to replace Discord Unix Timestamps with formatted dates
+        function formatText(text) {
+            return text
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank">$1</a>') // Markdown links
+                .replace(/<t:(\d+):([frT])>/g, function(match, timestamp, format) { // Discord timestamp formatting
+                    return formatDiscordTimestamp(match, timestamp, format);
+                });
+        }
+
+        // Fetch and store response data in localStorage
+        async function fetchDataAndCompare() {
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                const base64Content = data.content;
+                const decodedContent = atob(base64Content);
+                const newResponse = decodeURIComponentSafe(decodedContent);
+                const storedResponse = localStorage.getItem('apiResponse');
+
+                if (storedResponse !== newResponse) {
+                    localStorage.setItem('apiResponse', newResponse);
+                    showNotification("Data has changed! Refresh to see the updates.");
+                }
+
+                const formattedContent = formatText(newResponse);
+                document.getElementById('output').innerHTML = formattedContent;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('output').innerHTML = 'Error fetching data';
+            }
+        }
+
+        // Show notification at the top of the screen
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.innerText = message;
+            notification.style.display = 'block';
+
+            setTimeout(function () {
+                notification.style.display = 'none';
+            }, 5000);
+        }
+
+        // Fetch Discord invite link from the widget API
+        async function fetchDiscordInvite() {
+            try {
+                const response = await fetch(discordWidgetUrl);
+                const data = await response.json();
+                const inviteUrl = "https://discord.com/invite/cFBhMZ5kkX";
+
+                document.getElementById("discord-link").href = inviteUrl;
+            } catch (error) {
+                console.error("Error fetching Discord widget data:", error);
+                const defaultInviteUrl = "https://discord.gg/7CKxPNEE7a";
+                document.getElementById("discord-link").href = defaultInviteUrl;
+            }
+        }
+
+        // Load settings and content on page load
+        window.onload = async () => {
+            await fetchDataAndCompare();
+            await fetchDiscordInvite();
+        };
+    </script>
+</body>
+
+  </html>
+  
