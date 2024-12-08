@@ -19,18 +19,41 @@
             // Set the website title
             document.title = settings.websiteTitle;
 
-            // Dynamic style creation
+            // Apply global styles
             const styles = `
                 body {
+                    margin: 0;
+                    padding: 0;
                     background-color: ${settings.backgroundColor};
                     background-image: url(${settings.backgroundImage});
                     background-size: cover;
-                    color: ${settings.textColor};
+                    background-position: center;
+                    background-attachment: fixed;
+                    font-family: Arial, sans-serif;
                     font-size: ${settings.fontSize};
+                    color: ${settings.textColor};
                 }
                 a {
                     color: ${settings.linkColor};
                     text-decoration: none;
+                }
+                #content-wrapper {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }
+                .section {
+                    background-color: rgba(255, 255, 255, 0.8); /* Almost transparent */
+                    margin-bottom: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    overflow: hidden;
+                    padding: 20px;
+                }
+                .section img {
+                    max-width: 100%;
+                    border-radius: 8px;
+                    margin-top: 10px;
                 }
             `;
             document.getElementById("dynamic-styles").textContent = styles;
@@ -39,11 +62,12 @@
             const contentWrapper = document.getElementById("page-content");
             settings.data.forEach(section => {
                 const sectionElement = document.createElement("div");
+                sectionElement.className = "section";
                 sectionElement.innerHTML = `
                     <h1>${parseCustomText(section.header)}</h1>
                     <p>${parseCustomText(section.desc)}</p>
                     <div>
-                        ${section.imgurl.map(url => `<img src="${url}" alt="Image" style="max-width: 100%; margin: 10px 0;">`).join("")}
+                        ${section.imgurl.map(url => `<img src="${url}" alt="Image">`).join("")}
                     </div>
                 `;
                 contentWrapper.appendChild(sectionElement);
@@ -70,4 +94,3 @@
     </script>
 </body>
 </html>
-
