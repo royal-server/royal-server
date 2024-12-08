@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Difference Calculator</title>
+    <script>
+        // Function to get URL parameters
+        function getUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const start = parseInt(urlParams.get('start')) || 0;  // Default to 0 if not set
+            const end = parseInt(urlParams.get('end')) || Math.floor(Date.now() / 1000); // Default to current Unix timestamp
+            return { start, end };
+        }
+
+        // Function to calculate the time difference
+        function calculateTimeDifference(start, end) {
+            const diffSeconds = end - start;
+            const diffMinutes = diffSeconds / 60;
+            const diffHours = diffMinutes / 60;
+            const diffDays = diffHours / 24;
+            
+            const result = {
+                "start": start,
+                "end": end,
+                "diff_seconds": diffSeconds,
+                "diff_minutes": diffMinutes,
+                "diff_hours": diffHours,
+                "diff_days": diffDays,
+                "formatted": {
+                    "seconds": `${diffSeconds} seconds`,
+                    "minutes": `${Math.floor(diffMinutes)} minutes`,
+                    "hours": `${Math.floor(diffHours)} hours`,
+                    "days": `${Math.floor(diffDays)} days`
+                },
+                "total_seconds": diffSeconds
+            };
+            
+            return result;
+        }
+
+        // Function to print the result as raw JSON
+        function printJson() {
+            const { start, end } = getUrlParams();
+            const timeDiff = calculateTimeDifference(start, end);
+
+            // Printing the raw JSON
+            const resultElement = document.getElementById("result");
+            resultElement.textContent = JSON.stringify(timeDiff, null, 2);
+        }
+
+        window.onload = printJson;
+    </script>
+</head>
+<body>
+    <h1>Time Difference Calculator</h1>
+    <pre id="result"></pre>
+</body>
+</html>
