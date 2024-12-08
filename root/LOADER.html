@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="List Of Active Artefact Boost" id="og-title">
+    <meta property="og:description" content="Artefact Boost List By DrMineword" id="og-description">
+    <meta property="og:image" content="https://example.com/default-image.jpg" id="og-image">
+    <meta property="og:url" content="https://www.example.com" id="og-url">
+    <meta name="twitter:title" content="List Of Active Artefact Boost" id="twitter-title">
+    <meta name="twitter:description" content="Artefact Boost List By DrMineword" id="twitter-description">
+    <meta name="twitter:image" content="https://example.com/default-image.jpg" id="twitter-image">
+    <meta name="twitter:card" content="summary_large_image">
+    <title id="website-title">Loading...</title>
+    <style>
+        /* Body and General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+            background-color: #f9f9f9;
+            color: #000;
+            background-image: url('');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            height: 100vh;
+            overflow: auto;
+        }
+
+        h1 {
+            font-size: 2em;
+            text-align: center;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .formatted-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            margin: 20px;
+            font-size: 16px;
+        }
+
+        #error-popup {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
+            width: auto;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        #support-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #support-section img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .support-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .support-item {
+            background-color: #f1f1f1;
+            padding: 10px;
+            width: 80%;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .support-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .support-item a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .support-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loader styles */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            position: fixed;
+            width: 100%;
+            z-index: 10000;
+            color: white;
+        }
+
+        .spinner {
+            border: 8px solid rgba(255, 255, 255, 0.2);
+            border-top: 8px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-message {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        body.loading {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="loader" class="loader-container">
+        <div>
+            <div class="spinner"></div>
+            <div class="loader-message">Loading... Please wait.</div>
+        </div>
+    </div>
+
+    <!-- Error Popup -->
+    <div id="error-popup">Error loading settings. Using default settings...</div>
+
+    <!-- Notification Popup -->
+    <div id="notification">New data available!</div>
+
+    <h1>List Of Active Artefact Boost</h1>
+    <div id="output" class="formatted-text">Loading...</div>
+
+    <!-- Support Section -->
+    <div id="support-section">
+        <a id="discord-link" href="#" target="_blank">
+            <img src="https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3" alt="Discord Invite Banner" />
+        </a>
+        <div class="support-list" id="support-list"></div>
+    </div>
+
+    <script>
+        const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
+        const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
+        const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
+
+        // Function to load settings and show loader
+        async function loadSettings() {
+            try {
+                const response = await fetch(settingsUrl);
+                if (!response.ok) throw new Error("Settings file not found.");
+
+                const data = await response.json();
+                const decodedSettings = atob(data.content);
+                const settings = JSON.parse(decodedSettings);
+
+                document.getElementById('website-title').innerText = settings.websiteTitle;
+                document.body.style.backgroundImage = `url(${settings.backgroundImage})`;
+                document.body.style.color = settings.textColor;
+                document.querySelector(".formatted-text").style.fontSize = settings.fontSize;
+            } catch (error) {
+                console.error("Error loading settings:", error);
+                showErrorPopup("Error loading settings. Default settings applied.");
+            }
+        }
+
+        // Function to load main content
+        async function loadAndFormatText() {
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error("Data file not found.");
+
+                const data = await response.json();
+                const decodedContent = atob(data.content);
+
+                document.getElementById('output').innerText = decodedContent;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<span style="color: red;">Error loading text: ${error.message}</span>`;
+            }
+        }
+
+        // Function to hide the loader after loading
+        function hideLoader() {
+            document.getElementById('loader').style.display = 'none';
+            document.body.classList.remove('loading');
+        }
+
+        // Function to show error popup
+        function showErrorPopup(message) {
+            const errorPopup = document.getElementById("error-popup");
+            errorPopup.innerText = `Error: ${message}`;
+            errorPopup.style.display = 'block';
+            setTimeout(() => (errorPopup.style.display = 'none'), 5000);
+        }
+
+        // Main function to initialize the page
+        window.onload = async () => {
+            document.body.classList.add('loading');
+            await loadSettings();
+            await loadAndFormatText();
+            hideLoader();
+        };
+    </script>
+</body>
+
+</html>
