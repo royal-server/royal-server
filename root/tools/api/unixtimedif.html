@@ -2,8 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Difference Calculator</title>
     <script>
         // Function to get URL parameters
         function getUrlParams() {
@@ -19,8 +17,8 @@
             const diffMinutes = diffSeconds / 60;
             const diffHours = diffMinutes / 60;
             const diffDays = diffHours / 24;
-            
-            const result = {
+
+            return {
                 "start": start,
                 "end": end,
                 "diff_seconds": diffSeconds,
@@ -35,25 +33,18 @@
                 },
                 "total_seconds": diffSeconds
             };
-            
-            return result;
         }
 
-        // Function to print the result as raw JSON
-        function printJson() {
+        // Output the result as raw JSON
+        window.onload = function() {
             const { start, end } = getUrlParams();
             const timeDiff = calculateTimeDifference(start, end);
 
-            // Printing the raw JSON
-            const resultElement = document.getElementById("result");
-            resultElement.textContent = JSON.stringify(timeDiff, null, 2);
+            // Output the JSON as raw text
+            document.body.textContent = JSON.stringify(timeDiff, null, 2);
         }
-
-        window.onload = printJson;
     </script>
 </head>
 <body>
-    <h1>Time Difference Calculator</h1>
-    <pre id="result"></pre>
 </body>
 </html>
