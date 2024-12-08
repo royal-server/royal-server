@@ -133,14 +133,14 @@
 </head>
 
 <body>
+	<audio id="audioPlayer" loop autoplay>
+        Your browser does not support the audio element.
+    </audio>
     <!-- Error Popup -->
     <div id="error-popup">Error loading settings. Using default settings...</div>
 
     <h1>List Of Active Artefact Boost</h1>
     <div id="output" class="formatted-text">Loading...</div>
-	<audio id="audioPlayer" controls loop>
-        Your browser does not support the audio element.
-    </audio>
 
     <!-- Support Section with Discord banner image -->
     <div id="support-section">
@@ -151,7 +151,72 @@
     </div>
 
     <script>
-        // Define all URLs at the top
+        
+	     const audioUrl = "https://github.com/DrMineword/Artefact-Boost-Active/raw/refs/heads/main/White%20Star%20Theme%20%20Hades%20Star.mp3";
+        const audioElement = document.getElementById("audioPlayer");
+
+        // Check if audio is already in localStorage
+        function checkLocalStorage() {
+            const storedAudio = localStorage.getItem("audioData");
+            if (storedAudio) {
+                // Load from localStorage and play
+                const audioBlob = base64ToBlob(storedAudio);
+                const audioUrl = URL.createObjectURL(audioBlob);
+                audioElement.src = audioUrl;
+                audioElement.play();
+            } else {
+                // If not in localStorage, fetch and save it
+                downloadAndSaveAudio();
+            }
+        }
+
+        // Function to download the audio and save it in localStorage
+        async function downloadAndSaveAudio() {
+            const response = await fetch(audioUrl);
+            const arrayBuffer = await response.arrayBuffer();
+            const base64Audio = arrayBufferToBase64(arrayBuffer);
+
+            // Save to localStorage
+            localStorage.setItem("audioData", base64Audio);
+
+            // Create Blob from base64 and play
+            const audioBlob = base64ToBlob(base64Audio);
+            const audioUrl = URL.createObjectURL(audioBlob);
+            audioElement.src = audioUrl;
+            audioElement.play();
+        }
+
+        // Convert arrayBuffer to base64 string
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            let bytes = new Uint8Array(buffer);
+            let length = bytes.byteLength;
+            for (let i = 0; i < length; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+
+        // Convert base64 string back to Blob
+        function base64ToBlob(base64) {
+            const binary = window.atob(base64);
+            const length = binary.length;
+            const buffer = new ArrayBuffer(length);
+            const view = new Uint8Array(buffer);
+            for (let i = 0; i < length; i++) {
+                view[i] = binary.charCodeAt(i);
+            }
+            return new Blob([buffer], { type: "audio/mp3" });
+        }
+
+        // Initialize the audio loading and playing process
+        checkLocalStorage();
+	    
+	    
+	    
+	    
+	    
+	    // Define all URLs at the top
         const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
         const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
@@ -406,66 +471,6 @@
 
     // Fetch Discord invite URL from the widget API
     await fetchDiscordInvite(); 
-		const audioUrl = "https://github.com/DrMineword/Artefact-Boost-Active/raw/refs/heads/main/White%20Star%20Theme%20%20Hades%20Star.mp3";
-        const audioElement = document.getElementById("audioPlayer");
-
-        // Check if audio is already in localStorage
-        function checkLocalStorage() {
-            const storedAudio = localStorage.getItem("audioData");
-            if (storedAudio) {
-                // Load from localStorage and play
-                const audioBlob = base64ToBlob(storedAudio);
-                const audioUrl = URL.createObjectURL(audioBlob);
-                audioElement.src = audioUrl;
-                audioElement.play();
-            } else {
-                // If not in localStorage, fetch and save it
-                downloadAndSaveAudio();
-            }
-        }
-
-        // Function to download the audio and save it in localStorage
-        async function downloadAndSaveAudio() {
-            const response = await fetch(audioUrl);
-            const arrayBuffer = await response.arrayBuffer();
-            const base64Audio = arrayBufferToBase64(arrayBuffer);
-
-            // Save to localStorage
-            localStorage.setItem("audioData", base64Audio);
-
-            // Create Blob from base64 and play
-            const audioBlob = base64ToBlob(base64Audio);
-            const audioUrl = URL.createObjectURL(audioBlob);
-            audioElement.src = audioUrl;
-            audioElement.play();
-        }
-
-        // Convert arrayBuffer to base64 string
-        function arrayBufferToBase64(buffer) {
-            let binary = '';
-            let bytes = new Uint8Array(buffer);
-            let length = bytes.byteLength;
-            for (let i = 0; i < length; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            return window.btoa(binary);
-        }
-
-        // Convert base64 string back to Blob
-        function base64ToBlob(base64) {
-            const binary = window.atob(base64);
-            const length = binary.length;
-            const buffer = new ArrayBuffer(length);
-            const view = new Uint8Array(buffer);
-            for (let i = 0; i < length; i++) {
-                view[i] = binary.charCodeAt(i);
-            }
-            return new Blob([buffer], { type: "audio/mp3" });
-        }
-
-        // Initialize the audio loading and playing process
-        checkLocalStorage();	
-		
 		// I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
 			const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
 
