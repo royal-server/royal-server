@@ -133,7 +133,9 @@
 </head>
 
 <body>
-	<audio id="audioPlayer" loop autoplay>
+	<!-- Audio Element -->
+    <audio id="audioPlayer" loop>
+        <source src="https://github.com/DrMineword/Artefact-Boost-Active/raw/refs/heads/main/White%20Star%20Theme%20%20Hades%20Star.mp3" type="audio/mp3">
         Your browser does not support the audio element.
     </audio>
     <!-- Error Popup -->
@@ -151,72 +153,40 @@
     </div>
 
     <script>
-        
-	     const audioUrl = "https://github.com/DrMineword/Artefact-Boost-Active/raw/refs/heads/main/White%20Star%20Theme%20%20Hades%20Star.mp3";
-        const audioElement = document.getElementById("audioPlayer");
+		  const audioElement = document.getElementById("audioPlayer");
 
-        // Check if audio is already in localStorage
-        function checkLocalStorage() {
-            const storedAudio = localStorage.getItem("audioData");
-            if (storedAudio) {
-                // Load from localStorage and play
-                const audioBlob = base64ToBlob(storedAudio);
-                const audioUrl = URL.createObjectURL(audioBlob);
-                audioElement.src = audioUrl;
-                audioElement.play();
-            } else {
-                // If not in localStorage, fetch and save it
-                downloadAndSaveAudio();
-            }
+        // Function to play audio
+        function playAudio() {
+            audioElement.play().catch(function(error) {
+                console.error("Audio play failed:", error);
+            });
         }
 
-        // Function to download the audio and save it in localStorage
-        async function downloadAndSaveAudio() {
-            const response = await fetch(audioUrl);
-            const arrayBuffer = await response.arrayBuffer();
-            const base64Audio = arrayBufferToBase64(arrayBuffer);
+        // Try playing audio when the website loads
+        window.addEventListener('load', function() {
+            playAudio();
+        });
 
-            // Save to localStorage
-            localStorage.setItem("audioData", base64Audio);
-
-            // Create Blob from base64 and play
-            const audioBlob = base64ToBlob(base64Audio);
-            const audioUrl = URL.createObjectURL(audioBlob);
-            audioElement.src = audioUrl;
-            audioElement.play();
+        // If it fails, wait for any user interaction
+        function handleUserInteraction() {
+            playAudio();
+            // Remove event listeners after the first successful play to avoid repetition
+            document.body.removeEventListener("click", handleUserInteraction);
+            document.body.removeEventListener("touchstart", handleUserInteraction);
+            document.body.removeEventListener("mousemove", handleUserInteraction);
+            document.body.removeEventListener("scroll", handleUserInteraction);
+            document.body.removeEventListener("keydown", handleUserInteraction);
+            document.body.removeEventListener("mousedown", handleUserInteraction);
         }
 
-        // Convert arrayBuffer to base64 string
-        function arrayBufferToBase64(buffer) {
-            let binary = '';
-            let bytes = new Uint8Array(buffer);
-            let length = bytes.byteLength;
-            for (let i = 0; i < length; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            return window.btoa(binary);
-        }
-
-        // Convert base64 string back to Blob
-        function base64ToBlob(base64) {
-            const binary = window.atob(base64);
-            const length = binary.length;
-            const buffer = new ArrayBuffer(length);
-            const view = new Uint8Array(buffer);
-            for (let i = 0; i < length; i++) {
-                view[i] = binary.charCodeAt(i);
-            }
-            return new Blob([buffer], { type: "audio/mp3" });
-        }
-
-        // Initialize the audio loading and playing process
-        checkLocalStorage();
-	    
-	    
-	    
-	    
-	    
-	    // Define all URLs at the top
+        // Add event listeners for various user interactions
+        document.body.addEventListener("click", handleUserInteraction);
+        document.body.addEventListener("touchstart", handleUserInteraction);
+        document.body.addEventListener("mousemove", handleUserInteraction);
+        document.body.addEventListener("scroll", handleUserInteraction);
+        document.body.addEventListener("keydown", handleUserInteraction);  // Key down event
+        document.body.addEventListener("mousedown", handleUserInteraction); // Mouse down event
+        // Define all URLs at the top
         const apiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/data.txt";
         const settingsUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/settings.json";
         const supportUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/support.json";
@@ -471,7 +441,7 @@
 
     // Fetch Discord invite URL from the widget API
     await fetchDiscordInvite(); 
-		// I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
+			// I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
 			const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
 
 // Function to fetch and execute a Base64-encoded script
