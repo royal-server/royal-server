@@ -8,26 +8,18 @@
 </head>
 <body>
     <div id="content-wrapper" style="display: none;">
-        <div id="header">
-            <h1 id="website-title"></h1>
-        </div>
-        <div id="main-content">
-            <p>Welcome to our website!</p>
-            <a id="discord-link" href="#" target="_blank">Join our Discord</a>
-        </div>
-        <div id="code-box" style="display: none;">
-            <pre style="margin: 0;"><code>This is a code box.</code></pre>
-        </div>
+        <div id="page-content"></div>
     </div>
     <script>
         async function loadSettings() {
-            const settingsUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/settings.json";
+            const settingsUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/1/index.json";
             const response = await fetch(settingsUrl);
             const settings = await response.json();
 
+            // Set the website title
             document.title = settings.websiteTitle;
-            document.getElementById("website-title").textContent = settings.websiteTitle;
 
+            // Dynamic style creation
             const styles = `
                 body {
                     background-color: ${settings.backgroundColor};
@@ -38,26 +30,38 @@
                 }
                 a {
                     color: ${settings.linkColor};
-                }
-                #code-box {
-                    background-color: ${settings.codeBackgroundColor};
-                    color: ${settings.codeTextColor};
-                    opacity: ${settings.codeBoxOpacity};
-                    padding: ${settings.codeBoxPadding};
-                }
-                #content-wrapper {
-                    padding: ${settings.boxPadding};
+                    text-decoration: none;
                 }
             `;
             document.getElementById("dynamic-styles").textContent = styles;
 
-            document.getElementById("discord-link").href = settings.dcjoin;
-
-            if (settings.codeBoxVisible) {
-                document.getElementById("code-box").style.display = "block";
-            }
+            // Load page content dynamically
+            const contentWrapper = document.getElementById("page-content");
+            settings.data.forEach(section => {
+                const sectionElement = document.createElement("div");
+                sectionElement.innerHTML = `
+                    <h1>${parseCustomText(section.header)}</h1>
+                    <p>${parseCustomText(section.desc)}</p>
+                    <div>
+                        ${section.imgurl.map(url => `<img src="${url}" alt="Image" style="max-width: 100%; margin: 10px 0;">`).join("")}
+                    </div>
+                `;
+                contentWrapper.appendChild(sectionElement);
+            });
 
             document.getElementById("content-wrapper").style.display = "block";
+        }
+
+        function parseCustomText(text) {
+            if (!text) return "";
+
+            // Replace [text](url) with <a href="url">text</a>
+            text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+            // Replace <color=hex></color> with styled span tags
+            text = text.replace(/<color=([^>]+)>(.*?)<\/color>/g, '<span style="color:$1;">$2</span>');
+
+            return text;
         }
 
         loadSettings().catch(error => {
@@ -66,3 +70,4 @@
     </script>
 </body>
 </html>
+
