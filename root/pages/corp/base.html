@@ -3,23 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WS Matches Viewer</title>
+  <title>Dynamic WS Matches Viewer</title>
   <script src="https://unpkg.com/vue@3"></script>
   <style>
     body {
+      margin: 0;
+      padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 100vh;
-      margin: 0;
-      background: #f0f0f0;
+      background-size: cover;
+      background-position: center;
+      font-family: Arial, sans-serif;
+    }
+
+    #app {
+      width: 100%;
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: center;
     }
 
     .box {
       position: relative;
-      width: 90%;
-      max-width: 500px;
+      width: 100%;
       background: rgba(255, 255, 255, 0.8); /* White with transparency */
       border-radius: 15px;
       margin: 10px 0;
@@ -48,34 +57,45 @@
     }
 
     .match-info {
-      font-family: Arial, sans-serif;
+      font-family: inherit;
       font-size: 14px;
       color: #333;
-      text-align: center;
     }
 
     .match-info strong {
       color: #007bff;
     }
+
+    .loading {
+      text-align: center;
+      margin-top: 50px;
+    }
   </style>
 </head>
 <body>
   <div id="app">
-    <div v-for="match in matches" :key="match.MatchId" class="box">
-      <div class="star-icon"></div>
-      <div class="match-info">
-        <p>
-          <strong>{{ match.Corporation1Name }}</strong>
-          <span>vs</span>
-          <strong>{{ match.Corporation2Name }}</strong>
-        </p>
-        <p>
-          Score: {{ match.Corporation1Score }} - {{ match.Corporation2Score }}
-        </p>
-        <p>
-          {{ match.DateEnded > nowDate ? "Ends in " + formatTime(match.DateEnded - nowDate) : "Ended" }}
-        </p>
+    <div v-if="loading" v-html="loadingAnimation"></div>
+
+    <div v-else-if="error" v-html="errorEffect"></div>
+
+    <div v-else>
+      <div v-for="match in matches" :key="match.MatchId" class="box">
+        <div class="star-icon"></div>
+        <div class="match-info">
+          <p>
+            <strong>{{ match.Corporation1Name }}</strong>
+            <span>vs</span>
+            <strong>{{ match.Corporation2Name }}</strong>
+          </p>
+          <p>
+            Score: {{ match.Corporation1Score }} - {{ match.Corporation2Score }}
+          </p>
+          <p>
+            {{ match.DateEnded > nowDate ? "Ends in " + formatTime(match.DateEnded - nowDate) : "Ended" }}
+          </p>
+        </div>
       </div>
+      <div v-html="footerHtml"></div>
     </div>
   </div>
 
@@ -83,22 +103,61 @@
     const app = Vue.createApp({
       data() {
         return {
-          matches: [], // Store matches here
-          nowDate: new Date(), // Current date and time
+          matches: [],
+          nowDate: new Date(),
+          loading: true,
+          error: false,
+          loadingAnimation: "",
+          errorEffect: "",
+          footerHtml: "",
+          backgroundUrl: "",
         };
       },
       methods: {
-        // Fetch matches data from API
-        async fetchMatches() {
-          const response = await fetch("https://ws.mentalisit.myds.me/matches?limit=10");
-          const data = await response.json();
-          // Convert DateEnded strings to Date objects
-          this.matches = data.matches.map(match => ({
-            ...match,
-            DateEnded: new Date(match.DateEnded)
-          }));
+        async loadSettings() {
+          try {
+            const settingsResponse = await fetch("https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/corp/resources/settings.json");
+            const settings = await settingsResponse.json();
+
+            // Apply website settings
+            document.title = settings.website.name || "WS Matches Viewer";
+            document.body.style.backgroundImage = `url(${settings.website.backgroundUrl})`;
+            document.body.style.fontFamily = settings.additionalSettings.font || "Arial, sans-serif";
+
+            // Apply loading animation
+            this.loadingAnimation = settings.website.loadingAnimation.html;
+            const style = document.createElement("style");
+            style.textContent = settings.website.loadingAnimation.css;
+            document.head.appendChild(style);
+
+            // Apply error effect
+            this.errorEffect = settings.website.error.html;
+            const errorStyle = document.createElement("style");
+            errorStyle.textContent = settings.website.error.effect.css;
+            document.head.appendChild(errorStyle);
+
+            // Apply footer
+            this.footerHtml = settings.website.footer.html;
+          } catch (error) {
+            console.error("Error loading settings:", error);
+            this.error = true;
+          }
         },
-        // Format time in seconds to a readable string
+        async fetchMatches() {
+          try {
+            const response = await fetch("https://ws.mentalisit.myds.me/matches?limit=10");
+            const data = await response.json();
+            this.matches = data.matches.map(match => ({
+              ...match,
+              DateEnded: new Date(match.DateEnded)
+            }));
+          } catch (error) {
+            console.error("Error fetching matches:", error);
+            this.error = true;
+          } finally {
+            this.loading = false;
+          }
+        },
         formatTime(milliseconds) {
           const seconds = Math.floor(milliseconds / 1000);
           const minutes = Math.floor(seconds / 60);
@@ -108,10 +167,11 @@
           if (hours > 0) return `${hours} hours`;
           if (minutes > 0) return `${minutes} minutes`;
           return `${seconds} seconds`;
-        },
+        }
       },
-      mounted() {
-        this.fetchMatches(); // Fetch matches when the component mounts
+      async mounted() {
+        await this.loadSettings();
+        await this.fetchMatches();
       },
     });
 
