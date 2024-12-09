@@ -1,7 +1,7 @@
 {
   "website": {
     "name": "My Awesome Website",
-    "backgroundUrl": "https://example.com/background.jpg",
+    "backgroundUrl": "https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/BlackCitadel.jpg",
     "loadingAnimation": {
       "html": "<div class='spinner'></div>",
       "css": ".spinner { width: 50px; height: 50px; border: 5px solid #ccc; border-top-color: #3498db; border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }"
