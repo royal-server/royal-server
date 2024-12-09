@@ -50,15 +50,16 @@
       padding: 20px 0;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .filters label {
       color: white;
     }
 
-    .filters select, .filters input {
+    .filters select {
       padding: 10px;
       border-radius: 5px;
       border: 1px solid #ccc;
@@ -68,7 +69,6 @@
     .list {
       margin: 2% auto;
       max-width: 800px;
-      position: relative;
     }
 
     .list li {
@@ -81,7 +81,6 @@
       text-align: center;
       border: 2px solid transparent;
       background: linear-gradient(to inside, rgba(0, 0, 255, 0.2), transparent); /* Blue fade to inside border */
-      position: relative; /* For positioning the star */
     }
 
     .score {
@@ -126,60 +125,51 @@
       color: white;
     }
 
-    /* Star Icon */
-    .star-icon {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%); /* Centers the star horizontally */
-      width: 25px;
-      height: 25px;
-      background-image: url('https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico');
-      background-size: contain;
-      background-repeat: no-repeat;
-      z-index: 10;
-    }
-
-    /* Time Ago Styling */
-    .time-ago {
-      font-style: italic;
-      color: #ccc;
-    }
-
-    /* Mobile responsive adjustments */
+    /* Mobile responsiveness */
     @media (max-width: 768px) {
       .filters {
         flex-direction: column;
         align-items: flex-start;
       }
 
-      .filters select,
-      .filters input {
+      .filters label {
+        margin-bottom: 10px;
+      }
+
+      .filters select {
         width: 100%;
         margin-bottom: 10px;
       }
 
       .pagination {
         display: flex;
+        justify-content: center;
         flex-direction: column;
-        gap: 10px;
-        align-items: center;
       }
 
       .pagination button {
         width: 100%;
+        margin-bottom: 10px;
+      }
+    }
+
+    /* Mobile Styling for Match List */
+    @media (max-width: 480px) {
+      .list li {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .score span {
+        font-size: 1.2em;
       }
     }
   </style>
 </head>
 <body>
   <div id="app">
-    <!-- Loading Spinner -->
     <div v-if="loading" v-html="loadingAnimation"></div>
     
-    <!-- Error Message -->
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-
     <!-- Filters -->
     <div class="filters">
       <label for="limit">Results per page:</label>
@@ -189,19 +179,16 @@
 
       <label for="corpFilter">Filter by Corporation:</label>
       <select id="corpFilter" v-model="selectedCorp" @change="onCorporationChange">
-        <option value="">All Corporations</option> <!-- Show All Option -->
         <option v-for="corp in corporations" :key="corp.Id" :value="corp.Id">{{ corp.Name }}</option>
       </select>
-
-      <!-- Page Number Input -->
-      <label for="pageNumber">Page Number:</label>
-      <input id="pageNumber" v-model.number="currentPage" @change="onPageNumberChange" type="number" min="1" :max="maxPage" />
     </div>
+
+    <!-- Error Message -->
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
     <!-- Matches List -->
     <ul class="list">
       <li v-for="match in filteredMatches" :key="match.MatchId">
-        <div class="star-icon"></div> <!-- White Star Icon centered -->
         <p class="corp-names">
           <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
         </p>
@@ -209,8 +196,8 @@
           <span>{{ match.Corporation1Score }}</span> - <span>{{ match.Corporation2Score }}</span>
         </p>
         <p>
-          <span>Ended: {{ formatDate(match.DateEnded) }} </span> | 
-          <span class="time-ago">{{ getTimeAgo(match.DateEnded) }}</span>
+          <span>Ended: {{ formatDate(match.DateEnded) }}</span> | 
+          <span>Time Ago: {{ timeAgo(match.DateEnded) }}</span>
         </p>
       </li>
     </ul>
@@ -234,14 +221,19 @@
           matches: [],
           filteredMatches: [],
           corporations: [],
-          selectedCorp: "",
+          selectedCorp: "", // Corporation filter
+          nowDate: new Date(),
           loading: true,
+          error: false,
+          loadingAnimation: "<div class='spinner'></div>",
           errorMessage: "",
           footerHtml: "",
+          backgroundUrl: "",
           currentPage: 1,
           maxPage: 1,
-          limit: 10,
-          limitOptions: [10, 20, 50],
+          hasNextPage: true,
+          limit: 10, // Default results per page
+          limitOptions: [10, 20, 50], // Options for results per page
         };
       },
       methods: {
@@ -251,6 +243,7 @@
             const settings = await settingsResponse.json();
             
             document.body.style.backgroundImage = `url(${settings.website.backgroundUrl})`;
+            document.body.style.fontFamily = settings.additionalSettings.font || "Arial, sans-serif";
             this.loadingAnimation = settings.website.loadingAnimation.html;
             const style = document.createElement("style");
             style.textContent = settings.website.loadingAnimation.css;
@@ -259,51 +252,53 @@
             this.footerHtml = settings.website.footer.html;
           } catch (error) {
             console.error("Error loading settings:", error);
-            this.errorMessage = "Error loading settings.";
+            this.error = true;
           }
         },
 
         async fetchCorporations() {
           try {
-            const response = await fetch('https://ws.mentalisit.myds.me/corporations');
+            const response = await fetch("https://ws.mentalisit.myds.me/corps");
             const data = await response.json();
-            if (data.corporations) {
-              this.corporations = data.corporations;
-            } else {
-              console.error("Corporations data is empty.");
-              this.errorMessage = "Error loading corporations.";
-            }
+            this.corporations = data.matches || [];
           } catch (error) {
             console.error("Error fetching corporations:", error);
-            this.errorMessage = "Error loading corporations.";
+            this.error = true;
           }
         },
 
         async fetchMatches() {
-          this.errorMessage = ''; // Clear previous error message
-
           try {
+            this.errorMessage = "";
             let url = `https://ws.mentalisit.myds.me/matches?limit=${this.limit}&page=${this.currentPage}`;
+
             if (this.selectedCorp) {
               url += `&filter=${JSON.stringify({ corp: [{ Id: this.selectedCorp }] })}`;
             }
 
             const response = await fetch(url);
+
+            if (!response.ok) {
+              throw new Error(`API Error: ${response.status} ${response.statusText}`);
+            }
+
             const data = await response.json();
 
-            if (data.matches) {
+            if (data.matches.length === 0) {
+              this.errorMessage = "No matches found for the selected filters.";
+              this.matches = [];
+            } else {
               this.matches = data.matches.map(match => ({
                 ...match,
-                DateEnded: new Date(match.DateEnded),
+                DateEnded: new Date(match.DateEnded)
               }));
-              this.maxPage = data.MaxPage || 1;
+              this.maxPage = data.MaxPage;
               this.filterMatches();
-            } else {
-              this.errorMessage = "No data returned for matches.";
+              this.hasNextPage = this.currentPage < this.maxPage;
             }
           } catch (error) {
             console.error("Error fetching matches:", error);
-            this.errorMessage = "Error fetching matches.";
+            this.errorMessage = "Oops! Something went wrong while fetching the data.";
           } finally {
             this.loading = false;
           }
@@ -323,29 +318,15 @@
           return new Date(date).toLocaleString();
         },
 
-        getTimeAgo(date) {
+        timeAgo(date) {
           const now = new Date();
-          const diff = Math.floor((now - new Date(date)) / 1000); // Difference in seconds
-          const years = Math.floor(diff / (60 * 60 * 24 * 365));
-          const months = Math.floor(diff / (60 * 60 * 24 * 30));
-          const days = Math.floor(diff / (60 * 60 * 24));
-          const hours = Math.floor(diff / (60 * 60));
-          const minutes = Math.floor(diff / 60);
-          const seconds = diff % 60;
-
-          if (years > 0) {
-            return `${years} year${years > 1 ? 's' : ''} ago`;
-          } else if (months > 0) {
-            return `${months} month${months > 1 ? 's' : ''} ago`;
-          } else if (days > 0) {
-            return `${days} day${days > 1 ? 's' : ''} ago`;
-          } else if (hours > 0) {
-            return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-          } else if (minutes > 0) {
-            return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-          } else {
-            return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
-          }
+          const diff = Math.floor((now - new Date(date)) / 1000);
+          const days = Math.floor(diff / 86400);
+          const hours = Math.floor((diff % 86400) / 3600);
+          const minutes = Math.floor((diff % 3600) / 60);
+          if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
+          if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
+          return `${minutes} minute${minutes > 1 ? "s" : ""}`;
         },
 
         nextPage() {
@@ -362,10 +343,6 @@
           }
         },
 
-        onPageNumberChange() {
-          this.fetchMatches();
-        },
-
         onCorporationChange() {
           this.currentPage = 1;
           this.fetchMatches();
@@ -379,7 +356,7 @@
 
       async mounted() {
         await this.loadSettings();
-        await this.fetchCorporations(); // Fetch corporations once on mount
+        await this.fetchCorporations();
         await this.fetchMatches();
       }
     });
