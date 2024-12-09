@@ -17,6 +17,7 @@
       background-size: cover;
       background-position: center;
       font-family: Arial, sans-serif;
+      background-attachment: fixed; /* Static background */
     }
 
     #app {
@@ -38,7 +39,7 @@
       font-weight: bold;
     }
 
-    .filter select {
+    .filter select, .filter input {
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 5px;
@@ -116,6 +117,19 @@
       text-align: center;
       margin-top: 50px;
     }
+
+    .footer {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #f1f1f1;
+      width: 100%;
+      text-align: center;
+    }
+
+    .footer a {
+      text-decoration: none;
+      color: #3498db;
+    }
   </style>
 </head>
 <body>
@@ -145,7 +159,7 @@
         <div class="match-info">
           <p>
             <strong>{{ match.Corporation1Name }}</strong>
-            <span>vs</span>
+            <span> vs </span>
             <strong>{{ match.Corporation2Name }}</strong>
           </p>
           <p>
@@ -160,12 +174,18 @@
       <!-- Pagination Bar -->
       <div class="pagination">
         <button @click="prevPage" :disabled="currentPage <= 1">Previous</button>
-        <span>Page {{ currentPage }}</span>
+        <span>{{ currentPage }} / {{ maxPage }}</span>
         <button @click="nextPage" :disabled="!hasNextPage">Next</button>
       </div>
 
+      <!-- Enter Page Number -->
+      <div class="filter">
+        <label for="page-number">Enter Page Number</label>
+        <input type="number" id="page-number" v-model.number="currentPage" @change="fetchMatches" min="1" :max="maxPage">
+      </div>
+
       <!-- Footer -->
-      <div v-html="footerHtml"></div>
+      <div class="footer" v-html="footerHtml"></div>
     </div>
   </div>
 
@@ -185,6 +205,7 @@
           footerHtml: "",
           backgroundUrl: "",
           currentPage: 1,
+          maxPage: 1,
           hasNextPage: true,
         };
       },
@@ -226,8 +247,9 @@
               ...match,
               DateEnded: new Date(match.DateEnded)
             }));
+            this.maxPage = data.MaxPage;
             this.filterMatches();
-            this.hasNextPage = this.currentPage < data.MaxPage;
+            this.hasNextPage = this.currentPage < this.maxPage;
           } catch (error) {
             console.error("Error fetching matches:", error);
             this.error = true;
@@ -268,8 +290,10 @@
           return `${minutes} minute${minutes > 1 ? "s" : ""}`;
         },
         nextPage() {
-          this.currentPage++;
-          this.fetchMatches();
+          if (this.currentPage < this.maxPage) {
+            this.currentPage++;
+            this.fetchMatches();
+          }
         },
         prevPage() {
           if (this.currentPage > 1) {
