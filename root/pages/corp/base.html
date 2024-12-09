@@ -3,192 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic WS Matches Viewer</title>
-  <script src="https://unpkg.com/vue@3"></script>
+  <title>WS Matches Viewer</title>
   <style>
+    /* Global Styles */
     body {
+      background-color: #2e2e2e; /* Dark background */
+      color: white; /* White text */
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
       background-size: cover;
       background-position: center;
-      font-family: Arial, sans-serif;
-      background-attachment: fixed; /* Static background */
     }
 
-    #app {
-      width: 100%;
+    /* Spinner Animation for loading state */
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #ccc;
+      border-top-color: #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error Message */
+    .error-message {
+      color: red;
+      font-weight: bold;
+      animation: shake 0.5s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25%, 75% { transform: translateX(-10px); }
+      50% { transform: translateX(10px); }
+    }
+
+    /* Filter Section */
+    .filters {
+      padding: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .filters label {
+      color: white;
+    }
+
+    .filters select {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    /* Match List */
+    .list {
+      margin: 2% auto;
       max-width: 800px;
-      margin: 20px auto;
+    }
+
+    .list li {
+      list-style: none;
+      margin: 2% 0;
+      background-color: #333;
+      padding: 20px;
+      border-radius: 10px;
       text-align: center;
     }
 
-    .filter {
-      margin: 20px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .filter label {
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-
-    .filter select, .filter input {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 14px;
-      width: 300px;
-    }
-
-    .box {
-      position: relative;
-      width: 100%;
-      background: rgba(255, 255, 255, 0.8); /* White with transparency */
-      border-radius: 15px;
-      margin: 10px 0;
-      padding: 20px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .box::before {
-      content: "";
-      position: absolute;
-      top: -5px;
-      left: -5px;
-      right: -5px;
-      bottom: -5px;
-      background: linear-gradient(to center, rgba(0, 128, 255, 0.8), transparent);
-      border-radius: 20px;
-      z-index: -1;
-    }
-
-    .star-icon {
-      width: 30px;
-      height: 30px;
-      background: url('https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico') center no-repeat;
-      background-size: contain;
-      margin: 0 auto 10px;
+    .score {
       display: flex;
       justify-content: center;
-      align-items: center;
+      gap: 15px;
     }
 
-    .match-info {
-      font-family: inherit;
-      font-size: 14px;
-      color: #333;
-    }
-
-    .match-info strong {
-      color: #007bff;
+    .score span {
+      font-size: 150%;
+      color: white;
     }
 
     .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 20px 0;
+      text-align: center;
+      margin: 20px;
     }
 
     .pagination button {
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
       background-color: #3498db;
       color: white;
-      border: none;
-      border-radius: 5px;
-      padding: 10px 15px;
-      margin: 0 5px;
-      font-size: 14px;
       cursor: pointer;
     }
 
     .pagination button:disabled {
-      background-color: #ccc;
+      background-color: #888;
       cursor: not-allowed;
     }
 
-    .loading {
-      text-align: center;
-      margin-top: 50px;
-    }
-
-    .footer {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #f1f1f1;
-      width: 100%;
-      text-align: center;
-    }
-
-    .footer a {
-      text-decoration: none;
-      color: #3498db;
+    .pagination span {
+      font-size: 1.2em;
+      margin: 0 15px;
     }
   </style>
 </head>
 <body>
   <div id="app">
-    <!-- Loading Animation -->
     <div v-if="loading" v-html="loadingAnimation"></div>
+    
+    <div class="filters">
+      <label for="limit">Results per page:</label>
+      <select id="limit" v-model="limit" @change="onLimitChange">
+        <option v-for="option in limitOptions" :key="option" :value="option">{{ option }}</option>
+      </select>
 
-    <!-- Error Message -->
-    <div v-else-if="error" v-html="errorEffect"></div>
-
-    <!-- Content -->
-    <div v-else>
-      <!-- Corporation Filter -->
-      <div class="filter">
-        <label for="corporation-filter">Filter by Corporation</label>
-        <select id="corporation-filter" v-model="selectedCorp" @change="filterMatches">
-          <option value="">All Corporations</option>
-          <option v-for="corp in corporations" :value="corp.Id" :key="corp.Id">
-            {{ corp.Name }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Match List -->
-      <div v-for="match in filteredMatches" :key="match.MatchId" class="box">
-        <div class="star-icon"></div>
-        <div class="match-info">
-          <p>
-            <strong>{{ match.Corporation1Name }}</strong>
-            <span> vs </span>
-            <strong>{{ match.Corporation2Name }}</strong>
-          </p>
-          <p>
-            Score: {{ match.Corporation1Score }} - {{ match.Corporation2Score }}
-          </p>
-          <p>
-            {{ formatDate(match.DateEnded) }} ({{ timeAgo(match.DateEnded) }} ago)
-          </p>
-        </div>
-      </div>
-
-      <!-- Pagination Bar -->
-      <div class="pagination">
-        <button @click="prevPage" :disabled="currentPage <= 1">Previous</button>
-        <span>{{ currentPage }} / {{ maxPage }}</span>
-        <button @click="nextPage" :disabled="!hasNextPage">Next</button>
-      </div>
-
-      <!-- Enter Page Number -->
-      <div class="filter">
-        <label for="page-number">Enter Page Number</label>
-        <input type="number" id="page-number" v-model.number="currentPage" @change="fetchMatches" min="1" :max="maxPage">
-      </div>
-
-      <!-- Footer -->
-      <div class="footer" v-html="footerHtml"></div>
+      <label for="corpFilter">Filter by Corporation:</label>
+      <select id="corpFilter" v-model="selectedCorp" @change="onCorporationChange">
+        <option v-for="corp in corporations" :key="corp.Id" :value="corp.Id">{{ corp.Name }}</option>
+      </select>
     </div>
+
+    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <ul class="list">
+      <li v-for="match in filteredMatches" :key="match.MatchId">
+        <p class="corp-names">
+          <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
+        </p>
+        <p class="score">
+          <span>{{ match.Corporation1Score }}</span> - <span>{{ match.Corporation2Score }}</span>
+        </p>
+        <p>
+          <span>Ended: {{ formatDate(match.DateEnded) }}</span> | 
+          <span>Time Ago: {{ timeAgo(match.DateEnded) }}</span>
+        </p>
+      </li>
+    </ul>
+
+    <div class="pagination">
+      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+      <span>{{ currentPage }} / {{ maxPage }}</span>
+      <button @click="nextPage" :disabled="currentPage === maxPage">Next</button>
+    </div>
+
+    <div v-html="footerHtml"></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.45"></script>
   <script>
     const app = Vue.createApp({
       data() {
@@ -196,17 +163,19 @@
           matches: [],
           filteredMatches: [],
           corporations: [],
-          selectedCorp: "",
+          selectedCorp: "", // Corporation filter
           nowDate: new Date(),
           loading: true,
           error: false,
-          loadingAnimation: "",
-          errorEffect: "",
+          loadingAnimation: "<div class='spinner'></div>",
+          errorMessage: "",
           footerHtml: "",
           backgroundUrl: "",
           currentPage: 1,
           maxPage: 1,
           hasNextPage: true,
+          limit: 10, // Default results per page
+          limitOptions: [10, 20, 50], // Options for results per page
         };
       },
       methods: {
@@ -214,49 +183,21 @@
           try {
             const settingsResponse = await fetch("https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/corp/resources/settings.json");
             const settings = await settingsResponse.json();
-
-            // Apply website settings
-            document.title = settings.website.name || "WS Matches Viewer";
+            
             document.body.style.backgroundImage = `url(${settings.website.backgroundUrl})`;
             document.body.style.fontFamily = settings.additionalSettings.font || "Arial, sans-serif";
-
-            // Apply loading animation
             this.loadingAnimation = settings.website.loadingAnimation.html;
             const style = document.createElement("style");
             style.textContent = settings.website.loadingAnimation.css;
             document.head.appendChild(style);
-
-            // Apply error effect
-            this.errorEffect = settings.website.error.html;
-            const errorStyle = document.createElement("style");
-            errorStyle.textContent = settings.website.error.effect.css;
-            document.head.appendChild(errorStyle);
-
-            // Apply footer
+            this.errorMessage = settings.website.error.message;
             this.footerHtml = settings.website.footer.html;
           } catch (error) {
             console.error("Error loading settings:", error);
             this.error = true;
           }
         },
-        async fetchMatches() {
-          try {
-            const response = await fetch(`https://ws.mentalisit.myds.me/matches?limit=10&page=${this.currentPage}`);
-            const data = await response.json();
-            this.matches = data.matches.map(match => ({
-              ...match,
-              DateEnded: new Date(match.DateEnded)
-            }));
-            this.maxPage = data.MaxPage;
-            this.filterMatches();
-            this.hasNextPage = this.currentPage < this.maxPage;
-          } catch (error) {
-            console.error("Error fetching matches:", error);
-            this.error = true;
-          } finally {
-            this.loading = false;
-          }
-        },
+
         async fetchCorporations() {
           try {
             const response = await fetch("https://ws.mentalisit.myds.me/corps");
@@ -267,6 +208,44 @@
             this.error = true;
           }
         },
+
+        async fetchMatches() {
+          try {
+            this.errorMessage = "";
+            let url = `https://ws.mentalisit.myds.me/matches?limit=${this.limit}&page=${this.currentPage}`;
+
+            if (this.selectedCorp) {
+              url += `&filter=${JSON.stringify({ corp: [{ Id: this.selectedCorp }] })}`;
+            }
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+              throw new Error(`API Error: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            if (data.matches.length === 0) {
+              this.errorMessage = "No matches found for the selected filters.";
+              this.matches = [];
+            } else {
+              this.matches = data.matches.map(match => ({
+                ...match,
+                DateEnded: new Date(match.DateEnded)
+              }));
+              this.maxPage = data.MaxPage;
+              this.filterMatches();
+              this.hasNextPage = this.currentPage < this.maxPage;
+            }
+          } catch (error) {
+            console.error("Error fetching matches:", error);
+            this.errorMessage = "Oops! Something went wrong while fetching the data.";
+          } finally {
+            this.loading = false;
+          }
+        },
+
         filterMatches() {
           if (this.selectedCorp) {
             this.filteredMatches = this.matches.filter(match =>
@@ -276,9 +255,11 @@
             this.filteredMatches = this.matches;
           }
         },
+
         formatDate(date) {
           return new Date(date).toLocaleString();
         },
+
         timeAgo(date) {
           const now = new Date();
           const diff = Math.floor((now - new Date(date)) / 1000);
@@ -289,24 +270,37 @@
           if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
           return `${minutes} minute${minutes > 1 ? "s" : ""}`;
         },
+
         nextPage() {
           if (this.currentPage < this.maxPage) {
             this.currentPage++;
             this.fetchMatches();
           }
         },
+
         prevPage() {
           if (this.currentPage > 1) {
             this.currentPage--;
             this.fetchMatches();
           }
+        },
+
+        onCorporationChange() {
+          this.currentPage = 1;
+          this.fetchMatches();
+        },
+
+        onLimitChange() {
+          this.currentPage = 1;
+          this.fetchMatches();
         }
       },
+
       async mounted() {
         await this.loadSettings();
         await this.fetchCorporations();
         await this.fetchMatches();
-      },
+      }
     });
 
     app.mount("#app");
