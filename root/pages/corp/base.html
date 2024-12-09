@@ -3,181 +3,56 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Corporation Details</title>
+  <title>Styled Box with Icon</title>
   <style>
     body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       margin: 0;
-      padding: 0;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      font-family: Arial, sans-serif;
-      color: white;
+      background: #f0f0f0;
     }
-    .content {
-      padding: 20px;
-      text-align: center;
+
+    .box {
+      position: relative;
+      width: 300px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.8); /* White with transparency */
+      border-radius: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    .match-box {
-      border: 1px solid white;
-      padding: 10px;
-      margin: 10px;
-      border-radius: 5px;
-      background-color: rgba(0, 0, 0, 0.7);
+
+    .box::before {
+      content: "";
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      background: linear-gradient(
+        to center,
+        rgba(0, 128, 255, 0.8),
+        transparent
+      ); /* Gradient blue rim */
+      border-radius: 20px;
+      z-index: -1; /* Place the gradient below the box */
     }
-    #stat-box, #corp-description, #matches-container {
-      margin: 20px 0;
-    }
-    #bottom-html {
-      margin-top: 50px;
+
+    .star-icon {
+      width: 50px;
+      height: 50px;
+      background: url('https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico') center no-repeat;
+      background-size: contain;
     }
   </style>
 </head>
 <body>
-  <div class="content" id="corp-content">
-    <img id="corp-icon" alt="Corporation Icon" style="width: 50px; height: 50px;">
-    <h1 id="corp-title"></h1>
-    <div id="corp-description"></div>
-    <div id="corp-invite"></div>
-    <div id="stat-box"></div>
-    <div id="matches-container"></div>
-    <div id="bottom-html"></div>
+  <div class="box">
+    <div class="star-icon"></div>
   </div>
-
-  <script>
-    const settingsUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/corp/resources/settings.json";
-
-    async function fetchSettings() {
-      try {
-        const response = await fetch(settingsUrl);
-        if (!response.ok) {
-          throw new Error("Failed to fetch settings.");
-        }
-        return await response.json();
-      } catch (error) {
-        console.error("Error fetching settings:", error);
-        return null;
-      }
-    }
-
-    async function fetchAndDisplayCorporationData(corpId) {
-      try {
-        const settings = await fetchSettings();
-        if (settings) {
-          // Apply background image
-          document.body.style.backgroundImage = `url(${settings.websiteBackgroundUrl})`;
-
-          // Load bottom HTML
-          const bottomHtmlContainer = document.getElementById("bottom-html");
-          bottomHtmlContainer.innerHTML = settings.bottomHtml || "No bottom HTML configured.";
-        }
-
-        // Fetch Corporation Data
-        const corpResponse = await fetch("https://ws.mentalisit.myds.me/corps");
-        const corps = await corpResponse.json();
-        const corp = corps.matches.find(c => c.Id === corpId);
-
-        if (!corp) {
-          throw new Error("Corporation not found.");
-        }
-
-        // Fetch Matches
-        const matchesResponse = await fetch(`https://ws.mentalisit.myds.me/matches?filter={"corp":[{"Id":"${corpId}"}]}`);
-        const matchData = await matchesResponse.json();
-
-        // Fetch Scoreboard Data
-        const scoreboardResponse = await fetch("https://raw.githubusercontent.com/CapricanDRJ/HadesStarCommunityData/refs/heads/main/whitestar_scoreboard.json");
-        const scoreboard = await scoreboardResponse.json();
-        const scoreboardData = scoreboard.find(c => c.CorporationId === corpId);
-
-        // Corporation Icon Handling
-        const corpIconUrl = `https://raw.githubusercontent.com/CapricanDRJ/HadesStarCommunityData/refs/heads/main/docs/corp/${corpId}/favicon.ico`;
-        const iconResponse = await fetch(corpIconUrl);
-        const iconUrl = iconResponse.ok ? corpIconUrl : "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico";
-
-        // Update Corporation Details
-        document.getElementById("corp-title").innerText = corp.Name.trim();
-        document.getElementById("corp-icon").src = iconUrl;
-
-        // Display Description and Invite Box
-        if (scoreboardData) {
-          const descriptionBox = document.getElementById("corp-description");
-          descriptionBox.innerHTML = scoreboardData.description || "No description available.";
-          
-          const inviteBox = document.getElementById("corp-invite");
-          if (scoreboardData.discord) {
-            inviteBox.innerHTML = `<a href="https://${scoreboardData.discord}" target="_blank">Join Discord</a>`;
-          } else {
-            inviteBox.innerHTML = "No invite available.";
-          }
-        }
-
-        // Calculate and Display Statistics
-        const stats = calculateStatistics(corpId, matchData, scoreboardData);
-        updateStatisticsBox(stats);
-
-        // Display Matches
-        updateMatchesBox(matchData.matches, settings.baseWebUrl);
-
-      } catch (error) {
-        console.error("Error loading corporation data:", error);
-        document.getElementById("corp-content").innerHTML = "<p>Failed to load data. Please try again later.</p>";
-      }
-    }
-
-    function updateMatchesBox(matches, baseWebUrl) {
-      const matchesContainer = document.getElementById("matches-container");
-      matchesContainer.innerHTML = "";
-
-      matches.forEach(match => {
-        const matchBox = document.createElement("div");
-        matchBox.className = "match-box";
-
-        const corp1Link = `<a href="${baseWebUrl}?id=${match.Corporation1Id}" target="_blank">${match.Corporation1Name}</a>`;
-        const corp2Link = `<a href="${baseWebUrl}?id=${match.Corporation2Id}" target="_blank">${match.Corporation2Name}</a>`;
-
-        const matchDate = new Date(match.DateEnded).toLocaleString();
-
-        matchBox.innerHTML = `
-          <p>${corp1Link} (${match.Corporation1Score}) vs ${corp2Link} (${match.Corporation2Score})</p>
-          <p>Date Ended: ${matchDate}</p>
-          <p>Match ID: ${match.MatchId}</p>
-        `;
-
-        matchesContainer.appendChild(matchBox);
-      });
-    }
-
-    function calculateStatistics(corpId, matchData, scoreboard) {
-      // Same calculation logic as before (not repeated here for brevity).
-    }
-
-    function updateStatisticsBox(stats) {
-      const statBox = document.getElementById("stat-box");
-      statBox.innerHTML = `
-        <p>Total Relics: ${stats.totalRelics}</p>
-        <p>Relic Record: ${stats.relicRecord}</p>
-        <p>Average Relics per Match: ${stats.averageRelics.toFixed(2)}</p>
-        <p>Total Enemy Relics: ${stats.enemyRelics}</p>
-        <p>Average Enemy Relics per Match: ${stats.averageEnemyRelics.toFixed(2)}</p>
-        <p>Better than Enemy Relics: ${stats.betterThanEnemyRelics} (${(stats.averageRelics - stats.averageEnemyRelics).toFixed(2)})</p>
-        <p>Better than Enemy Elo: ${stats.betterThanEnemyElo} (${stats.eloDifference.toFixed(2)})</p>
-        <p>Win-Loss-Draw: ${stats.winLossDraw.win}-${stats.winLossDraw.loss}-${stats.winLossDraw.draw}</p>
-        <p>Win Rate: ${stats.winRate}%</p>
-        <p>Current Streak: ${stats.currentStreak}</p>
-        <p>Max Win Streak: ${stats.maxWinStreak}</p>
-        <p>Max Lose Streak: ${stats.maxLoseStreak}</p>
-      `;
-    }
-
-    // Load Corporation Data Based on URL Parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const corpId = urlParams.get("id");
-    if (corpId) {
-      fetchAndDisplayCorporationData(corpId);
-    } else {
-      document.getElementById("corp-content").innerHTML = "<p>No Corporation ID provided in URL.</p>";
-    }
-  </script>
 </body>
 </html>
