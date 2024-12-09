@@ -1,1 +1,178 @@
-<°>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Corporation Stats</title>
+  <style>
+    /* Basic Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('background_image_url_here.jpg'); /* Replace with your actual background URL */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .corp-description {
+      text-align: center;
+      margin: 20px;
+    }
+
+    .stat-box {
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      margin: 20px;
+      border-radius: 10px;
+    }
+
+    .match-box {
+      background-color: rgba(0, 0, 0, 0.5);
+      margin: 15px 0;
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .match-box a {
+      color: #00bcd4;
+      text-decoration: none;
+    }
+
+    .match-box a:hover {
+      text-decoration: underline;
+    }
+
+    .invite-box {
+      margin: 20px;
+      text-align: center;
+    }
+
+    /* Additional styling for error states */
+    .error-message {
+      color: red;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="corp-container">
+    <!-- Corporation Title -->
+    <h1 id="corp-title">Loading Corporation...</h1>
+
+    <!-- Corporation Description & Invite Link (Optional) -->
+    <div class="corp-description">
+      <p id="corp-desc">Loading description...</p>
+      <div id="invite-box" class="invite-box" style="display: none;">
+        <a href="" target="_blank" id="corp-invite-link">Join the Corporation</a>
+      </div>
+    </div>
+
+    <!-- Statistics Box -->
+    <div class="stat-box" id="stat-box">
+      <p>Loading statistics...</p>
+    </div>
+
+    <!-- Matches Section -->
+    <div id="matches">
+      <p>Loading matches...</p>
+    </div>
+  </div>
+
+  <script>
+    const base_web_url = "https://drmineword.github.io/Artefact-Boost-Active/root/pages/corp/base.html";
+
+    async function fetchData(corpId) {
+      try {
+        // Fetch Corporation Data
+        const corpResponse = await fetch("https://ws.mentalisit.myds.me/corps");
+        const corps = await corpResponse.json();
+        const corp = corps.matches.find(c => c.Id === corpId);
+
+        // Fetch Matches
+        const matchesResponse = await fetch(`https://ws.mentalisit.myds.me/matches?filter={"corp":[{"Id":"${corpId}"}]}`);
+        const matchData = await matchesResponse.json();
+
+        // Fetch Scoreboard Data
+        const scoreboardResponse = await fetch("https://raw.githubusercontent.com/CapricanDRJ/HadesStarCommunityData/refs/heads/main/whitestar_scoreboard.json");
+        const scoreboard = await scoreboardResponse.json();
+        const scoreboardData = scoreboard.find(c => c.CorporationId === corpId);
+
+        // Corporation Icon Handling
+        const corpIconUrl = `https://raw.githubusercontent.com/CapricanDRJ/HadesStarCommunityData/refs/heads/main/docs/corp/${corpId}/favicon.ico`;
+        const iconExists = await fetch(corpIconUrl).then(res => res.ok);
+        const iconUrl = iconExists
+          ? corpIconUrl
+          : "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico";
+
+        updatePage(corp, matchData, scoreboardData, iconUrl);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        document.getElementById("corp-title").innerText = "Error loading corporation data.";
+      }
+    }
+
+    function updatePage(corp, matches, scoreboard, iconUrl) {
+      // Update Title
+      document.getElementById("corp-title").innerText = corp.Name;
+
+      // Update Description
+      document.getElementById("corp-desc").innerText = scoreboard?.description || "No description available.";
+      if (scoreboard?.discord) {
+        const inviteBox = document.getElementById("invite-box");
+        inviteBox.style.display = "block";
+        document.getElementById("corp-invite-link").href = `https://${scoreboard.discord}`;
+      }
+
+      // Update Statistics
+      const statBox = document.getElementById("stat-box");
+      statBox.innerHTML = `
+        <p>Total Relics: ${scoreboard.totalRelics}</p>
+        <p>Relic Record: ${scoreboard.relicRecord}</p>
+        <p>Average Relics per Match: ${scoreboard.avgRelicsPerMatch}</p>
+        <p>Win Rate: ${scoreboard.winRate}</p>
+      `;
+
+      // Update Matches
+      const matchesContainer = document.getElementById("matches");
+      matchesContainer.innerHTML = "";
+      matches.matches.forEach(match => {
+        const matchBox = document.createElement("div");
+        matchBox.classList.add("match-box");
+        matchBox.innerHTML = `
+          <p>
+            <a href="${base_web_url}?id=${match.Corporation1Id}">${match.Corporation1Name}</a>
+            vs
+            <a href="${base_web_url}?id=${match.Corporation2Id}">${match.Corporation2Name}</a>
+          </p>
+          <p>Score: ${match.Corporation1Score} - ${match.Corporation2Score}</p>
+          <p>Date Ended: ${new Date(match.DateEnded).toLocaleString()}</p>
+        `;
+        matchesContainer.appendChild(matchBox);
+      });
+    }
+
+    // Extract Corporation ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const corpId = urlParams.get("id");
+
+    if (corpId) {
+      fetchData(corpId);
+    } else {
+      document.getElementById("corp-title").innerText = "Corporation ID not provided.";
+    }
+  </script>
+</body>
+
+</html>
