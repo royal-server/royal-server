@@ -1,0 +1,24 @@
+{
+  "website": {
+    "name": "My Awesome Website",
+    "backgroundUrl": "https://example.com/background.jpg",
+    "loadingAnimation": {
+      "html": "<div class='spinner'></div>",
+      "css": ".spinner { width: 50px; height: 50px; border: 5px solid #ccc; border-top-color: #3498db; border-radius: 50%; animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }"
+    },
+    "error": {
+      "message": "Oops! Something went wrong.",
+      "effect": {
+        "html": "<div class='error-message'>Error loading content</div>",
+        "css": ".error-message { color: red; font-weight: bold; animation: shake 0.5s; } @keyframes shake { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-10px); } 50% { transform: translateX(10px); } }"
+      }
+    },
+    "footer": {
+      "html": "<footer><p>&copy; 2024 My Awesome Website. All rights reserved.</p></footer>"
+    }
+  },
+  "additionalSettings": {
+    "themeColor": "#3498db",
+    "font": "Arial, sans-serif"
+  }
+}
