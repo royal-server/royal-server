@@ -280,86 +280,84 @@
         };
       },
       methods: {
-    async loadSettings() {
-      try {
-        const settingsResponse = await fetch("https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/corp/resources/settings.json");
-        const settingsData = await settingsResponse.json();
-        this.footerHtml = settingsData.website.footer.html;
-        this.backgroundUrl = settingsData.website.backgroundUrl;
-        document.body.style.backgroundImage = `url(${this.backgroundUrl})`;
-        this.loading = false;
-      } catch (error) {
-        this.loading = false;
-        this.errorMessage = "Oops! Something went wrong.";
-      }
-    },
+        async loadSettings() {
+          try {
+            const settingsResponse = await fetch("https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/corp/resources/settings.json");
+            const settingsData = await settingsResponse.json();
+            this.footerHtml = settingsData.website.footer.html;
+            this.backgroundUrl = settingsData.website.backgroundUrl;
+            document.body.style.backgroundImage = `url(${this.backgroundUrl})`;
+            this.loading = false;
+          } catch (error) {
+            this.loading = false;
+            this.errorMessage = "Oops! Something went wrong.";
+          }
+        },
 
-    async fetchMatches() {
-      try {
-        this.loading = true;
-        // Updated API URL
-        const apiUrl = `https://ws.mentalisit.myds.me/matches?limit=${this.limit}&page=${this.currentPage}`;
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error(`Error fetching matches: ${response.status}`);
+        async fetchMatches() {
+          try {
+            this.loading = true;
+            // Updated API URL
+            const apiUrl = `https://ws.mentalisit.myds.me/matches?limit=${this.limit}&page=${this.currentPage}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+              throw new Error(`Error fetching matches: ${response.status}`);
+            }
+            const data = await response.json();
+            this.matches = data.matches;
+            this.maxPage = data.maxPage;
+            this.filteredMatches = this.matches;
+            this.loading = false;
+          } catch (error) {
+            this.loading = false;
+            this.errorMessage = `Error: ${error.message}`;
+          }
+        },
+
+        async fetchCorporations() {
+          try {
+            // Updated API URL
+            const response = await fetch("https://ws.mentalisit.myds.me/corps");
+            if (!response.ok) {
+              throw new Error("Error fetching corporations");
+            }
+            const data = await response.json();
+            this.corporations = data.corporations;
+          } catch (error) {
+            this.errorMessage = `Error: ${error.message}`;
+          }
+        },
+
+        onCorporationChange() {
+          // Filter matches based on selected corporation
+          this.filteredMatches = this.matches.filter(match => 
+            match.Corporation1Id === this.selectedCorp || match.Corporation2Id === this.selectedCorp
+          );
+        },
+
+        onLimitChange() {
+          this.fetchMatches();
+        },
+
+        prevPage() {
+          if (this.currentPage > 1) {
+            this.currentPage--;
+            this.fetchMatches();
+          }
+        },
+
+        nextPage() {
+          if (this.currentPage < this.maxPage) {
+            this.currentPage++;
+            this.fetchMatches();
+          }
         }
-        const data = await response.json();
-        this.matches = data.matches;
-        this.maxPage = data.maxPage;
-        this.filteredMatches = this.matches;
-        this.loading = false;
-      } catch (error) {
-        this.loading = false;
-        this.errorMessage = `Error: ${error.message}`;
-      }
-    },
-
-    async fetchCorporations() {
-      try {
-        // Updated API URL
-        const response = await fetch("https://ws.mentalisit.myds.me/corps");
-        if (!response.ok) {
-          throw new Error("Error fetching corporations");
-        }
-        const data = await response.json();
-        this.corporations = data.corporations;
-      } catch (error) {
-        this.errorMessage = `Error: ${error.message}`;
-      }
-    },
-
-    onCorporationChange() {
-      // Filter matches based on selected corporation
-      this.filteredMatches = this.matches.filter(match => 
-        match.Corporation1Id === this.selectedCorp || match.Corporation2Id === this.selectedCorp
-      );
-    },
-
-    onLimitChange() {
-      this.fetchMatches();
-    },
-
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
+      },
+      created() {
+        this.loadSettings();
         this.fetchMatches();
+        this.fetchCorporations(); // Fetch corporations data
       }
-    },
-
-    nextPage() {
-      if (this.currentPage < this.maxPage) {
-        this.currentPage++;
-        this.fetchMatches();
-      }
-    }
-},
-
-created() {
-  this.loadSettings();
-  this.fetchMatches();
-  this.fetchCorporations(); // Fetch corporations data
-}
-
     });
 
     app.mount("#app");
