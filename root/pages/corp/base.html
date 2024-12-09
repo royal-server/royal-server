@@ -12,8 +12,10 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      background-image: url('https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/BlackCitadel.jpg');
       background-size: cover;
       background-position: center;
+      background-attachment: fixed; /* Ensures the background stays static while scrolling */
     }
 
     /* Spinner Animation for loading state */
@@ -71,10 +73,13 @@
     .list li {
       list-style: none;
       margin: 2% 0;
-      background-color: #333;
+      background-color: white;
+      color: #333; /* Dark text for contrast */
       padding: 20px;
       border-radius: 10px;
       text-align: center;
+      border: 2px solid transparent;
+      background: linear-gradient(to inside, rgba(0, 0, 255, 0.2), transparent); /* Blue fade to inside border */
     }
 
     .score {
@@ -85,7 +90,7 @@
 
     .score span {
       font-size: 150%;
-      color: white;
+      color: #333;
     }
 
     .pagination {
@@ -111,12 +116,22 @@
       font-size: 1.2em;
       margin: 0 15px;
     }
+
+    /* Custom Footer */
+    footer {
+      padding: 20px 0;
+      text-align: center;
+      background-color: #333;
+      color: white;
+    }
+
   </style>
 </head>
 <body>
   <div id="app">
     <div v-if="loading" v-html="loadingAnimation"></div>
     
+    <!-- Filters -->
     <div class="filters">
       <label for="limit">Results per page:</label>
       <select id="limit" v-model="limit" @change="onLimitChange">
@@ -129,8 +144,10 @@
       </select>
     </div>
 
+    <!-- Error Message -->
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
+    <!-- Matches List -->
     <ul class="list">
       <li v-for="match in filteredMatches" :key="match.MatchId">
         <p class="corp-names">
@@ -146,13 +163,15 @@
       </li>
     </ul>
 
+    <!-- Pagination Controls -->
     <div class="pagination">
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <span>{{ currentPage }} / {{ maxPage }}</span>
       <button @click="nextPage" :disabled="currentPage === maxPage">Next</button>
     </div>
 
-    <div v-html="footerHtml"></div>
+    <!-- Footer -->
+    <footer v-html="footerHtml"></footer>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/vue@3.2.45"></script>
