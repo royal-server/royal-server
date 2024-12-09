@@ -72,6 +72,7 @@
     }
 
     .list li {
+      position: relative;
       list-style: none;
       margin: 2% 0;
       background-color: white;
@@ -130,6 +131,22 @@
       margin: 0 15px;
     }
 
+    /* Page Number Input */
+    .page-number-input {
+      display: inline-block;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .page-number-input input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      text-align: center;
+      width: 50px;
+    }
+
     /* Custom Footer */
     footer {
       padding: 20px 0;
@@ -184,7 +201,13 @@
       <button @click="nextPage" :disabled="currentPage === maxPage">Next</button>
     </div>
 
-    <!-- Footer -->
+    <!-- Page Number Input -->
+    <div class="page-number-input">
+      <label for="pageNumber">Page Number:</label>
+      <input id="pageNumber" type="number" v-model="currentPage" @change="fetchMatches" min="1" :max="maxPage" />
+    </div>
+
+    <!-- Footer (from JSON) -->
     <footer v-html="footerHtml"></footer>
   </div>
 
@@ -248,158 +271,77 @@
         async loadSettings() {
           try {
             const settingsResponse = await fetch("https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/corp/resources/settings.json");
-            const settings = await settingsResponse.json();
-            
-            document.body.style.backgroundImage = `url(${settings.website.backgroundUrl})`;
-            document.body.style.fontFamily = settings.additionalSettings.font || "Arial, sans-serif";
-            this.loadingAnimation = settings.website.loadingAnimation.html;
-            const style = document.createElement("style");
-            style.textContent = settings.website.loadingAnimation.css;
-            document.head.appendChild(style);
-            this.errorMessage = settings.website.error.message;
-            this.footerHtml = settings.website.footer.html;
+            const settingsData = await settingsResponse.json();
+            this.footerHtml = settingsData.website.footer.html;
+            this.backgroundUrl = settingsData.website.backgroundUrl;
+            document.body.style.backgroundImage = `url(${this.backgroundUrl})`;
           } catch (error) {
             console.error("Error loading settings:", error);
-            this.error = true;
           }
         },
-
-        async fetchCorporations() {
-          try {
-            const response = await fetch("https://ws.mentalisit.myds.me/corps");
-            const data = await response.json();
-            this.corporations = data.matches || [];
-          } catch (error) {
-            console.error("Error fetching corporations:", error);
-            this.error = true;
-          }
-        },
-
         async fetchMatches() {
           try {
-            this.errorMessage = "";
-            let url = `https://ws.mentalisit.myds.me/matches?limit=${this.limit}&page=${this.currentPage}`;
-
-            if (this.selectedCorp) {
-              url += `&filter=${JSON.stringify({ corp: [{ Id: this.selectedCorp }] })}`;
-            }
-
-            const response = await fetch(url);
-
+            const response = await fetch(`https://api.mentalist.ws/matches?page=${this.currentPage}&limit=${this.limit}`);
             if (!response.ok) {
-              throw new Error(`API Error: ${response.status} ${response.statusText}`);
+              throw new Error(`Error fetching matches: ${response.status}`);
             }
-
             const data = await response.json();
-
-            if (data.matches.length === 0) {
-              this.errorMessage = "No matches found for the selected filters.";
-              this.matches = [];
+            if (data.matches) {
+              this.matches = data.matches;
+              this.filteredMatches = this.matches; // Apply filter here if needed
+              this.maxPage = Math.ceil(data.total / this.limit);
             } else {
-              this.matches = data.matches.map(match => ({
-                ...match,
-                DateEnded: new Date(match.DateEnded)
-              }));
-              this.maxPage = data.MaxPage;
-              this.filterMatches();
-              this.hasNextPage = this.currentPage < this.maxPage;
+              throw new Error("No matches found.");
             }
+            this.loading = false;
           } catch (error) {
             console.error("Error fetching matches:", error);
-            this.errorMessage = "Oops! Something went wrong while fetching the data.";
-          } finally {
-            this.loading = false;
+            this.errorMessage = "Oops! Something went wrong.";
           }
         },
-
-        filterMatches() {
-          if (this.selectedCorp) {
-            this.filteredMatches = this.matches.filter(match =>
-              match.Corporation1Id === this.selectedCorp || match.Corporation2Id === this.selectedCorp
-            );
-          } else {
-            this.filteredMatches = this.matches;
-          }
+        onLimitChange() {
+          this.currentPage = 1; // Reset to first page when changing limit
+          this.fetchMatches();
         },
-
-        formatDate(date) {
-          return new Date(date).toLocaleString();
-        },
-
-        timeAgo(date) {
-          const now = new Date();
-          const diff = Math.floor((now - new Date(date)) / 1000);
-          const days = Math.floor(diff / 86400);
-          const hours = Math.floor((diff % 86400) / 3600);
-          const minutes = Math.floor((diff % 3600) / 60);
-          if (days > 0) return `${days} day${days > 1 ? "s" : ""}`;
-          if (hours > 0) return `${hours} hour${hours > 1 ? "s" : ""}`;
-          return `${minutes} minute${minutes > 1 ? "s" : ""}`;
-        },
-
-        nextPage() {
-          if (this.currentPage < this.maxPage) {
-            this.currentPage++;
-            this.fetchMatches();
-          }
-        },
-
         prevPage() {
           if (this.currentPage > 1) {
             this.currentPage--;
             this.fetchMatches();
           }
         },
-
-        onCorporationChange() {
-          this.currentPage = 1;
-          this.fetchMatches();
+        nextPage() {
+          if (this.currentPage < this.maxPage) {
+            this.currentPage++;
+            this.fetchMatches();
+          }
         },
-
-        onLimitChange() {
-          this.currentPage = 1;
-          this.fetchMatches();
-        }
+        formatDate(dateString) {
+          const date = new Date(dateString);
+          return date.toLocaleString();
+        },
+        timeAgo(dateString) {
+          const now = new Date();
+          const date = new Date(dateString);
+          const diffInSeconds = Math.floor((now - date) / 1000);
+          if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+          const diffInMinutes = Math.floor(diffInSeconds / 60);
+          if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
+          const diffInHours = Math.floor(diffInMinutes / 60);
+          if (diffInHours < 24) return `${diffInHours} hours ago`;
+          const diffInDays = Math.floor(diffInHours / 24);
+          return `${diffInDays} days ago`;
+        },
+        onCorporationChange() {
+          this.filteredMatches = this.matches.filter(match => match.Corporation1Id === this.selectedCorp || match.Corporation2Id === this.selectedCorp);
+        },
       },
-
-      async mounted() {
-        await this.loadSettings();
-        await this.fetchCorporations();
-        await this.fetchMatches();
-      }
+      created() {
+        this.loadSettings();
+        this.fetchMatches();
+      },
     });
 
     app.mount("#app");
-
-    // Audio functionality
-    const audioElement = document.getElementById("audioPlayer");
-
-    function playAudio() {
-        audioElement.play().catch(function(error) {
-            console.error("Audio play failed:", error);
-        });
-    }
-
-    window.addEventListener('load', function() {
-        playAudio();
-    });
-
-    function handleUserInteraction() {
-        playAudio();
-        document.body.removeEventListener("click", handleUserInteraction);
-        document.body.removeEventListener("touchstart", handleUserInteraction);
-        document.body.removeEventListener("mousemove", handleUserInteraction);
-        document.body.removeEventListener("scroll", handleUserInteraction);
-        document.body.removeEventListener("keydown", handleUserInteraction);
-        document.body.removeEventListener("mousedown", handleUserInteraction);
-    }
-
-    document.body.addEventListener("click", handleUserInteraction);
-    document.body.addEventListener("touchstart", handleUserInteraction);
-    document.body.addEventListener("mousemove", handleUserInteraction);
-    document.body.addEventListener("scroll", handleUserInteraction);
-    document.body.addEventListener("keydown", handleUserInteraction);
-    document.body.addEventListener("mousedown", handleUserInteraction);
 
   </script>
 </body>
