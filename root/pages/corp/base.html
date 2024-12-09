@@ -9,10 +9,6 @@
     /* Basic Styles */
     body {
       font-family: Arial, sans-serif;
-      background-image: url('background_image_url_here.jpg'); /* Replace with your actual background URL */
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
       color: white;
       margin: 0;
       padding: 0;
@@ -65,7 +61,7 @@
   </style>
 </head>
 
-<body>
+<body id="body">
 
   <div class="corp-container">
     <!-- Corporation Title -->
@@ -91,10 +87,33 @@
   </div>
 
   <script>
+    const settingsUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/corp/resources/settings.json";
     const base_web_url = "https://drmineword.github.io/Artefact-Boost-Active/root/pages/corp/base.html";
+
+    async function fetchSettings() {
+      try {
+        const response = await fetch(settingsUrl);
+        const settings = await response.json();
+
+        // Apply background image
+        if (settings.websiteBackgroundUrl) {
+          document.getElementById("body").style.backgroundImage = `url(${settings.websiteBackgroundUrl})`;
+          document.getElementById("body").style.backgroundSize = "cover";
+          document.getElementById("body").style.backgroundPosition = "center";
+          document.getElementById("body").style.backgroundRepeat = "no-repeat";
+        }
+
+        return settings;
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+        return null;
+      }
+    }
 
     async function fetchData(corpId) {
       try {
+        const settings = await fetchSettings();
+
         // Fetch Corporation Data
         const corpResponse = await fetch("https://ws.mentalisit.myds.me/corps");
         const corps = await corpResponse.json();
@@ -116,14 +135,14 @@
           ? corpIconUrl
           : "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico";
 
-        updatePage(corp, matchData, scoreboardData, iconUrl);
+        updatePage(corp, matchData, scoreboardData, iconUrl, settings);
       } catch (error) {
         console.error("Error fetching data:", error);
         document.getElementById("corp-title").innerText = "Error loading corporation data.";
       }
     }
 
-    function updatePage(corp, matches, scoreboard, iconUrl) {
+    function updatePage(corp, matches, scoreboard, iconUrl, settings) {
       // Update Title
       document.getElementById("corp-title").innerText = corp.Name;
 
