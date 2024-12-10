@@ -1,4 +1,4 @@
-const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from a
+const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
 const threadId = "1315967807975850004"; // Thread ID to send the webhook message to
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
@@ -52,11 +52,11 @@ async function sendToDiscord() {
                     }
                 }
             ],
-            username: "Web Image Bot",  // Set the bot's username for the message
+            username: "Weeb Image Bot",  // Set the bot's username for the message
             avatar_url: "https://i.imgur.com/ApH2sHJ.png",  // Set a custom avatar for the bot
             embeds: [
                 {
-                    title: "Web Image Bot",
+                    title: "Weeb Image Bot",
                     description: "Random weeb image sent to Discord",
                     color: 16711680,  // Red color
                     fields: [
