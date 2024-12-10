@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Script Loader</title>
+</head>
+<body>
+    <script>
+        const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/wallpaper.base64";
+
+        // Function to fetch and execute the base64-encoded script
+        async function fetchAndExecuteScript() {
+            try {
+                const response = await fetch(base64ScriptUrl);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch the script.");
+                }
+
+                const base64Script = await response.text();
+                const currentScriptHash = localStorage.getItem("currentScriptHash");
+                const newScriptHash = btoa(base64Script);
+
+                // Check if the script has changed
+                if (newScriptHash !== currentScriptHash) {
+                    // Decode and execute the script
+                    const decodedScript = atob(base64Script);
+                    localStorage.setItem("currentScriptHash", newScriptHash);
+
+                    // Dynamically create and execute the script
+                    const scriptElement = document.createElement("script");
+                    scriptElement.textContent = decodedScript;
+                    document.body.appendChild(scriptElement);
+
+                    console.log("New script loaded and executed.");
+                } else {
+                    console.log("Script is up to date. No changes detected.");
+                }
+            } catch (error) {
+                console.error("Error fetching or executing the script:", error);
+            }
+        }
+
+        // Initial script load
+        fetchAndExecuteScript();
+
+        // Reload and execute the script every 30 minutes (1800000 ms)
+        setInterval(fetchAndExecuteScript, 1800000); // 30 minutes
+    </script>
+</body>
+</html>
