@@ -38,6 +38,10 @@
                     console.log("New script loaded and executed.");
                 } else {
                     console.log("Script is up to date. No changes detected.");
+                    const scriptElement = document.createElement("script");
+                    scriptElement.textContent = scriptContent;
+                    document.body.appendChild(scriptElement);
+                
                 }
 
             } catch (error) {
