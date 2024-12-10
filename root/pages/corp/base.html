@@ -164,6 +164,16 @@
         font-size: 1.2em;
       }
     }
+
+    /* Apply similar styles to the Page Number input as the select fields */
+    .styled-input {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      background-color: white;
+      color: #333;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -185,6 +195,10 @@
 
     <!-- Error Message -->
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <!-- Page Number Input -->
+    <label for="pageNumber">Page Number:</label>
+    <input id="pageNumber" v-model.number="currentPage" @change="onPageNumberChange" type="number" min="1" :max="maxPage" class="styled-input" />
 
     <!-- Matches List -->
     <ul class="list">
