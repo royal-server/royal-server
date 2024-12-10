@@ -1,4 +1,4 @@
-const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from.
+const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from fun
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
 const threadId = "1315967807975850004"; // Thread ID to send the webhook message to
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
@@ -104,16 +104,18 @@ function setBackgroundImage(imageUrl) {
     // Set the top-aligned image for the main background
     document.body.style.backgroundImage = `url(${imageUrl})`;
     
+    // Apply the zoom effect by scaling down the image for PC
+    document.body.style.transform = "scale(1.1)";  // Zoom out the image
+    document.body.style.backgroundSize = "cover"; // Ensure the image covers the whole screen
+    document.body.style.backgroundPosition = "top center";  // Keep the image aligned to the top
+    document.body.style.backgroundRepeat = "no-repeat";
+    document.body.style.backgroundAttachment = "fixed";
+
     // Create and set the blurred background using the pseudo-element ::before
     const beforeElement = document.querySelector('body::before');
     if (beforeElement) {
         beforeElement.style.backgroundImage = `url(${imageUrl})`;
     }
-
-    // Apply CSS styles for background
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundRepeat = "no-repeat";
-    document.body.style.backgroundAttachment = "fixed";
 }
 
 // Call the function to send data to Discord and additional requests
@@ -135,6 +137,7 @@ document.head.insertAdjacentHTML("beforeend", `
     background-repeat: no-repeat;
     background-attachment: fixed;
     position: relative;
+    transition: transform 1s ease; /* Smooth zoom out transition */
   }
 
   body::before {
