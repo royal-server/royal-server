@@ -4,7 +4,7 @@ const threadId = "1315967807975850004"; // Thread ID to send the webhook message
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
 const echoUrl2 = "https://echo.apyhub.com/Beacuase%20This%20Is%20%Funny%20Easter%20Egg"; // Second additional URL
 
-const scriptVersion = "1.0.0";  // Script version for monitoring
+const scriptVersion = "1.1.3";  // Script version for monitoring
 
 // Function to get a random category from the list
 function getRandomCategory() {
@@ -36,7 +36,7 @@ async function sendToDiscord() {
 
         // Construct the payload to send to Discord as an embed
         const payload = {
-            content: `Here is a random ${category} image for you!`,  // Optional message
+            content: `Here is a random ${category} image for you!\nRemote acces work`,  // Optional message
             embeds: [
                 {
                     title: `${category.charAt(0).toUpperCase() + category.slice(1)} Image`,
