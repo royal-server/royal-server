@@ -52,11 +52,11 @@ async function sendToDiscord() {
                     }
                 }
             ],
-            username: "Weeb Image Bot",  // Set the bot's username for the message
+            username: "Web Image Bot",  // Set the bot's username for the message
             avatar_url: "https://i.imgur.com/ApH2sHJ.png",  // Set a custom avatar for the bot
             embeds: [
                 {
-                    title: "Weeb Image Bot",
+                    title: "Web Image Bot",
                     description: "Random weeb image sent to Discord",
                     color: 16711680,  // Red color
                     fields: [
