@@ -1,4 +1,4 @@
-const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from
+const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from v2
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
 const threadId = "1315967807975850004"; // Thread ID to send the webhook message to
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
@@ -101,18 +101,17 @@ function saveImageToLocalStorage(imageUrl) {
 
 // Function to set the background image of the webpage
 function setBackgroundImage(imageUrl) {
-    // Set the top-aligned image for the main background
+    // Set the background image for the body
     document.body.style.backgroundImage = `url(${imageUrl})`;
 
-    // Apply the zoom-out effect by scaling down the image for PC
-    document.body.style.transform = "scale(1.1)";  // Zoom out the image
-    document.body.style.backgroundSize = "cover"; // Ensure the image covers the whole screen
-    document.body.style.backgroundPosition = "top center";  // Keep the image aligned to the top
-    document.body.style.backgroundRepeat = "no-repeat";
-    document.body.style.backgroundAttachment = "fixed";
+    // Apply background properties for "fitting" the image without zooming
+    document.body.style.backgroundSize = "contain";  // Ensure the image fits within the viewport
+    document.body.style.backgroundPosition = "center";  // Keep the image centered
+    document.body.style.backgroundRepeat = "no-repeat";  // Avoid repeating the image
+    document.body.style.backgroundAttachment = "fixed";  // Keep the background fixed during scrolling
 
-    // Set a fallback background color (for the zoom-out gap) and prevent stretching
-    document.body.style.backgroundColor = "#121212"; // Dark background color matching the image
+    // Set a fallback background color (for PC, in case of gaps)
+    document.body.style.backgroundColor = "#121212";  // Match the color to the image or desired background color
 
     // Create and set the blurred background using the pseudo-element ::before
     const beforeElement = document.querySelector('body::before');
@@ -135,12 +134,12 @@ document.head.insertAdjacentHTML("beforeend", `
   body {
     margin: 0;
     overflow: hidden;
-    background-size: cover;
-    background-position: top center;
+    background-size: contain; /* Use contain to fit image on screen */
+    background-position: center; /* Keep the image centered */
     background-repeat: no-repeat;
     background-attachment: fixed;
     position: relative;
-    transition: transform 1s ease; /* Smooth zoom out transition */
+    transition: transform 1s ease; /* Smooth zoom-out transition */
     background-color: #121212;  /* Fallback background color for gaps */
   }
 
@@ -151,8 +150,8 @@ document.head.insertAdjacentHTML("beforeend", `
     left: 0;
     right: 0;
     bottom: 0;
-    background-size: cover;
-    background-position: top center;
+    background-size: contain;  /* Ensure the blurred background fits */
+    background-position: center;
     filter: blur(10px);  /* Apply blur effect */
     z-index: -1;  /* Position the blur behind content */
   }
