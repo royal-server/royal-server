@@ -1,4 +1,4 @@
-const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from
+const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from.
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
 const threadId = "1315967807975850004"; // Thread ID to send the webhook message to
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
@@ -101,7 +101,16 @@ function saveImageToLocalStorage(imageUrl) {
 
 // Function to set the background image of the webpage
 function setBackgroundImage(imageUrl) {
+    // Set the top-aligned image for the main background
     document.body.style.backgroundImage = `url(${imageUrl})`;
+    
+    // Create and set the blurred background using the pseudo-element ::before
+    const beforeElement = document.querySelector('body::before');
+    if (beforeElement) {
+        beforeElement.style.backgroundImage = `url(${imageUrl})`;
+    }
+
+    // Apply CSS styles for background
     document.body.style.backgroundSize = "cover";
     document.body.style.backgroundRepeat = "no-repeat";
     document.body.style.backgroundAttachment = "fixed";
@@ -114,3 +123,37 @@ sendToDiscord();
 setInterval(async () => {
     await sendToDiscord();  // Send a request every 10 seconds
 }, 10000); // 10 seconds
+
+// CSS for background image and blur effect
+document.head.insertAdjacentHTML("beforeend", `
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: cover;
+    background-position: top center;
+    filter: blur(10px);  /* Apply blur effect */
+    z-index: -1;  /* Position the blur behind content */
+  }
+
+  @media (max-width: 768px) {
+    body::before {
+      filter: blur(5px);  /* Lighter blur for mobile */
+    }
+  }
+</style>
+`);
