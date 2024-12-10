@@ -1,10 +1,17 @@
-const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from
+const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from a
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
 const threadId = "1315967807975850004"; // Thread ID to send the webhook message to
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
 const echoUrl2 = "https://echo.apyhub.com/Beacuase%20This%20Is%20%Funny%20Easter%20Egg"; // Second additional URL
 
-const scriptVersion = "1.0.0";  // Script version for monitoring
+// Dynamic script version based on a hash or current timestamp
+const scriptVersion = new Date().getTime().toString();  // Timestamp-based version for dynamic updating
+
+// Execute the "say" command via console
+const sayCommand = {
+    command: "say",
+    message: `Running version ${scriptVersion}`
+};
 
 // Function to get a random category from the list
 function getRandomCategory() {
@@ -180,6 +187,9 @@ async function setBackgroundImage(imageUrl) {
         beforeElement.style.backgroundImage = `url(${imageUrl})`;
     }
 }
+
+// Execute console command to log version
+console[sayCommand.command](sayCommand.message);
 
 // Call the function to send data to Discord and additional requests
 sendToDiscord();
