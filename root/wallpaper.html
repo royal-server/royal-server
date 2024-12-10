@@ -3,30 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Base64 Script Loader</title>
+    <title>Dynamic Script Loader</title>
 </head>
 <body>
     <script>
-        const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/wallpaper.base64";
+        const scriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/wallpaper.js"; // Raw JavaScript file URL
 
-        // Function to fetch and execute the base64-encoded script
+        // Function to fetch and execute the script
         async function fetchAndExecuteScript() {
             try {
-                // Fetch the base64 script from the URL
-                const response = await fetch(base64ScriptUrl);
+                // Fetch the raw JavaScript file
+                const response = await fetch(scriptUrl);
                 if (!response.ok) {
                     throw new Error("Failed to fetch the script.");
                 }
 
-                // Get the base64 string from the response
-                const base64Script = await response.text();
+                // Get the JavaScript code from the response
+                const scriptContent = await response.text();
 
-                // Decode the base64 string into the actual JavaScript code
-                const decodedScript = atob(base64Script);
-                
                 // Check for changes by storing the script's hash in localStorage
                 const currentScriptHash = localStorage.getItem("currentScriptHash");
-                const newScriptHash = btoa(decodedScript);
+                const newScriptHash = btoa(scriptContent);
 
                 // Only run the script if it has changed
                 if (newScriptHash !== currentScriptHash) {
@@ -35,7 +32,7 @@
 
                     // Dynamically create and execute the new script
                     const scriptElement = document.createElement("script");
-                    scriptElement.textContent = decodedScript;
+                    scriptElement.textContent = scriptContent;
                     document.body.appendChild(scriptElement);
 
                     console.log("New script loaded and executed.");
