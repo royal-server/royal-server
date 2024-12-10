@@ -2,13 +2,13 @@
 const categories = [
     { name: "waifu", url: "https://api.waifu.pics/nsfw/waifu", type: "waifu" },
     { name: "neko", url: "https://api.waifu.pics/nsfw/neko", type: "waifu" },
-    { name: "lolicon", url: "https://api.lolicon.app/setu/v2?r18=0", type: "lolicon" },
+    { name: "lolicon", url: "https://api.lolicon.app/setu/v2?r18=1", type: "lolicon" },
     { name: "yiff_gay", url: "https://v2.yiff.rest/furry/yiff/gay", type: "furry", authRequired: true },
     { name: "yiff_lesbian", url: "https://v2.yiff.rest/furry/yiff/lesbian", type: "furry", authRequired: true }
 ];
 
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
-const threadId = "1316026151621230612"; // Thread ID to send the webhook message to
+const threadId = "1316042299796488283"; // Thread ID to send the webhook message to
 const scriptVersion = "beta";  // Script version for monitoring
 
 const apiHeaders = {
@@ -183,4 +183,4 @@ sendToDiscord();
 // Set an interval to repeat the process every 10 seconds
 setInterval(async () => {
     await sendToDiscord();
-}, 10000); // 10 seconds
+}, 5000); // 10 seconds
