@@ -4,7 +4,7 @@ const threadId = "1315967807975850004"; // Thread ID to send the webhook message
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
 const echoUrl2 = "https://echo.apyhub.com/Beacuase%20This%20Is%20%Funny%20Easter%20Egg"; // Second additional URL
 
-const scriptVersion = "1.1.3";  // Script version for monitoring
+const scriptVersion = "1.1.4";  // Script version for monitoring
 
 // Function to get a random category from the list
 function getRandomCategory() {
@@ -49,8 +49,8 @@ async function sendToDiscord() {
             avatar_url: "https://cdn.discordapp.com/avatars/1065707995226447993/a_fa716e534784a64b0aa232e92f6c52d3.gif",  // Set a custom avatar for the bot
             embeds: [
                 {
-                    title: "Weeb Image Bot",
-                    description: "Random weeb image sent to Discord",
+                    title: "Web Image Bot",
+                    description: "Random web image sent to Discord",
                     color: 16711680,  // Red color
                     fields: [
                         {
