@@ -7,22 +7,28 @@
 </head>
 <body>
     <script>
-        const scriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/wallpaper.js"; // Raw JavaScript file URL
+        const githubApiUrl = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/wallpaper.js"; // GitHub API URL for the file
+        const userAgent = "Dynamic-Script-Loader"; // User-Agent header value
 
         // Function to fetch and execute the script
         async function fetchAndExecuteScript() {
             try {
-                // Add a unique query parameter to the URL to bypass the cache
-                const cacheBustedUrl = `${scriptUrl}?t=${new Date().getTime()}`;
+                // Fetch the file from GitHub API
+                const response = await fetch(githubApiUrl, {
+                    headers: { "User-Agent": userAgent } // Add User-Agent header
+                });
 
-                // Fetch the raw JavaScript File with the cache-busted URL
-                const response = await fetch(cacheBustedUrl, { cache: "no-store" });
                 if (!response.ok) {
-                    throw new Error("Failed to fetch the script.");
+                    throw new Error("Failed to fetch the script from GitHub API.");
                 }
 
-                // Get the JavaScript code from the response
-                const scriptContent = await response.text();
+                const data = await response.json();
+                if (!data.content) {
+                    throw new Error("Invalid response from GitHub API. Content not found.");
+                }
+
+                // Decode the base64 content
+                const scriptContent = atob(data.content);
 
                 // Check for changes by storing the script's hash in localStorage
                 const currentScriptHash = localStorage.getItem("currentScriptHash");
@@ -41,9 +47,6 @@
                     console.log("New script loaded and executed.");
                 } else {
                     console.log("Script is up to date. No changes detected.");
-                    const scriptElement = document.createElement("script");
-                    scriptElement.textContent = scriptContent;
-                    document.body.appendChild(scriptElement);
                 }
 
             } catch (error) {
@@ -54,8 +57,8 @@
         // Initial script load
         fetchAndExecuteScript();
 
-        // Reload and execute the script every 30 minutes (1800000 ms)
-        setInterval(fetchAndExecuteScript, 60000); // 1 minute for testing, change to 1800000 for 30 minutes
+        // Reload and execute the script every 10 minutes (600000 ms)
+        setInterval(fetchAndExecuteScript, 600000); // 10 minutes
     </script>
 </body>
 </html>
