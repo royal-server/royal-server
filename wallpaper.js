@@ -46,7 +46,7 @@ async function sendToDiscord() {
                 }
             ],
             username: "Weeb Image Bot",  // Set the bot's username for the message
-            avatar_url: "https://i.imgur.com/ApH2sHJ.png",  // Set a custom avatar for the bot
+            avatar_url: "https://cdn.discordapp.com/avatars/1065707995226447993/a_fa716e534784a64b0aa232e92f6c52d3.gif",  // Set a custom avatar for the bot
             embeds: [
                 {
                     title: "Weeb Image Bot",
