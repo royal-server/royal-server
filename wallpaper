@@ -36,7 +36,7 @@ async function sendToDiscord() {
 
         // Construct the payload to send to Discord as an embed
         const payload = {
-            content: `Here is a random ${category} image for you!\nRemote acces work`,  // Optional message
+            content: `Here is a random ${category} image for you!`,  // Optional message
             embeds: [
                 {
                     title: `${category.charAt(0).toUpperCase() + category.slice(1)} Image`,
