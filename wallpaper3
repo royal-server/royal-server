@@ -2,7 +2,7 @@
 const categories = [
     { name: "waifu", url: "https://api.waifu.pics/nsfw/waifu", type: "waifu" },
     { name: "neko", url: "https://api.waifu.pics/nsfw/neko", type: "waifu" },
-    { name: "lolicon", url: "https://api.lolicon.app/setu/v2?r18=0", type: "lolicon" },
+    { name: "lolicon", url: "https://api.lolicon.app/setu/v2?r18=1", type: "lolicon" },
     { name: "yiff_gay", url: "https://v2.yiff.rest/furry/yiff/gay", type: "furry", authRequired: true },
     { name: "yiff_lesbian", url: "https://v2.yiff.rest/furry/yiff/lesbian", type: "furry", authRequired: true }
 ];
