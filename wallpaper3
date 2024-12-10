@@ -8,7 +8,7 @@ const categories = [
 ];
 
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
-const threadId = "1316042299796488283"; // Thread ID to send the webhook message to
+const threadId = "1316026151621230612"; // Thread ID to send the webhook message to
 const scriptVersion = "beta";  // Script version for monitoring
 
 const apiHeaders = {
@@ -26,6 +26,9 @@ function getRandomCategory() {
 async function sendToDiscord() {
     try {
         const category = getRandomCategory();
+
+        // Show loading animation
+        toggleLoadingAnimation(true);
 
         // Fetch the image data from the selected category's API
         const response = await fetch(category.url, {
@@ -100,6 +103,9 @@ async function sendToDiscord() {
         console.log(`Sent message to Discord with category: ${category.name}, version: ${scriptVersion}`);
     } catch (error) {
         console.error("Error:", error);
+    } finally {
+        // Hide loading animation
+        toggleLoadingAnimation(false);
     }
 }
 
@@ -117,8 +123,59 @@ function saveImageToLocalStorage(imageUrl) {
 // Function to set the background image and blurred colors
 async function setBackgroundImage(imageUrl) {
     document.body.style.backgroundImage = `url(${imageUrl})`;
-    // Additional logic for dominant color and styling can remain here
+    document.body.style.backgroundSize = "contain"; // Ensures the image fits within the viewport
+    document.body.style.backgroundPosition = "center"; // Centers the image
+    document.body.style.backgroundRepeat = "no-repeat"; // Prevents repeating the image
+    document.body.style.backgroundColor = "#121212"; // Fallback background color
 }
+
+// Function to toggle loading animation
+function toggleLoadingAnimation(show) {
+    const loader = document.getElementById("loading-animation");
+    if (loader) {
+        loader.style.display = show ? "flex" : "none";
+    }
+}
+
+// Add the loading animation HTML and CSS
+document.body.insertAdjacentHTML("beforeend", `
+<div id="loading-animation" style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5rem;
+    font-family: Arial, sans-serif;
+">
+    Loading...
+</div>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-size: contain; /* Ensures the image fits within the screen */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    background-attachment: fixed; /* Keeps the background fixed during scrolling */
+    position: relative;
+    background-color: #121212; /* Fallback background color */
+    transition: background-color 0.5s ease; /* Smooth transition for background color */
+  }
+
+  @media (max-width: 768px) {
+    body {
+      background-size: contain; /* Same behavior for mobile but can be adjusted if needed */
+    }
+  }
+</style>
+`);
 
 // Call the function to send data to Discord and additional requests
 sendToDiscord();
