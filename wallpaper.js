@@ -1,4 +1,4 @@
-const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from fun
+const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
 const threadId = "1315967807975850004"; // Thread ID to send the webhook message to
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
@@ -103,13 +103,16 @@ function saveImageToLocalStorage(imageUrl) {
 function setBackgroundImage(imageUrl) {
     // Set the top-aligned image for the main background
     document.body.style.backgroundImage = `url(${imageUrl})`;
-    
-    // Apply the zoom effect by scaling down the image for PC
+
+    // Apply the zoom-out effect by scaling down the image for PC
     document.body.style.transform = "scale(1.1)";  // Zoom out the image
     document.body.style.backgroundSize = "cover"; // Ensure the image covers the whole screen
     document.body.style.backgroundPosition = "top center";  // Keep the image aligned to the top
     document.body.style.backgroundRepeat = "no-repeat";
     document.body.style.backgroundAttachment = "fixed";
+
+    // Set a fallback background color (for the zoom-out gap) and prevent stretching
+    document.body.style.backgroundColor = "#121212"; // Dark background color matching the image
 
     // Create and set the blurred background using the pseudo-element ::before
     const beforeElement = document.querySelector('body::before');
@@ -138,6 +141,7 @@ document.head.insertAdjacentHTML("beforeend", `
     background-attachment: fixed;
     position: relative;
     transition: transform 1s ease; /* Smooth zoom out transition */
+    background-color: #121212;  /* Fallback background color for gaps */
   }
 
   body::before {
