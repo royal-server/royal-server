@@ -8,11 +8,10 @@ const categories = [
     { name: "yiff_lesbian", url: "https://v2.yiff.rest/furry/yiff/lesbian", type: "furry", authRequired: true }
 ];
 
-const limitedCategories = categories.slice(0, 2); // Only use the first 2 categories
-
-const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
-const threadId = "1316042299796488283"; // Thread ID to send the webhook message to
-const scriptVersion = "beta";  // Script version for monitoring
+const limitedCategories = categories.slice(0, 2); // Restrict to first 2 categories
+const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; 
+const threadId = "1316042299796488283"; 
+const scriptVersion = "beta";  
 
 const apiHeaders = {
     "Authorization": "a6e622f7bf1fa1dbaf5af0cdce53ffca0f162624",
@@ -22,7 +21,9 @@ const apiHeaders = {
 // Function to get a random category from the limited list
 function getRandomLimitedCategory() {
     const randomIndex = Math.floor(Math.random() * limitedCategories.length);
-    return limitedCategories[randomIndex];
+    const selectedCategory = limitedCategories[randomIndex];
+    console.log("Selected category:", selectedCategory); // Debug log
+    return selectedCategory;
 }
 
 // Function to send the image to Discord
@@ -38,6 +39,7 @@ async function sendToDiscord() {
             method: "GET",
             headers: category.authRequired ? apiHeaders : {} // Add headers if API requires authentication
         });
+
         if (!response.ok) {
             throw new Error(`Failed to fetch image from ${category.name}.`);
         }
@@ -49,14 +51,16 @@ async function sendToDiscord() {
         if (category.type === "waifu") {
             imageUrl = data.url;
         } else if (category.type === "lolicon") {
-            imageUrl = data.data[0]?.urls.original;
+            imageUrl = data.data?.[0]?.urls?.original;
         } else if (category.type === "furry") {
-            imageUrl = data.response.images[0]?.url;
+            imageUrl = data.response?.images?.[0]?.url;
         }
 
         if (!imageUrl) {
             throw new Error(`No image URL found for category ${category.name}.`);
         }
+
+        console.log("Fetched image URL:", imageUrl); // Debug log
 
         // Save the image URL to localStorage
         saveImageToLocalStorage(imageUrl);
@@ -126,10 +130,10 @@ function saveImageToLocalStorage(imageUrl) {
 // Function to set the background image and blurred colors
 async function setBackgroundImage(imageUrl) {
     document.body.style.backgroundImage = `url(${imageUrl})`;
-    document.body.style.backgroundSize = "contain"; // Ensures the image fits within the viewport
-    document.body.style.backgroundPosition = "center"; // Centers the image
-    document.body.style.backgroundRepeat = "no-repeat"; // Prevents repeating the image
-    document.body.style.backgroundColor = "#121212"; // Fallback background color
+    document.body.style.backgroundSize = "contain"; 
+    document.body.style.backgroundPosition = "center"; 
+    document.body.style.backgroundRepeat = "no-repeat"; 
+    document.body.style.backgroundColor = "#121212"; 
 }
 
 // Function to toggle loading animation
@@ -163,18 +167,18 @@ document.body.insertAdjacentHTML("beforeend", `
   body {
     margin: 0;
     overflow: hidden;
-    background-size: contain; /* Ensures the image fits within the screen */
-    background-position: center; /* Centers the image */
-    background-repeat: no-repeat; /* Prevents the image from repeating */
-    background-attachment: fixed; /* Keeps the background fixed during scrolling */
+    background-size: contain; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    background-attachment: fixed; 
     position: relative;
-    background-color: #121212; /* Fallback background color */
-    transition: background-color 0.5s ease; /* Smooth transition for background color */
+    background-color: #121212; 
+    transition: background-color 0.5s ease; 
   }
 
   @media (max-width: 768px) {
     body {
-      background-size: contain; /* Same behavior for mobile but can be adjusted if needed */
+      background-size: contain; 
     }
   }
 </style>
