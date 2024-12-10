@@ -4,7 +4,7 @@ const threadId = "1316026151621230612"; // Thread ID to send the webhook message
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
 const echoUrl2 = "https://echo.apyhub.com/Beacuase%20This%20Is%20%Funny%20Easter%20Egg"; // Second additional URL
 
-const scriptVersion = "beta";  // Script version for monitoring
+const scriptVersion = "beta";  //  Script version for monitoring
 
 // Function to get a random category from the list
 function getRandomCategory() {
