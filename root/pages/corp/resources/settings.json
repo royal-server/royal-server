@@ -1,6 +1,6 @@
 {
   "website": {
-    "name": "My Awesome Website",
+    "name": "WS Matches",
     "backgroundUrl": "https://raw.githubusercontent.com/DrMineword/1045060846654603305_bot_images/refs/heads/master/src/img/game/portraits/BlackCitadel.jpg",
     "loadingAnimation": {
       "html": "<div class='spinner'></div>",
@@ -14,7 +14,7 @@
       }
     },
     "footer": {
-      "html": "<footer><p>This is temponary html footer</p></footer>"
+      "html": "<div style=\"background-color:#424549; color:white; padding:20px; border-radius:10px; text-align:center; font-size:17px; max-width:600px; margin:0 auto;\">\n  <a href=\"https://drmineword.github.io/Artefact-Boost-Active\" style=\"display:block; margin-bottom:20px; text-decoration:none; color:white; font-weight:bold;\">\n    Return to Main Page\n  </a>\n  <br><br>\n  <div>\n    <a href=\"https://discord.gg/7CKxPNEE7a\" target=\"_blank\">\n      <img src=\"https://discordapp.com/api/guilds/1228678846023335936/embed.png?style=banner3\" alt=\"Discord Banner\" style=\"max-width:100%; height:auto; border-radius:5px;\">\n    </a>\n  </div>\n  <br>\n  <div>\n    Data source: \n    <a href=\"https://ws.mentalisit.myds.me/\" style=\"display:inline-flex; align-items:center; text-decoration:none; color:white;\">\n      <img src=\"https://cdn.discordapp.com/avatars/582882137842122773/c41d183fba78b9f49bb590a1fc8e33a9.png?size=4096\" alt=\"API Icon\" style=\"width:20px; height:20px; margin-right:5px; border-radius:50%;\">\n      <span>Mentalisit \"API\"</span>\n    </a>\n  </div>\n</div>"
     }
   },
   "additionalSettings": {
