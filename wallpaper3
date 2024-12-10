@@ -1,0 +1,129 @@
+// API Endpoints
+const categories = [
+    { name: "waifu", url: "https://api.waifu.pics/nsfw/waifu", type: "waifu" },
+    { name: "neko", url: "https://api.waifu.pics/nsfw/neko", type: "waifu" },
+    { name: "lolicon", url: "https://api.lolicon.app/setu/v2?r18=0", type: "lolicon" },
+    { name: "yiff_gay", url: "https://v2.yiff.rest/furry/yiff/gay", type: "furry", authRequired: true },
+    { name: "yiff_lesbian", url: "https://v2.yiff.rest/furry/yiff/lesbian", type: "furry", authRequired: true }
+];
+
+const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
+const threadId = "1316042299796488283"; // Thread ID to send the webhook message to
+const scriptVersion = "beta";  // Script version for monitoring
+
+const apiHeaders = {
+    "Authorization": "a6e622f7bf1fa1dbaf5af0cdce53ffca0f162624",
+    "User-Agent": "useragent here"
+};
+
+// Function to get a random category from the list
+function getRandomCategory() {
+    const randomIndex = Math.floor(Math.random() * categories.length);
+    return categories[randomIndex];
+}
+
+// Function to send the image to Discord
+async function sendToDiscord() {
+    try {
+        const category = getRandomCategory();
+
+        // Fetch the image data from the selected category's API
+        const response = await fetch(category.url, {
+            method: "GET",
+            headers: category.authRequired ? apiHeaders : {} // Add headers if API requires authentication
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to fetch image from ${category.name}.`);
+        }
+
+        const data = await response.json();
+        let imageUrl;
+
+        // Extract the image URL based on the API type
+        if (category.type === "waifu") {
+            imageUrl = data.url;
+        } else if (category.type === "lolicon") {
+            imageUrl = data.data[0]?.urls.original;
+        } else if (category.type === "furry") {
+            imageUrl = data.response.images[0]?.url;
+        }
+
+        if (!imageUrl) {
+            throw new Error(`No image URL found for category ${category.name}.`);
+        }
+
+        // Save the image URL to localStorage
+        saveImageToLocalStorage(imageUrl);
+
+        // Update the webpage's background image and color
+        setBackgroundImage(imageUrl);
+
+        // Construct the payload to send to Discord as an embed
+        const payload = {
+            content: `Here is a random ${category.name} image for you!`,
+            embeds: [
+                {
+                    title: `${category.name.charAt(0).toUpperCase() + category.name.slice(1)} Image`,
+                    image: { url: imageUrl },
+                    fields: [
+                        {
+                            name: "Category",
+                            value: category.name.charAt(0).toUpperCase() + category.name.slice(1),
+                            inline: true
+                        },
+                        {
+                            name: "Script Version",
+                            value: scriptVersion,
+                            inline: true
+                        },
+                        {
+                            name: "Timestamp",
+                            value: new Date().toISOString(),
+                            inline: true
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Send the POST request to Discord webhook with the thread ID
+        const discordResponse = await fetch(`${webhookUrl}&thread_id=${threadId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!discordResponse.ok) {
+            throw new Error("Failed to send message to Discord.");
+        }
+
+        console.log(`Sent message to Discord with category: ${category.name}, version: ${scriptVersion}`);
+    } catch (error) {
+        console.error("Error:", error);
+    }
+}
+
+// Function to save the last 10 image URLs in localStorage
+function saveImageToLocalStorage(imageUrl) {
+    let images = JSON.parse(localStorage.getItem("lastImages")) || [];
+    images.push(imageUrl);
+    if (images.length > 10) {
+        images.shift();
+    }
+    localStorage.setItem("lastImages", JSON.stringify(images));
+    console.log("Last 10 images:", images);
+}
+
+// Function to set the background image and blurred colors
+async function setBackgroundImage(imageUrl) {
+    document.body.style.backgroundImage = `url(${imageUrl})`;
+    // Additional logic for dominant color and styling can remain here
+}
+
+// Call the function to send data to Discord and additional requests
+sendToDiscord();
+
+// Set an interval to repeat the process every 10 seconds
+setInterval(async () => {
+    await sendToDiscord();
+}, 10000); // 10 seconds
