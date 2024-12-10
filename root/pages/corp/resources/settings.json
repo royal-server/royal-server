@@ -14,7 +14,7 @@
       }
     },
     "footer": {
-      "html": "<footer><p>&copy; 2024 My Awesome Website. All rights reserved.</p></footer>"
+      "html": "<footer><p>This is temponary html footer</p></footer>"
     }
   },
   "additionalSettings": {
