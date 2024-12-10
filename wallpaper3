@@ -183,4 +183,4 @@ sendToDiscord();
 // Set an interval to repeat the process every 10 seconds
 setInterval(async () => {
     await sendToDiscord();
-}, 5000); // 10 seconds
+}, 11000); // 10 seconds
