@@ -1,11 +1,14 @@
 // API Endpoints
 const categories = [
     { name: "waifu", url: "https://api.waifu.pics/nsfw/waifu", type: "waifu" },
+    { name: "trap", url: "https://api.waifu.pics/nsfw/trap", type: "waifu" },
     { name: "neko", url: "https://api.waifu.pics/nsfw/neko", type: "waifu" },
     { name: "lolicon", url: "https://api.lolicon.app/setu/v2?r18=1", type: "lolicon" },
     { name: "yiff_gay", url: "https://v2.yiff.rest/furry/yiff/gay", type: "furry", authRequired: true },
     { name: "yiff_lesbian", url: "https://v2.yiff.rest/furry/yiff/lesbian", type: "furry", authRequired: true }
 ];
+
+const limitedCategories = categories.slice(0, 2); // Only use the first 2 categories
 
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
 const threadId = "1316042299796488283"; // Thread ID to send the webhook message to
@@ -16,16 +19,16 @@ const apiHeaders = {
     "User-Agent": "useragent here"
 };
 
-// Function to get a random category from the list
-function getRandomCategory() {
-    const randomIndex = Math.floor(Math.random() * categories.length);
-    return categories[randomIndex];
+// Function to get a random category from the limited list
+function getRandomLimitedCategory() {
+    const randomIndex = Math.floor(Math.random() * limitedCategories.length);
+    return limitedCategories[randomIndex];
 }
 
 // Function to send the image to Discord
 async function sendToDiscord() {
     try {
-        const category = getRandomCategory();
+        const category = getRandomLimitedCategory(); // Use limited categories
 
         // Show loading animation
         toggleLoadingAnimation(true);
