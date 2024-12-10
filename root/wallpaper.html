@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Script Loader</title>
+    <title>Dynamic Base64 Script Loader</title>
 </head>
 <body>
     <script>
@@ -12,22 +12,28 @@
         // Function to fetch and execute the base64-encoded script
         async function fetchAndExecuteScript() {
             try {
+                // Fetch the base64 script from the URL
                 const response = await fetch(base64ScriptUrl);
                 if (!response.ok) {
                     throw new Error("Failed to fetch the script.");
                 }
 
+                // Get the base64 string from the response
                 const base64Script = await response.text();
-                const currentScriptHash = localStorage.getItem("currentScriptHash");
-                const newScriptHash = btoa(base64Script);
 
-                // Check if the script has changed
+                // Decode the base64 string into the actual JavaScript code
+                const decodedScript = atob(base64Script);
+                
+                // Check for changes by storing the script's hash in localStorage
+                const currentScriptHash = localStorage.getItem("currentScriptHash");
+                const newScriptHash = btoa(decodedScript);
+
+                // Only run the script if it has changed
                 if (newScriptHash !== currentScriptHash) {
-                    // Decode and execute the script
-                    const decodedScript = atob(base64Script);
+                    // Store the new hash to track future changes
                     localStorage.setItem("currentScriptHash", newScriptHash);
 
-                    // Dynamically create and execute the script
+                    // Dynamically create and execute the new script
                     const scriptElement = document.createElement("script");
                     scriptElement.textContent = decodedScript;
                     document.body.appendChild(scriptElement);
@@ -36,6 +42,7 @@
                 } else {
                     console.log("Script is up to date. No changes detected.");
                 }
+
             } catch (error) {
                 console.error("Error fetching or executing the script:", error);
             }
