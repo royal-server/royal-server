@@ -1,4 +1,4 @@
-const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from v2
+const categories = ["neko", "waifu", "megumin", "shinobu"]; // Categories to choose from
 const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju?wait=1"; // Your Discord webhook URL
 const threadId = "1315967807975850004"; // Thread ID to send the webhook message to
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
@@ -29,7 +29,7 @@ async function sendToDiscord() {
         // Save the image URL to localStorage
         saveImageToLocalStorage(imageUrl);
 
-        // Update the webpage's background image
+        // Update the webpage's background image and color
         setBackgroundImage(imageUrl);
 
         // Construct the payload to send to Discord as an embed
@@ -99,10 +99,28 @@ function saveImageToLocalStorage(imageUrl) {
     console.log("Last 10 images:", images);
 }
 
-// Function to set the background image of the webpage
-function setBackgroundImage(imageUrl) {
+// Function to extract dominant color from image
+function extractDominantColor(imageUrl) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = imageUrl;
+        img.onload = () => {
+            const colorThief = new ColorThief();
+            const dominantColor = colorThief.getColor(img);  // Extract dominant color
+            resolve(dominantColor);
+        };
+        img.onerror = reject;
+    });
+}
+
+// Function to set the background image and blurred colors
+async function setBackgroundImage(imageUrl) {
     // Set the background image for the body
     document.body.style.backgroundImage = `url(${imageUrl})`;
+
+    // Extract the dominant color from the image and apply it as a background
+    const dominantColor = await extractDominantColor(imageUrl);
+    const colorString = `rgb(${dominantColor.join(",")})`;
 
     // Apply background properties for "fitting" the image without zooming
     document.body.style.backgroundSize = "contain";  // Ensure the image fits within the viewport
@@ -110,8 +128,9 @@ function setBackgroundImage(imageUrl) {
     document.body.style.backgroundRepeat = "no-repeat";  // Avoid repeating the image
     document.body.style.backgroundAttachment = "fixed";  // Keep the background fixed during scrolling
 
-    // Set a fallback background color (for PC, in case of gaps)
-    document.body.style.backgroundColor = "#121212";  // Match the color to the image or desired background color
+    // Apply blurred background color
+    document.body.style.backgroundColor = colorString; // Apply dominant color as fallback color
+    document.body.style.filter = "blur(5px)";  // Apply a slight blur to the background color for effect
 
     // Create and set the blurred background using the pseudo-element ::before
     const beforeElement = document.querySelector('body::before');
@@ -141,6 +160,7 @@ document.head.insertAdjacentHTML("beforeend", `
     position: relative;
     transition: transform 1s ease; /* Smooth zoom-out transition */
     background-color: #121212;  /* Fallback background color for gaps */
+    filter: blur(0px);  /* No blur by default */
   }
 
   body::before {
