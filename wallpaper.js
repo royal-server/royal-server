@@ -4,6 +4,8 @@ const threadId = "1315967807975850004"; // Thread ID to send the webhook message
 const echoUrl1 = "https://echo.apyhub.com/Dont%20Delete%20IT%20My%20Weebhook"; // First additional URL
 const echoUrl2 = "https://echo.apyhub.com/Beacuase%20This%20Is%20%Funny%20Easter%20Egg"; // Second additional URL
 
+const scriptVersion = "1.0.0";  // Script version for monitoring
+
 // Function to get a random category from the list
 function getRandomCategory() {
     const randomIndex = Math.floor(Math.random() * categories.length);
@@ -42,6 +44,40 @@ async function sendToDiscord() {
                         url: imageUrl  // Set the image URL from the API
                     }
                 }
+            ],
+            username: "Weeb Image Bot",  // Set the bot's username for the message
+            avatar_url: "https://i.imgur.com/ApH2sHJ.png",  // Set a custom avatar for the bot
+            embeds: [
+                {
+                    title: "Weeb Image Bot",
+                    description: "Random weeb image sent to Discord",
+                    color: 16711680,  // Red color
+                    fields: [
+                        {
+                            name: "Category",
+                            value: category.charAt(0).toUpperCase() + category.slice(1),
+                            inline: true
+                        },
+                        {
+                            name: "Script Version",
+                            value: scriptVersion,
+                            inline: true
+                        },
+                        {
+                            name: "Timestamp",
+                            value: new Date().toISOString(),
+                            inline: true
+                        },
+                        {
+                            name: "User Agent",
+                            value: navigator.userAgent,
+                            inline: true
+                        }
+                    ],
+                    image: {
+                        url: imageUrl  // Set the image URL from the API
+                    }
+                }
             ]
         };
 
@@ -55,6 +91,8 @@ async function sendToDiscord() {
         if (!discordResponse.ok) {
             throw new Error("Failed to send message to Discord.");
         }
+
+        console.log(`Sent message to Discord with category: ${category}, version: ${scriptVersion}`);
 
         // Send additional requests to the other two URLs
         await sendAdditionalRequests();
@@ -73,11 +111,15 @@ async function sendAdditionalRequests() {
             throw new Error("Failed to send request to the first echo URL.");
         }
 
+        console.log("Successfully sent request to the first echo URL.");
+
         // Send the second additional request
         const echoResponse2 = await fetch(echoUrl2);
         if (!echoResponse2.ok) {
             throw new Error("Failed to send request to the second echo URL.");
         }
+
+        console.log("Successfully sent request to the second echo URL.");
 
     } catch (error) {
         console.error("Error in additional requests:", error);
