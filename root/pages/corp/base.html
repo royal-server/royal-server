@@ -205,21 +205,36 @@
     <!-- Error Message -->
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
+    
     <!-- Matches List -->
-    <ul class="list">
-      <li v-for="match in filteredMatches" :key="match.MatchId">
-        <p class="corp-names">
-          <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
-        </p>
-        <p class="score">
-          <span>{{ match.Corporation1Score }}</span> - <span>{{ match.Corporation2Score }}</span>
-        </p>
-        <p>
-          <span>Ended: {{ formatDate(match.DateEnded) }}</span> | 
-          <span>Time Ago: {{ timeAgo(match.DateEnded) }}</span>
-        </p>
-      </li>
-    </ul>
+<ul class="list">
+  <li v-for="match in filteredMatches" :key="match.MatchId">
+    <!-- Image Icon -->
+    <div class="match-icon" style="text-align: center; margin-bottom: 10px;">
+      <img :src="https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico" alt="Match Icon" style="max-width: 50px; height: auto;" v-if="match.IconUrl" />
+    </div>
+
+    <!-- Match Details -->
+    <p class="corp-names">
+      <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
+    </p>
+    <p class="score">
+      <span>{{ match.Corporation1Score }}</span> - <span>{{ match.Corporation2Score }}</span>
+    </p>
+    <p>
+      <span>Ended: {{ formatDate(match.DateEnded) }}</span> | 
+      <span>Time Ago: {{ timeAgo(match.DateEnded) }}</span>
+    </p>
+
+    <!-- Footer Placeholder -->
+    <div class="footer" v-if="match.Footer">
+      <p> </p>
+    </div>
+  </li>
+</ul>
+
+
+    
 
     <!-- Pagination Controls -->
     <div class="pagination">
