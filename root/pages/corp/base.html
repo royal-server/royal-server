@@ -207,30 +207,26 @@
 
     
     <!-- Matches List -->
-<ul class="list">
-  <!-- Image Icon -->
-    <div class="match-icon" style="text-align: center; margin-bottom: 10px;">
-      <img :src="https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico" alt="Match Icon" style="max-width: 50px; height: auto;" />
-    </div>
+<div class="matches-container">
+  <!-- Image at the top -->
+  <img src="https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico" alt="Top Image" class="top-image" />
 
-    <!-- Match Details -->
-    <p class="corp-names">
-      <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
-    </p>
-    <p class="score">
-      <span>{{ match.Corporation1Score }}</span> - <span>{{ match.Corporation2Score }}</span>
-    </p>
-    <p>
-      <span>Ended: {{ formatDate(match.DateEnded) }}</span> | 
-      <span>Time Ago: {{ timeAgo(match.DateEnded) }}</span>
-    </p>
+  <ul class="list">
+    <li v-for="match in filteredMatches" :key="match.MatchId">
+      <p class="corp-names">
+        <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
+      </p>
+      <p class="score">
+        <span>{{ match.Corporation1Score }}</span> - <span>{{ match.Corporation2Score }}</span>
+      </p>
+      <p>
+        <span>Ended: {{ formatDate(match.DateEnded) }}</span> | 
+        <span>Time Ago: {{ timeAgo(match.DateEnded) }}</span>
+      </p>
+    </li>
+  </ul>
+</div>
 
-    <!-- Footer Placeholder -->
-    <div class="footer">
-      <p> </p>
-    </div>
-  </li>
-</ul>
 
 
     
