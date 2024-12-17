@@ -14,7 +14,7 @@
       ]
     },
     {
-      "header": "<color=#99aab5>About Server</color>",
+      "header": "<div style='text-align:center; font-size:24px; font-weight:bold; color:#99aab5;'>About the Server</div>",
       "desc": "N/A",
       "imgurl": [
         "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/1/files/1x1.png"
