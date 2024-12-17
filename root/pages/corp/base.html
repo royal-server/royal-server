@@ -76,6 +76,20 @@
       max-width: 800px;
     }
 
+    li {
+  text-align: center; /* Center the contents of each list item */
+  margin-bottom: 20px; /* Add spacing between items */
+}
+
+.icon-container {
+  margin-bottom: 10px; /* Space between the icon and the corporation names */
+}
+
+.match-icon {
+  width: 40px; /* Adjust icon size as needed */
+  height: 40px;
+}
+
     .list li {
       list-style: none;
       margin: 2% 0;
@@ -207,25 +221,28 @@
 
     
     <!-- Matches List -->
-<div class="matches-container">
-  <!-- Image at the top -->
-  <img src="https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico" alt="Top Image" class="top-image" />
+<ul class="list">
+  <li v-for="match in filteredMatches" :key="match.MatchId">
+    <!-- Centered Icon -->
+    <div class="icon-container">
+      <img src="https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico" alt="Icon" class="match-icon" />
+    </div>
+    <!-- Corporation Names -->
+    <p class="corp-names">
+      <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
+    </p>
+    <!-- Scores -->
+    <p class="score">
+      <span>{{ match.Corporation1Score }}</span> - <span>{{ match.Corporation2Score }}</span>
+    </p>
+    <!-- Date Info -->
+    <p>
+      <span>Ended: {{ formatDate(match.DateEnded) }}</span> | 
+      <span>Time Ago: {{ timeAgo(match.DateEnded) }}</span>
+    </p>
+  </li>
+</ul>
 
-  <ul class="list">
-    <li v-for="match in filteredMatches" :key="match.MatchId">
-      <p class="corp-names">
-        <span>{{ match.Corporation1Name }}</span> <span> vs </span> <span>{{ match.Corporation2Name }}</span>
-      </p>
-      <p class="score">
-        <span>{{ match.Corporation1Score }}</span> - <span>{{ match.Corporation2Score }}</span>
-      </p>
-      <p>
-        <span>Ended: {{ formatDate(match.DateEnded) }}</span> | 
-        <span>Time Ago: {{ timeAgo(match.DateEnded) }}</span>
-      </p>
-    </li>
-  </ul>
-</div>
 
 
 
