@@ -208,10 +208,9 @@
     
     <!-- Matches List -->
 <ul class="list">
-  <li v-for="match in filteredMatches" :key="match.MatchId">
-    <!-- Image Icon -->
+  <!-- Image Icon -->
     <div class="match-icon" style="text-align: center; margin-bottom: 10px;">
-      <img :src="https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico" alt="Match Icon" style="max-width: 50px; height: auto;" v-if="match.IconUrl" />
+      <img :src="https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/favicon.ico" alt="Match Icon" style="max-width: 50px; height: auto;" />
     </div>
 
     <!-- Match Details -->
@@ -227,7 +226,7 @@
     </p>
 
     <!-- Footer Placeholder -->
-    <div class="footer" v-if="match.Footer">
+    <div class="footer">
       <p> </p>
     </div>
   </li>
