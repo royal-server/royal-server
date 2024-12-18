@@ -51,3 +51,4 @@ KGZ1bmN0aW9uKCkgewogICAgICAgIC8vIEZ1bmN0aW9uIHRvIGR5bmFtaWNhbGx5IGFkZCBhIGNhbnZh
 
 
 Modyfikacja Zindex zmienia pozycje warstwy ze śniegiem
+Bynajmniej powwinno
