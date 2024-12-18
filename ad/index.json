@@ -15,7 +15,7 @@
     },
     {
       "header": "<div style='text-align:center; font-size:24px; font-weight:bold; color:#99aab5;'>About the Server</div>",
-      "desc": "<center>Lorem Ipsum</center>",
+      "desc": "<div style=\"font-family: Arial, sans-serif; color: #ffffff; background-color: #1c1c1c; padding: 20px; border-radius: 8px; line-height: 1.6;\">\n  <h2 style=\"text-align: center; color: #4da6ff;\">White Star Corporations Data</h2>\n  <p style=\"font-size: 18px;\">White Star Corporations Data was created to log white star results in specially designated channels and threads.</p>\n\n  <p style=\"font-size: 18px;\">\n    Over time my skills improved and with the help of others I was able to build my own little empire. But I didn't do it alone; many people helped me, and the most important ones are described in the section below.\n  </p>\n\n  <h3 style=\"color: #ff9900;\">Our Discord Server</h3>\n  <p style=\"font-size: 18px;\">\n    Our <strong>Discord server</strong> has channels for recording results, as well as the current status channel for active artefact boosts and a channel of statistics about white stars. You can also view them on the <a href=\"https://drmineword.github.io/Artefact-Boost-Active/\" target=\"_blank\" style=\"color: #00b0f4; text-decoration: none;\">website</a><span style=\"color: #ffffff;\">.</span>\n  </p>\n\n  <h3 style=\"color: #ff9900;\">Future Development</h3>\n  <p style=\"font-size: 18px;\">\n    I want to continue developing this website, server, and bot, but I can't do it alone. Every suggestion and opinion counts!\n  </p>\n</div>\n",
       "imgurl": [
         "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/root/pages/1/files/1x1.png"
       ]
