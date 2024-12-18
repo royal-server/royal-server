@@ -2,7 +2,7 @@
     var canvas = document.getElementById('c'),
         ctx = canvas.getContext('2d'),
         fl = 300,
-        count = 18,
+        count = 180,
         points = [],
         startSpeed = 0,
         tick = 0,
