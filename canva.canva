@@ -1,116 +1,143 @@
-(function() {
-    var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame ||
-    function(callback) {
-        window.setTimeout(callback, 1000 / 60);
-    };
-    window.requestAnimationFrame = requestAnimationFrame;
-})();
+var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame ||
+        function(callback) {
+            window.setTimeout(callback, 1000 / 60);
+        };
+        window.requestAnimationFrame = requestAnimationFrame;
 
+        var flakes = [],
+            canvas = document.getElementById("canvas"),
+            ctx = canvas.getContext("2d"),
+            flakeCount = 150,
+            mX = -100,
+            mY = -100;
 
-var flakes = [],
-    canvas = document.getElementById("canvas"),
-    ctx = canvas.getContext("2d"),
-    flakeCount = 150,
-    mX = -100,
-    mY = -100
+        var lightningStrike = false;
+        var lightningTimeout;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+        // Particle (snowflake) animation
+        function snow() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-function snow() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Draw spooky fog effect at the bottom
+            ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+            ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
 
-    for (var i = 0; i < flakeCount; i++) {
-        var flake = flakes[i],
-            x = mX,
-            y = mY,
-            minDist = 150,
-            x2 = flake.x,
-            y2 = flake.y;
-
-        var dist = Math.sqrt((x2 - x) * (x2 - x) + (y2 - y) * (y2 - y)),
-            dx = x2 - x,
-            dy = y2 - y;
-
-        if (dist < minDist) {
-            var force = minDist / (dist * dist),
-                xcomp = (x - x2) / dist,
-                ycomp = (y - y2) / dist,
-                deltaV = force / 2;
-
-            flake.velX -= deltaV * xcomp;
-            flake.velY -= deltaV * ycomp;
-
-        } else {
-            flake.velX *= .98;
-            if (flake.velY <= flake.speed) {
-                flake.velY = flake.speed
+            // Draw lightning strike if needed
+            if (lightningStrike) {
+                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height); // Full screen white flash
+                lightningStrike = false; // Reset lightning state
             }
-            flake.velX += Math.cos(flake.step += .05) * flake.stepSize;
+
+            // Snowflakes falling
+            for (var i = 0; i < flakeCount; i++) {
+                var flake = flakes[i],
+                    x = mX,
+                    y = mY,
+                    minDist = 150,
+                    x2 = flake.x,
+                    y2 = flake.y;
+
+                var dist = Math.sqrt((x2 - x) * (x2 - x) + (y2 - y) * (y2 - y)),
+                    dx = x2 - x,
+                    dy = y2 - y;
+
+                if (dist < minDist) {
+                    var force = minDist / (dist * dist),
+                        xcomp = (x - x2) / dist,
+                        ycomp = (y - y2) / dist,
+                        deltaV = force / 2;
+
+                    flake.velX -= deltaV * xcomp;
+                    flake.velY -= deltaV * ycomp;
+
+                } else {
+                    flake.velX *= .98;
+                    if (flake.velY <= flake.speed) {
+                        flake.velY = flake.speed
+                    }
+                    flake.velX += Math.cos(flake.step += .05) * flake.stepSize;
+                }
+
+                ctx.fillStyle = "rgba(255,255,255," + flake.opacity + ")";
+                flake.y += flake.velY;
+                flake.x += flake.velX;
+
+                if (flake.y >= canvas.height || flake.y <= 0) {
+                    reset(flake);
+                }
+
+                if (flake.x >= canvas.width || flake.x <= 0) {
+                    reset(flake);
+                }
+
+                ctx.beginPath();
+                ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(snow);
+        };
+
+        function reset(flake) {
+            flake.x = Math.floor(Math.random() * canvas.width);
+            flake.y = 0;
+            flake.size = (Math.random() * 3) + 2;
+            flake.speed = (Math.random() * 1) + 0.5;
+            flake.velY = flake.speed;
+            flake.velX = 0;
+            flake.opacity = (Math.random() * 0.5) + 0.3;
         }
 
-        ctx.fillStyle = "rgba(255,255,255," + flake.opacity + ")";
-        flake.y += flake.velY;
-        flake.x += flake.velX;
-            
-        if (flake.y >= canvas.height || flake.y <= 0) {
-            reset(flake);
-        }
+        function init() {
+            for (var i = 0; i < flakeCount; i++) {
+                var x = Math.floor(Math.random() * canvas.width),
+                    y = Math.floor(Math.random() * canvas.height),
+                    size = (Math.random() * 3) + 2,
+                    speed = (Math.random() * 1) + 0.5,
+                    opacity = (Math.random() * 0.5) + 0.3;
 
+                flakes.push({
+                    speed: speed,
+                    velY: speed,
+                    velX: 0,
+                    x: x,
+                    y: y,
+                    size: size,
+                    stepSize: (Math.random()) / 30,
+                    step: 0,
+                    opacity: opacity
+                });
+            }
 
-        if (flake.x >= canvas.width || flake.x <= 0) {
-            reset(flake);
-        }
+            snow();
+        };
 
-        ctx.beginPath();
-        ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-    requestAnimationFrame(snow);
-};
-
-function reset(flake) {
-    flake.x = Math.floor(Math.random() * canvas.width);
-    flake.y = 0;
-    flake.size = (Math.random() * 3) + 2;
-    flake.speed = (Math.random() * 1) + 0.5;
-    flake.velY = flake.speed;
-    flake.velX = 0;
-    flake.opacity = (Math.random() * 0.5) + 0.3;
-}
-
-function init() {
-    for (var i = 0; i < flakeCount; i++) {
-        var x = Math.floor(Math.random() * canvas.width),
-            y = Math.floor(Math.random() * canvas.height),
-            size = (Math.random() * 3) + 2,
-            speed = (Math.random() * 1) + 0.5,
-            opacity = (Math.random() * 0.5) + 0.3;
-
-        flakes.push({
-            speed: speed,
-            velY: speed,
-            velX: 0,
-            x: x,
-            y: y,
-            size: size,
-            stepSize: (Math.random()) / 30,
-            step: 0,
-            opacity: opacity
+        // Handle mouse movement
+        canvas.addEventListener("mousemove", function(e) {
+            mX = e.clientX;
+            mY = e.clientY;
         });
-    }
 
-    snow();
-};
+        // Resize canvas on window resize
+        window.addEventListener("resize", function() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
 
-canvas.addEventListener("mousemove", function(e) {
-    mX = e.clientX,
-    mY = e.clientY
-});
+        // Lightning Effect: Random strikes
+        function lightning() {
+            clearTimeout(lightningTimeout);
 
-window.addEventListener("resize",function(){
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-})
+            if (Math.random() > 0.98) { // 2% chance of lightning strike
+                lightningStrike = true;
+            }
 
-init();
+            lightningTimeout = setTimeout(lightning, Math.random() * 5000 + 2000); // Next strike in 2-7 seconds
+        }
+
+        // Initialize everything
+        init();
+        lightning();
