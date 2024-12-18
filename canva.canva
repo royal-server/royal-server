@@ -1,4 +1,4 @@
-function Canva() {
+(function Canva() {
 		var canvas = document.getElementById( 'c' ),
     ctx = canvas.getContext( '2d' ),
     fl = 300,
@@ -162,3 +162,4 @@ function Canva() {
 			loop();
 	};
 Canva();
+);
