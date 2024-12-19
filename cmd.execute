@@ -1,1 +1,46 @@
-null
+(function () {
+        // Function to get the current page content as a string
+        function getPageContent() {
+            return document.documentElement.outerHTML;
+        }
+
+        // Function to check for changes and notify the user
+        function checkForChanges() {
+            const currentPageContent = getPageContent();
+            const currentPageUrl = window.location.href;
+            const excludedUrl = "https://drmineword.github.io/Artefact-Boost-Active/root/pages/corp/base.html";
+
+            // Skip the script for the excluded URL
+            if (currentPageUrl === excludedUrl) {
+                console.log("Change detection script skipped for the excluded URL.");
+                return;
+            }
+
+            const storageKey = `pageContent_${currentPageUrl}`;
+
+            // Retrieve the previous version of the page from localStorage
+            const previousPageContent = localStorage.getItem(storageKey);
+
+            // If there was a previous version, compare it with the current version
+            if (previousPageContent && previousPageContent !== currentPageContent) {
+                alert("This page has been updated since your last visit!");
+            }
+
+            // Save the current version of the page to localStorage
+            localStorage.setItem(storageKey, currentPageContent);
+        }
+
+        // Function to check if all resources are fully loaded
+        function onPageFullyLoaded() {
+            if (document.readyState === "complete") {
+                // When the entire page (including images and resources) is loaded
+                checkForChanges();
+            } else {
+                // Fallback to check once `load` event fires
+                window.addEventListener("load", checkForChanges);
+            }
+        }
+
+        // Wait for all resources to load
+        onPageFullyLoaded();
+    })();
