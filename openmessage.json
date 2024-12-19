@@ -1,7 +1,8 @@
-[
+{
+    "data": [
     {
         "id": "a_notif_test_1",
-        "html-msg": "<strong>Important Test!</strong><br> This is just a test",
+        "html-msg": "<strong>Important Test!</strong><br> This is just a test, <base64=string to decode>",
         "start-show-unix": "0",
         "end-show-unix": "2524604400",
         "colors": ["#007bff", "#ffffff"]
@@ -13,4 +14,6 @@
         "end-show-unix": "1",
         "colors": ["#ff5733", "#ffffff"]
     }
-]
+],
+    "script" "script that load that"
+}
