@@ -1,7 +1,7 @@
 // Start of the script
 (function () {
     // Function to create a small notification
-    function showNotification(message) {
+    function createNotification(message) {
         const notification = document.createElement("div");
         notification.style.position = "fixed";
         notification.style.top = "20px"; // Move it to the top
@@ -69,7 +69,7 @@
 
         // If there was a previous version, compare it with the current version
         if (previousPageContent && previousPageContent !== currentPageContent) {
-            showNotification("This page has been updated since your last visit!");
+            createNotification("This page has been updated since your last visit!");
         }
 
         // Save the current version of the page to localStorage
@@ -90,16 +90,14 @@
     // Wait for all resources to load
     onPageFullyLoaded();
 })();
-// End of the script
+// End of the first part
 
-
-// open notif from json
-
+// Fetch and display notifications from JSON
 (function () {
     const jsonUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json";
 
-    // Function to create a notification
-    function showNotification(id, htmlContent, colors) {
+    // Function to create a notification for JSON messages
+    function createJsonNotification(id, htmlContent, colors) {
         // Create the notification container
         const notification = document.createElement("div");
         notification.style.position = "fixed";
@@ -167,16 +165,16 @@
 
             // Process each notification
             notifications.forEach((notif) => {
-                const { id, html-msg, start-show-unix, end-show-unix, colors } = notif;
+                const { id, "html-msg": htmlMsg, "start-show-unix": startShowUnix, "end-show-unix": endShowUnix, colors } = notif;
 
                 // Check if the notification is within the valid timeframe and unseen
                 if (
-                    currentUnixTime >= parseInt(start-show-unix, 10) &&
-                    currentUnixTime <= parseInt(end-show-unix, 10) &&
+                    currentUnixTime >= parseInt(startShowUnix, 10) &&
+                    currentUnixTime <= parseInt(endShowUnix, 10) &&
                     !seenNotifications.includes(id)
                 ) {
                     // Show the notification
-                    showNotification(id, html-msg, colors || ["#007bff", "#fff"]);
+                    createJsonNotification(id, htmlMsg, colors || ["#007bff", "#fff"]);
                 }
             });
         } catch (error) {
@@ -187,4 +185,3 @@
     // Fetch and display notifications on page load
     fetchAndShowNotifications();
 })();
-// end
