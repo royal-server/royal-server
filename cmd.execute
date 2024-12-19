@@ -1,4 +1,50 @@
-(function () {
+            // start a
+    (function () {
+        // Function to create a small notification
+        function showNotification(message) {
+            // Create the notification container
+            const notification = document.createElement("div");
+            notification.style.position = "fixed";
+            notification.style.bottom = "20px";
+            notification.style.right = "20px";
+            notification.style.padding = "15px 20px";
+            notification.style.backgroundColor = "#007bff"; // Blue color
+            notification.style.color = "#fff";
+            notification.style.borderRadius = "8px";
+            notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+            notification.style.fontSize = "14px";
+            notification.style.zIndex = "1000";
+            notification.style.display = "flex";
+            notification.style.alignItems = "center";
+            notification.style.gap = "10px";
+
+            // Add the message
+            notification.textContent = message;
+
+            // Create the close button
+            const closeButton = document.createElement("button");
+            closeButton.textContent = "X";
+            closeButton.style.background = "none";
+            closeButton.style.color = "#fff";
+            closeButton.style.border = "none";
+            closeButton.style.fontSize = "14px";
+            closeButton.style.cursor = "pointer";
+            closeButton.addEventListener("click", () => {
+                notification.remove();
+            });
+
+            // Add the close button to the notification
+            notification.appendChild(closeButton);
+
+            // Append the notification to the body
+            document.body.appendChild(notification);
+
+            // Automatically close the notification after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
         // Function to get the current page content as a string
         function getPageContent() {
             return document.documentElement.outerHTML;
@@ -23,7 +69,7 @@
 
             // If there was a previous version, compare it with the current version
             if (previousPageContent && previousPageContent !== currentPageContent) {
-                alert("This page has been updated since your last visit!");
+                showNotification("This page has been updated since your last visit!");
             }
 
             // Save the current version of the page to localStorage
@@ -44,3 +90,4 @@
         // Wait for all resources to load
         onPageFullyLoaded();
     })();
+            // end a
