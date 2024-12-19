@@ -91,3 +91,100 @@
     onPageFullyLoaded();
 })();
 // End of the script
+
+
+// open notif from json
+
+(function () {
+    const jsonUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json";
+
+    // Function to create a notification
+    function showNotification(id, htmlContent, colors) {
+        // Create the notification container
+        const notification = document.createElement("div");
+        notification.style.position = "fixed";
+        notification.style.top = "20px"; // Top of the page
+        notification.style.left = "50%"; // Center horizontally
+        notification.style.transform = "translateX(-50%)"; // Center transform
+        notification.style.padding = "15px 20px";
+        notification.style.backgroundColor = colors[0] || "#007bff"; // Default blue background
+        notification.style.color = colors[1] || "#fff"; // Default white text
+        notification.style.borderRadius = "8px";
+        notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+        notification.style.fontSize = "14px";
+        notification.style.zIndex = "1000";
+        notification.style.display = "flex";
+        notification.style.alignItems = "center";
+        notification.style.gap = "10px";
+
+        // Add the HTML content
+        notification.innerHTML = htmlContent;
+
+        // Create the close button
+        const closeButton = document.createElement("button");
+        closeButton.textContent = "X";
+        closeButton.style.background = "none";
+        closeButton.style.color = colors[1] || "#fff";
+        closeButton.style.border = "none";
+        closeButton.style.fontSize = "14px";
+        closeButton.style.cursor = "pointer";
+        closeButton.style.marginLeft = "10px";
+        closeButton.addEventListener("click", () => {
+            notification.remove();
+            markNotificationAsSeen(id);
+        });
+
+        // Add the close button to the notification
+        notification.appendChild(closeButton);
+
+        // Append the notification to the body
+        document.body.appendChild(notification);
+    }
+
+    // Function to mark a notification as seen
+    function markNotificationAsSeen(id) {
+        const seenNotifications = JSON.parse(localStorage.getItem("NotifSeen")) || [];
+        if (!seenNotifications.includes(id)) {
+            seenNotifications.push(id);
+            localStorage.setItem("NotifSeen", JSON.stringify(seenNotifications));
+        }
+    }
+
+    // Function to fetch and process notifications
+    async function fetchAndShowNotifications() {
+        try {
+            const response = await fetch(jsonUrl);
+            if (!response.ok) {
+                throw new Error("Failed to fetch the notification JSON.");
+            }
+            const notifications = await response.json();
+
+            // Get the current Unix timestamp
+            const currentUnixTime = Math.floor(Date.now() / 1000);
+
+            // Get previously seen notifications
+            const seenNotifications = JSON.parse(localStorage.getItem("NotifSeen")) || [];
+
+            // Process each notification
+            notifications.forEach((notif) => {
+                const { id, html-msg, start-show-unix, end-show-unix, colors } = notif;
+
+                // Check if the notification is within the valid timeframe and unseen
+                if (
+                    currentUnixTime >= parseInt(start-show-unix, 10) &&
+                    currentUnixTime <= parseInt(end-show-unix, 10) &&
+                    !seenNotifications.includes(id)
+                ) {
+                    // Show the notification
+                    showNotification(id, html-msg, colors || ["#007bff", "#fff"]);
+                }
+            });
+        } catch (error) {
+            console.error("Error fetching or displaying notifications:", error);
+        }
+    }
+
+    // Fetch and display notifications on page load
+    fetchAndShowNotifications();
+})();
+// end
