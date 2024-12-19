@@ -3,20 +3,21 @@
         // Function to create a small notification
         function showNotification(message) {
             // Create the notification container
-            const notification = document.createElement("div");
-            notification.style.position = "fixed";
-            notification.style.bottom = "20px";
-            notification.style.right = "20px";
-            notification.style.padding = "15px 20px";
-            notification.style.backgroundColor = "#007bff"; // Blue color
-            notification.style.color = "#fff";
-            notification.style.borderRadius = "8px";
-            notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-            notification.style.fontSize = "14px";
-            notification.style.zIndex = "1000";
-            notification.style.display = "flex";
-            notification.style.alignItems = "center";
-            notification.style.gap = "10px";
+            const notification = document.createElement("div");notification.style.position = "fixed";
+notification.style.top = "20px"; // Move it to the top
+notification.style.left = "50%"; // Center horizontally
+notification.style.transform = "translateX(-50%)"; // Adjust position for centering
+notification.style.padding = "15px 20px";
+notification.style.backgroundColor = "#007bff"; // Blue color
+notification.style.color = "#fff";
+notification.style.borderRadius = "8px";
+notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+notification.style.fontSize = "14px";
+notification.style.zIndex = "1000";
+notification.style.display = "flex";
+notification.style.alignItems = "center";
+notification.style.gap = "10px";
+
 
             // Add the message
             notification.textContent = message;
