@@ -1,27 +1,22 @@
-// Start of the script
 (function () {
-    // Function to create a small notification
-    function createNotification(message) {
+    // Function to create a notification
+    function showNotification(message) {
         const notification = document.createElement("div");
         notification.style.position = "fixed";
-        notification.style.top = "20px"; // Move it to the top
-        notification.style.left = "50%"; // Center horizontally
-        notification.style.transform = "translateX(-50%)"; // Adjust position for centering
+        notification.style.top = "20px";
+        notification.style.left = "50%";
+        notification.style.transform = "translateX(-50%)";
         notification.style.padding = "15px 20px";
-        notification.style.backgroundColor = "#007bff"; // Blue color
+        notification.style.backgroundColor = "#007bff";
         notification.style.color = "#fff";
         notification.style.borderRadius = "8px";
         notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
         notification.style.fontSize = "14px";
         notification.style.zIndex = "1000";
-        notification.style.display = "flex";
-        notification.style.alignItems = "center";
-        notification.style.gap = "10px";
 
-        // Add the message
         notification.textContent = message;
 
-        // Create the close button
+        // Close button
         const closeButton = document.createElement("button");
         closeButton.textContent = "X";
         closeButton.style.background = "none";
@@ -29,96 +24,65 @@
         closeButton.style.border = "none";
         closeButton.style.fontSize = "14px";
         closeButton.style.cursor = "pointer";
-        closeButton.addEventListener("click", () => {
-            notification.remove();
-        });
+        closeButton.addEventListener("click", () => notification.remove());
 
-        // Add the close button to the notification
         notification.appendChild(closeButton);
-
-        // Append the notification to the body
         document.body.appendChild(notification);
 
-        // Automatically close the notification after 5 seconds
-        setTimeout(() => {
-            notification.remove();
-        }, 5000);
+        // Automatically remove notification after 5 seconds
+        setTimeout(() => notification.remove(), 5000);
     }
 
-    // Function to get the current page content as a string
-    function getPageContent() {
-        return document.documentElement.outerHTML;
-    }
-
-    // Function to check for changes and notify the user
-    function checkForChanges() {
-        const currentPageContent = getPageContent();
+    // Function to detect changes in page content
+    function detectPageUpdate() {
         const currentPageUrl = window.location.href;
         const excludedUrl = "https://drmineword.github.io/Artefact-Boost-Active/root/pages/corp/base.html";
+        const storageKey = `pageContent_${currentPageUrl}`;
+        const currentPageContent = document.documentElement.outerHTML;
 
-        // Skip the script for the excluded URL
         if (currentPageUrl === excludedUrl) {
-            console.log("Change detection script skipped for the excluded URL.");
+            console.log("Page update detection skipped for excluded URL.");
             return;
         }
 
-        const storageKey = `pageContent_${currentPageUrl}`;
-
-        // Retrieve the previous version of the page from localStorage
         const previousPageContent = localStorage.getItem(storageKey);
-
-        // If there was a previous version, compare it with the current version
         if (previousPageContent && previousPageContent !== currentPageContent) {
-            createNotification("This page has been updated since your last visit!");
+            showNotification("This page has been updated since your last visit!");
         }
 
-        // Save the current version of the page to localStorage
+        // Save current page content
         localStorage.setItem(storageKey, currentPageContent);
     }
 
-    // Function to ensure all resources are fully loaded
-    function onPageFullyLoaded() {
-        // Use the `load` event to ensure everything is loaded
-        window.addEventListener("load", () => {
-            // Add a slight delay (e.g., 2 seconds) to ensure all late-loading requests are complete
-            setTimeout(() => {
-                checkForChanges();
-            }, 2000); // 2-second delay
-        });
-    }
-
-    // Wait for all resources to load
-    onPageFullyLoaded();
-})();
-// End of the first part
-
-// Fetch and display notifications from JSON
-(function () {
-    const jsonUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json";
+    // Run the update detection after the page is fully loaded
+    window.addEventListener("load", () => {
+        setTimeout(detectPageUpdate, 2000); // Delay for late-loading resources
+    });
 
     // Function to create a notification for JSON messages
-    function createJsonNotification(id, htmlContent, colors) {
-        // Create the notification container
-        const notification = document.createElement("div");
-        notification.style.position = "fixed";
-        notification.style.top = "20px"; // Top of the page
-        notification.style.left = "50%"; // Center horizontally
-        notification.style.transform = "translateX(-50%)"; // Center transform
-        notification.style.padding = "15px 20px";
-        notification.style.backgroundColor = colors[0] || "#007bff"; // Default blue background
-        notification.style.color = colors[1] || "#fff"; // Default white text
-        notification.style.borderRadius = "8px";
-        notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-        notification.style.fontSize = "14px";
-        notification.style.zIndex = "1000";
-        notification.style.display = "flex";
-        notification.style.alignItems = "center";
-        notification.style.gap = "10px";
+    function showNotificationJson(id, htmlContent, colors) {
+        const notificationJsonBox = document.createElement("div");
+        notificationJsonBox.style.position = "fixed";
+        notificationJsonBox.style.top = "20px";
+        notificationJsonBox.style.left = "50%";
+        notificationJsonBox.style.transform = "translateX(-50%)";
+        notificationJsonBox.style.padding = "15px 20px";
+        notificationJsonBox.style.backgroundColor = colors[0] || "#007bff";
+        notificationJsonBox.style.color = colors[1] || "#fff";
+        notificationJsonBox.style.borderRadius = "8px";
+        notificationJsonBox.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+        notificationJsonBox.style.fontSize = "14px";
+        notificationJsonBox.style.zIndex = "1000";
 
-        // Add the HTML content
-        notification.innerHTML = htmlContent;
+        // Check for <base64=string> and decode it
+        if (htmlContent.startsWith("<base64=")) {
+            const base64String = htmlContent.slice(8, -1); // Extract base64 string
+            htmlContent = atob(base64String); // Decode base64 to plain text
+        }
 
-        // Create the close button
+        notificationJsonBox.innerHTML = htmlContent;
+
+        // Close button
         const closeButton = document.createElement("button");
         closeButton.textContent = "X";
         closeButton.style.background = "none";
@@ -126,17 +90,13 @@
         closeButton.style.border = "none";
         closeButton.style.fontSize = "14px";
         closeButton.style.cursor = "pointer";
-        closeButton.style.marginLeft = "10px";
         closeButton.addEventListener("click", () => {
-            notification.remove();
+            notificationJsonBox.remove();
             markNotificationAsSeen(id);
         });
 
-        // Add the close button to the notification
-        notification.appendChild(closeButton);
-
-        // Append the notification to the body
-        document.body.appendChild(notification);
+        notificationJsonBox.appendChild(closeButton);
+        document.body.appendChild(notificationJsonBox);
     }
 
     // Function to mark a notification as seen
@@ -148,40 +108,34 @@
         }
     }
 
-    // Function to fetch and process notifications
+    // Fetch and process notifications from JSON
     async function fetchAndShowNotifications() {
+        const jsonUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json";
+
         try {
             const response = await fetch(jsonUrl);
-            if (!response.ok) {
-                throw new Error("Failed to fetch the notification JSON.");
-            }
+            if (!response.ok) throw new Error("Failed to fetch JSON");
+
             const notifications = await response.json();
-
-            // Get the current Unix timestamp
             const currentUnixTime = Math.floor(Date.now() / 1000);
-
-            // Get previously seen notifications
             const seenNotifications = JSON.parse(localStorage.getItem("NotifSeen")) || [];
 
-            // Process each notification
             notifications.forEach((notif) => {
                 const { id, "html-msg": htmlMsg, "start-show-unix": startShowUnix, "end-show-unix": endShowUnix, colors } = notif;
 
-                // Check if the notification is within the valid timeframe and unseen
                 if (
                     currentUnixTime >= parseInt(startShowUnix, 10) &&
                     currentUnixTime <= parseInt(endShowUnix, 10) &&
                     !seenNotifications.includes(id)
                 ) {
-                    // Show the notification
-                    createJsonNotification(id, htmlMsg, colors || ["#007bff", "#fff"]);
+                    showNotificationJson(id, htmlMsg, colors || ["#007bff", "#fff"]);
                 }
             });
         } catch (error) {
-            console.error("Error fetching or displaying notifications:", error);
+            console.error("Error fetching notifications:", error);
         }
     }
 
-    // Fetch and display notifications on page load
-    fetchAndShowNotifications();
+    // Fetch notifications on page load
+    window.addEventListener("load", fetchAndShowNotifications);
 })();
