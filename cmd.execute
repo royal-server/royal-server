@@ -1,94 +1,93 @@
-            // start a
-    (function () {
-        // Function to create a small notification
-        function showNotification(message) {
-            // Create the notification container
-            const notification = document.createElement("div");notification.style.position = "fixed";
-notification.style.top = "20px"; // Move it to the top
-notification.style.left = "50%"; // Center horizontally
-notification.style.transform = "translateX(-50%)"; // Adjust position for centering
-notification.style.padding = "15px 20px";
-notification.style.backgroundColor = "#007bff"; // Blue color
-notification.style.color = "#fff";
-notification.style.borderRadius = "8px";
-notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
-notification.style.fontSize = "14px";
-notification.style.zIndex = "1000";
-notification.style.display = "flex";
-notification.style.alignItems = "center";
-notification.style.gap = "10px";
+// Start of the script
+(function () {
+    // Function to create a small notification
+    function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.style.position = "fixed";
+        notification.style.top = "20px"; // Move it to the top
+        notification.style.left = "50%"; // Center horizontally
+        notification.style.transform = "translateX(-50%)"; // Adjust position for centering
+        notification.style.padding = "15px 20px";
+        notification.style.backgroundColor = "#007bff"; // Blue color
+        notification.style.color = "#fff";
+        notification.style.borderRadius = "8px";
+        notification.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+        notification.style.fontSize = "14px";
+        notification.style.zIndex = "1000";
+        notification.style.display = "flex";
+        notification.style.alignItems = "center";
+        notification.style.gap = "10px";
 
+        // Add the message
+        notification.textContent = message;
 
-            // Add the message
-            notification.textContent = message;
+        // Create the close button
+        const closeButton = document.createElement("button");
+        closeButton.textContent = "X";
+        closeButton.style.background = "none";
+        closeButton.style.color = "#fff";
+        closeButton.style.border = "none";
+        closeButton.style.fontSize = "14px";
+        closeButton.style.cursor = "pointer";
+        closeButton.addEventListener("click", () => {
+            notification.remove();
+        });
 
-            // Create the close button
-            const closeButton = document.createElement("button");
-            closeButton.textContent = "X";
-            closeButton.style.background = "none";
-            closeButton.style.color = "#fff";
-            closeButton.style.border = "none";
-            closeButton.style.fontSize = "14px";
-            closeButton.style.cursor = "pointer";
-            closeButton.addEventListener("click", () => {
-                notification.remove();
-            });
+        // Add the close button to the notification
+        notification.appendChild(closeButton);
 
-            // Add the close button to the notification
-            notification.appendChild(closeButton);
+        // Append the notification to the body
+        document.body.appendChild(notification);
 
-            // Append the notification to the body
-            document.body.appendChild(notification);
+        // Automatically close the notification after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
 
-            // Automatically close the notification after 5 seconds
+    // Function to get the current page content as a string
+    function getPageContent() {
+        return document.documentElement.outerHTML;
+    }
+
+    // Function to check for changes and notify the user
+    function checkForChanges() {
+        const currentPageContent = getPageContent();
+        const currentPageUrl = window.location.href;
+        const excludedUrl = "https://drmineword.github.io/Artefact-Boost-Active/root/pages/corp/base.html";
+
+        // Skip the script for the excluded URL
+        if (currentPageUrl === excludedUrl) {
+            console.log("Change detection script skipped for the excluded URL.");
+            return;
+        }
+
+        const storageKey = `pageContent_${currentPageUrl}`;
+
+        // Retrieve the previous version of the page from localStorage
+        const previousPageContent = localStorage.getItem(storageKey);
+
+        // If there was a previous version, compare it with the current version
+        if (previousPageContent && previousPageContent !== currentPageContent) {
+            showNotification("This page has been updated since your last visit!");
+        }
+
+        // Save the current version of the page to localStorage
+        localStorage.setItem(storageKey, currentPageContent);
+    }
+
+    // Function to ensure all resources are fully loaded
+    function onPageFullyLoaded() {
+        // Use the `load` event to ensure everything is loaded
+        window.addEventListener("load", () => {
+            // Add a slight delay (e.g., 2 seconds) to ensure all late-loading requests are complete
             setTimeout(() => {
-                notification.remove();
-            }, 5000);
-        }
-
-        // Function to get the current page content as a string
-        function getPageContent() {
-            return document.documentElement.outerHTML;
-        }
-
-        // Function to check for changes and notify the user
-        function checkForChanges() {
-            const currentPageContent = getPageContent();
-            const currentPageUrl = window.location.href;
-            const excludedUrl = "https://drmineword.github.io/Artefact-Boost-Active/root/pages/corp/base.html";
-
-            // Skip the script for the excluded URL
-            if (currentPageUrl === excludedUrl) {
-                console.log("Change detection script skipped for the excluded URL.");
-                return;
-            }
-
-            const storageKey = `pageContent_${currentPageUrl}`;
-
-            // Retrieve the previous version of the page from localStorage
-            const previousPageContent = localStorage.getItem(storageKey);
-
-            // If there was a previous version, compare it with the current version
-            if (previousPageContent && previousPageContent !== currentPageContent) {
-                showNotification("This page has been updated since your last visit!");
-            }
-
-            // Save the current version of the page to localStorage
-            localStorage.setItem(storageKey, currentPageContent);
-        }
-
-        // Function to check if all resources are fully loaded
-        function onPageFullyLoaded() {
-            if (document.readyState === "complete") {
-                // When the entire page (including images and resources) is loaded
                 checkForChanges();
-            } else {
-                // Fallback to check once `load` event fires
-                window.addEventListener("load", checkForChanges);
-            }
-        }
+            }, 2000); // 2-second delay
+        });
+    }
 
-        // Wait for all resources to load
-        onPageFullyLoaded();
-    })();
-            // end a
+    // Wait for all resources to load
+    onPageFullyLoaded();
+})();
+// End of the script
