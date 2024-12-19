@@ -1,1 +1,16 @@
-{}
+[
+    {
+        "id": "notif1",
+        "html-msg": "<strong>Important Update!</strong> Please review the changes.",
+        "start-show-unix": "1703000000",
+        "end-show-unix": "1704000000",
+        "colors": ["#007bff", "#ffffff"]
+    },
+    {
+        "id": "notif2",
+        "html-msg": "<strong>Maintenance Scheduled:</strong> The site will be down at midnight.",
+        "start-show-unix": "1705000000",
+        "end-show-unix": "1706000000",
+        "colors": ["#ff5733", "#ffffff"]
+    }
+]
