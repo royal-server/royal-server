@@ -47,19 +47,25 @@
     try {
       const currentUrl = window.location.href;
 
-      if (currentUrl !== EXCLUDED_URL) {
-        const pageContent = document.documentElement.outerHTML;
+      // Save page content under `page_$current-url`
+      const pageContent = document.documentElement.outerHTML;
+      const storageKey = `page_${currentUrl}`;
+      localStorage.setItem(storageKey, pageContent);
 
-        // Retrieve the stored content from localStorage
-        const storedContent = localStorage.getItem(currentUrl);
+      if (currentUrl !== EXCLUDED_URL) {
+        // Retrieve the stored content for change detection
+        const storedContent = localStorage.getItem(storageKey);
 
         if (storedContent && storedContent !== pageContent) {
           console.log("Page content has changed!");
-          showNotification("Edit Change Detected - will auto dismiss in 10 seconds", "#ff0000", "#ffffff");
-        }
+          
+          // Fetch messages from the JSON
+          const response = await fetch(NOTIF_JSON_URL);
+          const notifData = await response.json();
 
-        // Update localStorage with the new content
-        localStorage.setItem(currentUrl, pageContent);
+          // Show notification for edit changes using `editmsg` from JSON
+          showNotification(notifData.editmsg, "#ff0000", "#ffffff");
+        }
       }
 
       // Fetch notifications
