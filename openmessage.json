@@ -21,6 +21,7 @@
     },
         {
             "id": "Christmas2024",
+            "type": "normal",
             "html-msg": "<p style=\"font-size:12px;\">Merry Christmas!<br>Wishes <img src=\"https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/discord/add_file_to_github/avatars/987284796789116949/20f2aebe59e1ff7029a5f50f19542b95.png\" alt=\"DrMineword Icon\" style=\"height:16px; vertical-align:middle;\">DrMineword</p>",
             "start-show-unix": "0",
             "end-show-unix": "1735603200",
