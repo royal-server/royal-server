@@ -147,6 +147,8 @@ function createNotif(notification, type, isCookie = false) {
 
     // Handle specific types (normal, cookie, etc.)
     if (type === "cookie") {
+        console.log("Handling cookie notification:", notification);
+
         container.style.position = 'fixed'; // Ensure it stays at the bottom
         container.style.bottom = '0';
         container.style.left = '0';
@@ -183,6 +185,8 @@ function createNotif(notification, type, isCookie = false) {
         }, autoDismissTime * 1000);
     } else {
         // Normal notifications with dismiss button positioned on the right, centered vertically
+        console.log("Handling normal notification:", notification);
+
         notificationDiv.style.display = 'flex';
         notificationDiv.style.justifyContent = 'space-between';
         notificationDiv.style.alignItems = 'center';
@@ -209,8 +213,13 @@ function createNotif(notification, type, isCookie = false) {
 
 function dismissNotif(id, notificationElement) {
     const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
-    dismissedNotifications.push(id);
-    localStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
+    if (!dismissedNotifications.includes(id)) {
+        dismissedNotifications.push(id);
+        localStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
+        console.log(`Notification ${id} dismissed and added to localStorage.`);
+    } else {
+        console.log(`Notification ${id} already dismissed.`);
+    }
 
     notificationElement.remove();
     console.log("Notification dismissed:", id);
