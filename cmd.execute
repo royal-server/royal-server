@@ -3,11 +3,50 @@
   const NOTIF_JSON_URL = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json";
   const CMD_EXECUTE_URL = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/cmd2.execute";
 
+  // Function to display notifications
+  function showNotification(message, backgroundColor, textColor, autoDismiss = true, dismissTimeout = 10000) {
+    const notifContainer = document.createElement("div");
+    notifContainer.innerHTML = `<strong>${message}</strong>`;
+    notifContainer.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: ${backgroundColor};
+      color: ${textColor};
+      padding: 15px;
+      z-index: 10000;
+      text-align: center;
+      font-size: 16px;
+    `;
+
+    // Dismiss button
+    const dismissBtn = document.createElement("button");
+    dismissBtn.textContent = "Dismiss";
+    dismissBtn.style.cssText = `
+      margin-left: 15px;
+      padding: 5px 10px;
+      background-color: ${textColor};
+      color: ${backgroundColor};
+      border: none;
+      cursor: pointer;
+    `;
+    dismissBtn.addEventListener("click", () => notifContainer.remove());
+
+    notifContainer.appendChild(dismissBtn);
+    document.body.appendChild(notifContainer);
+
+    // Auto-dismiss if required
+    if (autoDismiss) {
+      setTimeout(() => notifContainer.remove(), dismissTimeout);
+    }
+  }
+
   // Wait for the document to fully load
   document.addEventListener("DOMContentLoaded", async () => {
     try {
       const currentUrl = window.location.href;
-      
+
       if (currentUrl !== EXCLUDED_URL) {
         const pageContent = document.documentElement.outerHTML;
 
@@ -16,7 +55,7 @@
 
         if (storedContent && storedContent !== pageContent) {
           console.log("Page content has changed!");
-          alert("Edit detected: Lorem"); // Display "editmsg"
+          showNotification("Edit Change Detected - will auto dismiss in 10 seconds", "#ff0000", "#ffffff");
         }
 
         // Update localStorage with the new content
@@ -35,39 +74,7 @@
 
         // Check if the notification should be shown
         if (now >= startShow && now <= endShow && !localStorage.getItem(`dismissed_${id}`)) {
-          // Create the notification container
-          const notifContainer = document.createElement("div");
-          notifContainer.innerHTML = atob(htmlMsg);
-          notifContainer.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: ${colors[0]};
-            color: ${colors[1]};
-            padding: 15px;
-            z-index: 10000;
-            text-align: center;
-          `;
-
-          // Dismiss button
-          const dismissBtn = document.createElement("button");
-          dismissBtn.textContent = "Dismiss";
-          dismissBtn.style.cssText = `
-            margin-left: 15px;
-            padding: 5px 10px;
-            background-color: ${colors[1]};
-            color: ${colors[0]};
-            border: none;
-            cursor: pointer;
-          `;
-          dismissBtn.addEventListener("click", () => {
-            notifContainer.remove();
-            localStorage.setItem(`dismissed_${id}`, true);
-          });
-
-          notifContainer.appendChild(dismissBtn);
-          document.body.appendChild(notifContainer);
+          showNotification(atob(htmlMsg), colors[0], colors[1], false);
         }
       });
 
