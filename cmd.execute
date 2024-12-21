@@ -151,7 +151,7 @@ function createNotif(notification, type) {
     notificationDiv.style.zIndex = '9999'; // Ensure it stays on top
 
     // Set size for notifications with 'auto' width and restrict to 90% of screen width
-    notificationDiv.style.width = 'auto';
+    notificationDiv.style.width = '100000000px';
     notificationDiv.style.maxWidth = '90%'; // Ensure it does not go beyond 90% of the screen width
     notificationDiv.style.whiteSpace = 'normal'; // Allow wrapping of text
     notificationDiv.style.wordWrap = 'break-word'; // Handle long words
@@ -235,9 +235,9 @@ function createNotif(notification, type) {
         notificationDiv.style.alignItems = 'center';
 
         const dismissButton = document.createElement('button');
-        dismissButton.textContent = '×';
+        dismissButton.textContent = 'x';
         dismissButton.style.position = 'absolute';
-        dismissButton.style.right = '-35px';
+        dismissButton.style.right = '0px';
         dismissButton.style.top = '50%';
         dismissButton.style.transform = 'translateY(-50%)'; // Center vertically
         dismissButton.style.backgroundColor = 'transparent';
