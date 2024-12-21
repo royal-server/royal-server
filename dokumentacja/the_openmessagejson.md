@@ -38,6 +38,7 @@ The notification data should follow this format:
     {
       "id": "2",
       "type": "cookie",
+      "cb": "OK", \\dismiss button text
       "start-show-unix": "1700000000",
       "end-show-unix": "1700003600",
       "colors": ["#4CAF50", "#FFFFFF"],
