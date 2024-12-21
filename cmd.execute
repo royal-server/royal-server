@@ -3,8 +3,23 @@
   const NOTIF_JSON_URL = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json";
   const CMD_EXECUTE_URL = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/cmd2.execute";
 
+  // Function to get dismissed notifications from localStorage
+  function getDismissedNotifications() {
+    const dismissed = localStorage.getItem("dismissed_notifications");
+    return dismissed ? JSON.parse(dismissed) : [];
+  }
+
+  // Function to save dismissed notifications to localStorage
+  function saveDismissedNotification(id) {
+    const dismissed = getDismissedNotifications();
+    if (!dismissed.includes(id)) {
+      dismissed.push(id);
+      localStorage.setItem("dismissed_notifications", JSON.stringify(dismissed));
+    }
+  }
+
   // Function to display notifications
-  function showNotification(message, backgroundColor, textColor, autoDismiss = true, dismissTimeout = 10000) {
+  function showNotification(message, backgroundColor, textColor, id = null, autoDismiss = true, dismissTimeout = 10000) {
     const notifContainer = document.createElement("div");
     notifContainer.innerHTML = `<strong>${message}</strong>`;
     notifContainer.style.cssText = `
@@ -31,14 +46,20 @@
       border: none;
       cursor: pointer;
     `;
-    dismissBtn.addEventListener("click", () => notifContainer.remove());
+    dismissBtn.addEventListener("click", () => {
+      notifContainer.remove();
+      if (id) saveDismissedNotification(id); // Save dismissed notification ID
+    });
 
     notifContainer.appendChild(dismissBtn);
     document.body.appendChild(notifContainer);
 
     // Auto-dismiss if required
     if (autoDismiss) {
-      setTimeout(() => notifContainer.remove(), dismissTimeout);
+      setTimeout(() => {
+        notifContainer.remove();
+        if (id) saveDismissedNotification(id); // Save dismissed notification ID
+      }, dismissTimeout);
     }
   }
 
@@ -74,13 +95,14 @@
 
       // Current timestamp
       const now = Math.floor(Date.now() / 1000);
+      const dismissedNotifications = getDismissedNotifications();
 
       notifData.data.forEach((notif) => {
         const { id, "html-msg": htmlMsg, "start-show-unix": startShow, "end-show-unix": endShow, colors } = notif;
 
         // Check if the notification should be shown
-        if (now >= startShow && now <= endShow && !localStorage.getItem(`dismissed_${id}`)) {
-          showNotification(atob(htmlMsg), colors[0], colors[1], false);
+        if (now >= startShow && now <= endShow && !dismissedNotifications.includes(id)) {
+          showNotification(atob(htmlMsg), colors[0], colors[1], id, false);
         }
       });
 
