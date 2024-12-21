@@ -1,26 +1,12 @@
 {
     "data": [
         {
-            "id": "a_notif_test_3",
-            "html-msg": "<strong>Important Test!</strong><br> This is just a test, <base64=string to decode>",
-            "start-show-unix": "0",
-            "end-show-unix": "2524604400",
-            "colors": ["#008000", "#ffffff"]
-        },
-        {
-            "id": "a_notif_test_2",
-            "html-msg": "<strong>Important Test!</strong><br> This is just a test2",
-            "start-show-unix": "0",
-            "end-show-unix": "2524604400",
-            "colors": ["#007bff", "#ffffff"]
-        },
-        {
             "id": "a_example",
             "html-msg": "<strong>Maintenance Scheduled:</strong> The site will be down at midnight.",
             "start-show-unix": "0",
             "end-show-unix": "1",
-            "colors": ["#ff5733", "#ffffff"]
+            "colors": ["#008000", "#ffffff"]
         }
     ],
-    "consolelog": "Test_V2.1"
+    "consolelog": "Test_V3"
 }
