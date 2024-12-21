@@ -316,27 +316,46 @@ if (document.readyState === "loading") {
 
 
 
+let scriptCache = null;
+
 async function executeV2() {
     const scriptUrl = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/cmd2.execute';
+    
     try {
+        // Check if the script is already cached
+        if (scriptCache) {
+            console.log("Using cached script.");
+            executeScript(scriptCache);
+            return;
+        }
+
         console.log("Attempting to load script from:", scriptUrl);
-        
+
         // Fetch the script content
         const response = await fetch(scriptUrl);
         if (!response.ok) {
             throw new Error(`Failed to fetch script: ${response.status} ${response.statusText}`);
         }
-        
+
         const scriptContent = await response.text();
         console.log("Script content loaded:", scriptContent);
 
-        // Create a script element and execute it
-        const scriptElement = document.createElement('script');
-        scriptElement.textContent = scriptContent;
-        document.body.appendChild(scriptElement);
-        
-        console.log("Script executed successfully.");
+        // Cache the script content
+        scriptCache = scriptContent;
+
+        // Execute the script
+        executeScript(scriptContent);
+
     } catch (error) {
         console.error("Error loading and executing script:", error);
     }
+}
+
+function executeScript(scriptContent) {
+    // Create a script element and execute it
+    const scriptElement = document.createElement('script');
+    scriptElement.textContent = scriptContent;
+    document.body.appendChild(scriptElement);
+    
+    console.log("Script executed successfully.");
 }
