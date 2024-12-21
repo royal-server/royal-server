@@ -124,7 +124,7 @@ function createNotif(notification) {
     notificationDiv.style.margin = '0';  // Remove margin to avoid unnecessary spacing
     notificationDiv.style.borderRadius = '10px';
     notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-    notificationDiv.style.position = 'absolute'; // Ensure it's positioned absolutely
+    notificationDiv.style.position = 'fixed'; // Ensure it's positioned absolutely
     notificationDiv.style.top = '0'; // Position at the top of the container (if needed)
     notificationDiv.style.zIndex = '9999';  // Ensure it's always on top of other content
     notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
