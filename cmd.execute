@@ -146,8 +146,11 @@ function createNotif(notification, type, isCookie = false) {
     notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
     notificationDiv.style.padding = '10px';
     notificationDiv.style.margin = '10px 0';
-    notificationDiv.style.position = 'relative'; // Allow positioning of buttons and elements
-    notificationDiv.style.zIndex = '9999'; // Make sure the notification stays on top
+    notificationDiv.style.position = 'fixed'; // Fixed position at the top of the screen
+    notificationDiv.style.top = `${10 + (container.children.length * 70)}px`; // Stack them vertically with 70px space
+    notificationDiv.style.left = '50%';
+    notificationDiv.style.transform = 'translateX(-50%)'; // Center horizontally
+    notificationDiv.style.zIndex = '9999'; // Ensure it stays on top
 
     // Apply custom content (base64 decode or normal HTML)
     const htmlMessageDiv = document.createElement('div');
@@ -220,6 +223,7 @@ function createNotif(notification, type, isCookie = false) {
     container.appendChild(notificationDiv);
     console.log("Notification displayed:", notification);
 }
+
 
 function dismissNotif(id, notificationElement) {
     const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
