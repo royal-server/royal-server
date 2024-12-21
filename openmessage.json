@@ -1,11 +1,11 @@
 {
     "data": [
         {
-            "id": "a_notif_test_1",
+            "id": "a_notif_test_3",
             "html-msg": "<strong>Important Test!</strong><br> This is just a test, <base64=string to decode>",
             "start-show-unix": "0",
             "end-show-unix": "2524604400",
-            "colors": ["#007bff", "#ffffff"]
+            "colors": ["#008000", "#ffffff"]
         },
         {
             "id": "a_notif_test_2",
