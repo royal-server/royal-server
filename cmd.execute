@@ -1,11 +1,9 @@
 console.log("Hello! The script is executing successfully.");
-
 const NOTIFICATION_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
 const ALTERNATE_URLS = [
     'https://example.com/alternate-notification.json', // Add alternate URL(s) if available
     'https://anotherurl.com/backup-notification.json'
 ];
-
 async function loadNotifications() {
     try {
         console.log("Attempting to fetch notifications from:", NOTIFICATION_URL);
