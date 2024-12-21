@@ -151,7 +151,7 @@ function createNotif(notification, type) {
     notificationDiv.style.zIndex = '9999'; // Ensure it stays on top
 
     // Set size for notifications with 'auto' width and restrict to 90% of screen width
-    notificationDiv.style.width = '10000px';
+    notificationDiv.style.width = '1000px';
     notificationDiv.style.maxWidth = '90%'; // Ensure it does not go beyond 90% of the screen width
     notificationDiv.style.whiteSpace = 'normal'; // Allow wrapping of text
     
