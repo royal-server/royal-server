@@ -164,13 +164,10 @@ function createNotif(notification, type) {
         console.warn("No html-msg found for notification:", notification);
     }
 
-    // Add content to the notification div
+    // Add content to the notification div only once
     const htmlMessageDiv = document.createElement('div');
     htmlMessageDiv.innerHTML = notification["html-msg"] || "No message available";
     notificationDiv.appendChild(htmlMessageDiv);
-
-    // Check if the message was added to the div
-    console.log("Notification Content (after adding html-msg):", htmlMessageDiv.innerHTML);
 
     // Determine if it's a cookie notification or a normal notification
     const isCookie = type === "cookie"; // Set isCookie flag based on the type of notification
@@ -215,14 +212,6 @@ function createNotif(notification, type) {
         // Non-cookie notifications will show at the top
         console.log("Handling normal notification:", notification);
 
-        // Add content to the notification div
-        const htmlMessageDiv = document.createElement('div');
-        htmlMessageDiv.innerHTML = notification["html-msg"] || "No message available";
-        notificationDiv.appendChild(htmlMessageDiv);
-
-        // Check if the message was inserted properly
-        console.log("Notification Content (normal type):", htmlMessageDiv.innerHTML);
-
         // Set notification's display properties
         notificationDiv.style.display = 'flex';
         notificationDiv.style.justifyContent = 'space-between';
@@ -252,6 +241,7 @@ function createNotif(notification, type) {
     container.appendChild(notificationDiv);
     console.log("Notification displayed:", notification);
 }
+
 
 
 
