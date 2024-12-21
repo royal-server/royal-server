@@ -109,21 +109,19 @@ function handleNotifications(notifications) {
 function createNotif(notification) {
     const container = document.getElementById(notificationContainerId);
 
-    // Ensure the container uses flexbox layout
+    // Make sure the container is using flexbox with column-reverse
     container.style.display = 'flex';
-    container.style.flexDirection = 'column';  // Stack notifications vertically
-    container.style.alignItems = 'flex-start'; // Optional: left-aligned notifications
-    container.style.gap = '10px';  // Optional: space between notifications
+    container.style.flexDirection = 'column-reverse';
+    container.style.alignItems = 'flex-start'; // Optional for left alignment
 
     const notificationDiv = document.createElement('div');
     notificationDiv.className = 'notification';
     notificationDiv.style.backgroundColor = notification.colors[0];
     notificationDiv.style.color = notification.colors[1];
-notificationDiv.style.position = 'absolute';
-notificationDiv.style.top = '0';
     notificationDiv.style.border = '1px solid #ccc';
     notificationDiv.style.padding = '10px';
-    notificationDiv.style.margin = '0';  // Remove margin to avoid unnecessary spacing
+    notificationDiv.style.margin = '10px 0';
+    notificationDiv.style.position = 'relative';
     notificationDiv.style.borderRadius = '10px';
     notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
     notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
@@ -142,12 +140,11 @@ notificationDiv.style.top = '0';
     dismissButton.onclick = () => dismissNotif(notification.id, notificationDiv);
 
     notificationDiv.appendChild(dismissButton);
-
-    // Append the notification div to the container
     container.appendChild(notificationDiv);
 
     console.log("Notification displayed:", notification);
 }
+
 
 
 function dismissNotif(id, notificationElement) {
