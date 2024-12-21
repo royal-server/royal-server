@@ -109,11 +109,15 @@ function handleNotifications(notifications) {
 function createNotif(notification) {
     const container = document.getElementById(notificationContainerId);
 
-    // Ensure the container uses flexbox layout (same as before)
+    // Ensure the container uses flexbox layout
+    container.style.position = 'fixed';
     container.style.display = 'flex';
     container.style.flexDirection = 'column';  // Stack notifications vertically
     container.style.alignItems = 'flex-start'; // Optional: left-aligned notifications
     container.style.gap = '10px';  // Optional: space between notifications
+    container.style.top = '10px'; // Keep notifications at the top of the page
+    container.style.left = '10px'; // Optional: keep them from touching the edge
+    container.style.zIndex = '9999';  // Ensure it's always on top of other content
 
     const notificationDiv = document.createElement('div');
     notificationDiv.className = 'notification';
@@ -124,9 +128,9 @@ function createNotif(notification) {
     notificationDiv.style.margin = '0';  // Remove margin to avoid unnecessary spacing
     notificationDiv.style.borderRadius = '10px';
     notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-    notificationDiv.style.position = 'fixed'; // Ensure it's positioned absolutely
-    notificationDiv.style.top = '0'; // Position at the top of the container (if needed)
-    notificationDiv.style.zIndex = '9999';  // Ensure it's always on top of other content
+    notificationDiv.style.position = 'relative'; // Ensure it stays within the container
+    notificationDiv.style.maxWidth = '300px'; // Optional: limit width of notifications
+    notificationDiv.style.marginBottom = '10px'; // Space between notifications
     notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
 
     const dismissButton = document.createElement('button');
@@ -149,9 +153,6 @@ function createNotif(notification) {
 
     console.log("Notification displayed:", notification);
 }
-
-
-
 
 function dismissNotif(id, notificationElement) {
     const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
