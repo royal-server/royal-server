@@ -16,6 +16,7 @@
       "start-show-unix": "0",
       "end-show-unix": "2000000000000",
       "colors": ["#4CAF50", "#FFFFFF"],
+            "cb": "ok",
       "html-msg": "<body style=\"margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; background: url('https:\/\/raw.githubusercontent.com\/DrMineword\/1045060846654603305_bot_images\/refs\/heads\/master\/src\/img\/game\/portraits\/portrait_EmptySpace.png') no-repeat center center; background-size: cover;\">\n    <div style=\"background: rgba(128, 128, 128, 0.2); padding: 20px; border-radius: 10px;\">\n        <p style=\"color: white; font-size: 18px; text-align: center; margin: 0;\">Thank you for visiting our website!<\/p>\n    <\/div>\n<\/body>"
     },
         {
