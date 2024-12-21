@@ -1,26 +1,38 @@
 (function() {
     const baseUrl = 'https://drmineword.github.io/Artefact-Boost-Active/';
 
-    // Retrieve total page visits and sub-path visits
-    let totalVisits = localStorage.getItem('totalVisits') || 0;
-    let subPathVisits = JSON.parse(localStorage.getItem('subPathVisits')) || {};
+    // Retrieve visit counts and time spent from localStorage (or initialize if empty)
+    let visitCounts = JSON.parse(localStorage.getItem('visitCounts')) || [];
+    let timeSpentOnPages = JSON.parse(localStorage.getItem('timeSpentOnPages')) || [];
+    let totalVisitSummary = JSON.parse(localStorage.getItem('totalVisitSummary')) || {
+        totalVisits: 0,
+        totalTimeSpent: 0
+    };
 
     // Track the visit time for this page
     const pageVisitStartTime = Date.now();
-
-    // Update the visit counts
-    totalVisits++;
     const currentSubPath = window.location.pathname;
-    subPathVisits[currentSubPath] = (subPathVisits[currentSubPath] || 0) + 1;
 
-    // Store updated values in localStorage
-    localStorage.setItem('totalVisits', totalVisits);
-    localStorage.setItem('subPathVisits', JSON.stringify(subPathVisits));
+    // Update the total visits and sub-path visit counts
+    totalVisitSummary.totalVisits++;
+    const subPathIndex = visitCounts.findIndex(item => item.subPath === currentSubPath);
+    if (subPathIndex === -1) {
+        // If the current sub-path isn't found, add it
+        visitCounts.push({ subPath: currentSubPath, visitCount: 1 });
+        timeSpentOnPages.push({ subPath: currentSubPath, timeSpent: 0 });
+    } else {
+        // If the sub-path is found, increment the visit count
+        visitCounts[subPathIndex].visitCount++;
+    }
+
+    // Store the updated values back into localStorage
+    localStorage.setItem('visitCounts', JSON.stringify(visitCounts));
+    localStorage.setItem('timeSpentOnPages', JSON.stringify(timeSpentOnPages));
+    localStorage.setItem('totalVisitSummary', JSON.stringify(totalVisitSummary));
 
     // Function to calculate total time spent across all pages
     function getTotalWebsiteTime() {
-        let totalWebsiteTime = parseInt(localStorage.getItem('totalWebsiteTime')) || 0;
-        return totalWebsiteTime;
+        return totalVisitSummary.totalTimeSpent;
     }
 
     // Calculate and update the total time spent on the current page
@@ -29,12 +41,21 @@
         const pageTimeSpent = pageVisitEndTime - pageVisitStartTime;
 
         // Update the total time spent on the website
-        let totalWebsiteTime = getTotalWebsiteTime();
-        totalWebsiteTime += pageTimeSpent;
-        localStorage.setItem('totalWebsiteTime', totalWebsiteTime);
+        totalVisitSummary.totalTimeSpent += pageTimeSpent;
+        localStorage.setItem('totalVisitSummary', JSON.stringify(totalVisitSummary));
 
         // Store the time spent on this page
-        localStorage.setItem(currentSubPath + '_timeSpent', pageTimeSpent);
+        const pageTimeIndex = timeSpentOnPages.findIndex(item => item.subPath === currentSubPath);
+        if (pageTimeIndex === -1) {
+            // If the current page is not found, add it
+            timeSpentOnPages.push({ subPath: currentSubPath, timeSpent: pageTimeSpent });
+        } else {
+            // If the page is found, update the time spent
+            timeSpentOnPages[pageTimeIndex].timeSpent += pageTimeSpent;
+        }
+
+        // Update timeSpentOnPages in localStorage
+        localStorage.setItem('timeSpentOnPages', JSON.stringify(timeSpentOnPages));
     });
 
     // Create a blank space in the console for better readability
@@ -44,13 +65,13 @@
     console.log("=====================================");
     console.log("  🚀 Visit Stats - Artefact Boost  🚀");
     console.log("=====================================");
-    console.log(`🔹 Total Page Visits: ${totalVisits}`);
+    console.log(`🔹 Total Page Visits: ${totalVisitSummary.totalVisits}`);
 
     // Log visits for each sub-path
     console.log("🔹 Visits to each sub-path:");
-    for (const [subPath, visitCount] of Object.entries(subPathVisits)) {
-        console.log(`   - ${subPath}: ${visitCount} visit(s)`);
-    }
+    visitCounts.forEach(item => {
+        console.log(`   - ${item.subPath}: ${item.visitCount} visit(s)`);
+    });
 
     console.log("=====================================");
 
@@ -59,7 +80,7 @@
     console.log(`🕒 Total Time Spent on Website: ${formatTime(totalWebsiteTime)}`);
     
     // Log the time spent on the current page
-    const currentPageTime = localStorage.getItem(currentSubPath + '_timeSpent') || 0;
+    const currentPageTime = timeSpentOnPages.find(item => item.subPath === currentSubPath)?.timeSpent || 0;
     console.log(`🕒 Time Spent on Current Page: ${formatTime(currentPageTime)}`);
     
     console.log("=====================================");
