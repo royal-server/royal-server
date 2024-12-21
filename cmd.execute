@@ -1,5 +1,14 @@
 console.log("Hello! The script is executing successfully.");
 
+// Check if the notification container exists, if not, create it dynamically
+const notificationContainerId = 'notification-container';
+if (!document.getElementById(notificationContainerId)) {
+    const container = document.createElement('div');
+    container.id = notificationContainerId;
+    document.body.appendChild(container);
+    console.log('Notification container created dynamically.');
+}
+
 const NOTIFICATION_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
 
 async function loadNotifications() {
@@ -98,7 +107,7 @@ function handleNotifications(notifications) {
 }
 
 function createNotif(notification) {
-    const container = document.getElementById('notification-container');
+    const container = document.getElementById(notificationContainerId);
 
     const notificationDiv = document.createElement('div');
     notificationDiv.className = 'notification';
@@ -149,6 +158,11 @@ function decodeBase64(base64String) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+// Load notifications when the DOM is ready, but ensure it's not blocked if executed externally
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function() {
+        loadNotifications();
+    });
+} else {
     loadNotifications();
-});
+}
