@@ -1,17 +1,16 @@
 console.log("Hello! The script is executing successfully.");
 
 const NOTIFICATION_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
+const ALTERNATE_URLS = [
+    'https://example.com/alternate-notification.json', // Add alternate URL(s) if available
+    'https://anotherurl.com/backup-notification.json'
+];
 
 async function loadNotifications() {
     try {
         console.log("Attempting to fetch notifications from:", NOTIFICATION_URL);
-        const response = await fetch(NOTIFICATION_URL);
-        console.log('Response Status:', response.status);
-
-        if (!response.ok) {
-            console.error(`Error fetching JSON: ${response.status} ${response.statusText}`);
-            return;
-        }
+        const response = await fetchWithFallback(NOTIFICATION_URL);
+        if (!response) return; // If all fetch attempts failed, stop
 
         const rawText = await response.text();
         console.log('Raw JSON Text:', rawText);
@@ -43,6 +42,36 @@ async function loadNotifications() {
     }
 }
 
+async function fetchWithFallback(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.error(`Error fetching JSON from ${url}: ${response.status} ${response.statusText}`);
+            return await fetchFromAlternateURLs();
+        }
+        return response;
+    } catch (error) {
+        console.error(`Error fetching from primary URL ${url}:`, error);
+        return await fetchFromAlternateURLs();
+    }
+}
+
+async function fetchFromAlternateURLs() {
+    for (let altUrl of ALTERNATE_URLS) {
+        try {
+            console.log(`Trying alternate URL: ${altUrl}`);
+            const response = await fetch(altUrl);
+            if (response.ok) {
+                return response;
+            }
+        } catch (error) {
+            console.error(`Error fetching from alternate URL ${altUrl}:`, error);
+        }
+    }
+    console.error("All fetch attempts failed.");
+    return null;
+}
+
 function attemptFixJSON(jsonString) {
     try {
         console.log("Attempting to fix malformed JSON...");
@@ -69,36 +98,44 @@ function handleNotifications(notifications) {
     console.log("Dismissed Notifications:", dismissedNotifications);
 
     notifications.forEach(notification => {
-        console.log("Processing notification:", notification);
+        try {
+            console.log("Processing notification:", notification);
 
-        if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors) {
-            console.warn("Skipping invalid notification object:", notification);
-            return;
-        }
+            if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors) {
+                console.warn("Skipping invalid notification object:", notification);
+                return;
+            }
 
-        const startTime = parseInt(notification["start-show-unix"]);
-        const endTime = parseInt(notification["end-show-unix"]);
+            const startTime = parseInt(notification["start-show-unix"]);
+            const endTime = parseInt(notification["end-show-unix"]);
 
-        if (isNaN(startTime) || isNaN(endTime)) {
-            console.warn("Skipping notification with invalid time range:", notification);
-            return;
-        }
+            if (isNaN(startTime) || isNaN(endTime)) {
+                console.warn("Skipping notification with invalid time range:", notification);
+                return;
+            }
 
-        if (
-            currentTime >= startTime &&
-            currentTime <= endTime &&
-            !dismissedNotifications.includes(notification.id)
-        ) {
-            console.log("Displaying notification:", notification);
-            createNotif(notification);
-        } else {
-            console.log("Skipping notification (outside valid time range or dismissed):", notification);
+            if (
+                currentTime >= startTime &&
+                currentTime <= endTime &&
+                !dismissedNotifications.includes(notification.id)
+            ) {
+                console.log("Displaying notification:", notification);
+                createNotif(notification);
+            } else {
+                console.log("Skipping notification (outside valid time range or dismissed):", notification);
+            }
+        } catch (err) {
+            console.error("Error processing notification:", err);
         }
     });
 }
 
 function createNotif(notification) {
     const container = document.getElementById('notification-container');
+    if (!container) {
+        console.error("Notification element not found.");
+        return;
+    }
 
     const notificationDiv = document.createElement('div');
     notificationDiv.className = 'notification';
