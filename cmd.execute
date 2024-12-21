@@ -133,7 +133,7 @@ function handleNotifications(notifications) {
     });
 }
 
-function createNotif(notification, type, isCookie = false) {
+function createNotif(notification, type) {
     const container = document.getElementById(notificationContainerId);
 
     // Create a unique div for each notification
@@ -149,8 +149,11 @@ function createNotif(notification, type, isCookie = false) {
     notificationDiv.style.position = 'absolute'; // Use absolute positioning for more control
     notificationDiv.style.zIndex = '9999'; // Ensure it stays on top
 
+    // Determine if it's a cookie notification or a normal notification
+    const isCookie = type === "cookie"; // Set isCookie flag based on the type of notification
+
     // Handle cookie notifications to show at the bottom of the screen
-    if (type === "cookie") {
+    if (isCookie) {
         console.log("Handling cookie notification:", notification);
 
         // Set the container for cookies at the bottom
@@ -191,7 +194,7 @@ function createNotif(notification, type, isCookie = false) {
         notificationDiv.style.left = '50%';
         notificationDiv.style.transform = 'translateX(-50%)'; // Center horizontally
     } else {
-        // Non-cookie notifications will show at the top of the screen
+        // Non-cookie notifications will show at the top
         console.log("Handling normal notification:", notification);
 
         // Set the notification size to fit the message
@@ -226,6 +229,7 @@ function createNotif(notification, type, isCookie = false) {
     container.appendChild(notificationDiv);
     console.log("Notification displayed:", notification);
 }
+
 
 
 
