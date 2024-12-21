@@ -1,17 +1,41 @@
 (function() {
     const baseUrl = 'https://drmineword.github.io/Artefact-Boost-Active/';
-    
-    // Retrieve the total page visits count and the sub-path visits count
-    let totalVisits = localStorage.getItem('totalVisits') || 0;
-    let subPathVisits = localStorage.getItem(window.location.pathname) || 0;
 
-    // Increment the total visits and sub-path visits
+    // Retrieve total page visits and sub-path visits
+    let totalVisits = localStorage.getItem('totalVisits') || 0;
+    let subPathVisits = JSON.parse(localStorage.getItem('subPathVisits')) || {};
+
+    // Track the visit time for this page
+    const pageVisitStartTime = Date.now();
+
+    // Update the visit counts
     totalVisits++;
-    subPathVisits++;
+    const currentSubPath = window.location.pathname;
+    subPathVisits[currentSubPath] = (subPathVisits[currentSubPath] || 0) + 1;
 
     // Store updated values in localStorage
     localStorage.setItem('totalVisits', totalVisits);
-    localStorage.setItem(window.location.pathname, subPathVisits);
+    localStorage.setItem('subPathVisits', JSON.stringify(subPathVisits));
+
+    // Function to calculate total time spent across all pages
+    function getTotalWebsiteTime() {
+        let totalWebsiteTime = parseInt(localStorage.getItem('totalWebsiteTime')) || 0;
+        return totalWebsiteTime;
+    }
+
+    // Calculate and update the total time spent on the current page
+    window.addEventListener('beforeunload', () => {
+        const pageVisitEndTime = Date.now();
+        const pageTimeSpent = pageVisitEndTime - pageVisitStartTime;
+
+        // Update the total time spent on the website
+        let totalWebsiteTime = getTotalWebsiteTime();
+        totalWebsiteTime += pageTimeSpent;
+        localStorage.setItem('totalWebsiteTime', totalWebsiteTime);
+
+        // Store the time spent on this page
+        localStorage.setItem(currentSubPath + '_timeSpent', pageTimeSpent);
+    });
 
     // Create a blank space in the console for better readability
     console.log("\n\n");
@@ -21,7 +45,30 @@
     console.log("  🚀 Visit Stats - Artefact Boost  🚀");
     console.log("=====================================");
     console.log(`🔹 Total Page Visits: ${totalVisits}`);
-    console.log(`🔹 Visits to this sub-path (${window.location.pathname}): ${subPathVisits}`);
+
+    // Log visits for each sub-path
+    console.log("🔹 Visits to each sub-path:");
+    for (const [subPath, visitCount] of Object.entries(subPathVisits)) {
+        console.log(`   - ${subPath}: ${visitCount} visit(s)`);
+    }
+
     console.log("=====================================");
 
+    // Log total time spent on the website
+    const totalWebsiteTime = getTotalWebsiteTime();
+    console.log(`🕒 Total Time Spent on Website: ${formatTime(totalWebsiteTime)}`);
+    
+    // Log the time spent on the current page
+    const currentPageTime = localStorage.getItem(currentSubPath + '_timeSpent') || 0;
+    console.log(`🕒 Time Spent on Current Page: ${formatTime(currentPageTime)}`);
+    
+    console.log("=====================================");
+
+    // Function to format time in a human-readable format (milliseconds to minutes and seconds)
+    function formatTime(timeInMilliseconds) {
+        const seconds = Math.floor(timeInMilliseconds / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes} minute(s) ${remainingSeconds} second(s)`;
+    }
 })();
