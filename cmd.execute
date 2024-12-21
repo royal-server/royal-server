@@ -1,4 +1,6 @@
-const JSON_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
+console.log("Hello! The script is executing successfully."); // Simple hello message
+
+        const JSON_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
 
         async function fetchNotifications() {
             try {
@@ -133,8 +135,5 @@ const JSON_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Ac
 
         // Ensure notifications are fetched and displayed on page load
         document.addEventListener("DOMContentLoaded", function() {
-            fetchNotifications();
+            fetchNotifications(); // Fetch and display notifications when the page loads
         });
-
-        // Periodic check to fetch notifications every 9 hours (32,400,000 milliseconds)
-        setInterval(fetchNotifications, 32400000);  // 9 hours in milliseconds
