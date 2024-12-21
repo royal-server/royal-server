@@ -167,7 +167,11 @@ function createNotif(notification, type) {
     // Add content to the notification div only once
     const htmlMessageDiv = document.createElement('div');
     htmlMessageDiv.innerHTML = notification["html-msg"] || "No message available";
-    notificationDiv.appendChild(htmlMessageDiv);
+    
+    // Prevent duplication: Only append if not already present
+    if (!notificationDiv.contains(htmlMessageDiv)) {
+        notificationDiv.appendChild(htmlMessageDiv);
+    }
 
     // Determine if it's a cookie notification or a normal notification
     const isCookie = type === "cookie"; // Set isCookie flag based on the type of notification
@@ -237,11 +241,13 @@ function createNotif(notification, type) {
         notificationDiv.style.top = `${notificationTopOffset}px`; // Stack from top
     }
 
-    // Append the notification div to the container
-    container.appendChild(notificationDiv);
+    // Append the notification div to the container only once
+    if (!container.contains(notificationDiv)) {
+        container.appendChild(notificationDiv);
+    }
+
     console.log("Notification displayed:", notification);
 }
-
 
 
 
