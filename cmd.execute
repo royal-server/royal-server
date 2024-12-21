@@ -154,7 +154,7 @@ function createNotif(notification, type) {
     notificationDiv.style.width = '10000px';
     notificationDiv.style.maxWidth = '90%'; // Ensure it does not go beyond 90% of the screen width
     notificationDiv.style.whiteSpace = 'normal'; // Allow wrapping of text
-    notificationDiv.style.wordWrap = 'break-word'; // Handle long words
+    
     notificationDiv.style.margin = '10px'; // Add a margin around the notification to avoid touching edges
 
     // Check if 'html-msg' exists and is valid
