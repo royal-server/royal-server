@@ -237,7 +237,7 @@ function createNotif(notification, type) {
         const dismissButton = document.createElement('button');
         dismissButton.textContent = '×';
         dismissButton.style.position = 'absolute';
-        dismissButton.style.right = '10px';
+        dismissButton.style.right = '35px';
         dismissButton.style.top = '50%';
         dismissButton.style.transform = 'translateY(-50%)'; // Center vertically
         dismissButton.style.backgroundColor = 'transparent';
