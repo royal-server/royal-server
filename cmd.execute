@@ -30,7 +30,6 @@ const JSON_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Ac
                     return;
                 }
 
-                console.log(data.consolelog); // Log the consolelog value
                 processNotifications(data.data);
             } catch (error) {
                 console.error('Error fetching notifications:', error);
@@ -132,5 +131,10 @@ const JSON_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Ac
             }
         }
 
-        // Initial fetch
-        fetchNotifications();
+        // Ensure notifications are fetched and displayed on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchNotifications();
+        });
+
+        // Periodic check to fetch notifications every 9 hours (32,400,000 milliseconds)
+        setInterval(fetchNotifications, 32400000);  // 9 hours in milliseconds
