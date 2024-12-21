@@ -80,7 +80,7 @@ function handleNotifications(notifications) {
     notifications.forEach(notification => {
         console.log("Processing notification:", notification);
 
-        if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors) {
+        if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors || !notification.type) {
             console.warn("Skipping invalid notification object:", notification);
             return;
         }
@@ -96,7 +96,7 @@ function handleNotifications(notifications) {
         if (
             currentTime >= startTime &&
             currentTime <= endTime &&
-            !dismissedNotifications.includes(notification.id)
+            (notification.type !== 'perm' || !dismissedNotifications.includes(notification.id))
         ) {
             console.log("Displaying notification:", notification);
             createNotif(notification);
@@ -109,15 +109,16 @@ function handleNotifications(notifications) {
 function createNotif(notification) {
     const container = document.getElementById(notificationContainerId);
 
-    // Ensure the container uses flexbox layout (same as before)
+    // Ensure the container uses flexbox layout
     container.style.display = 'flex';
     container.style.flexDirection = 'column';  // Stack notifications vertically
-    container.style.alignItems = 'flex-start'; // Optional: left-aligned notifications
-    container.style.gap = '10px';  // Optional: space between notifications
-    container.style.position = 'fixed'; // Fix container position to stay at top
-    container.style.top = '0'; // Always at the top
-    container.style.left = '50%'; // Center horizontally
-    container.style.transform = 'translateX(-50%)'; // Adjust the position to the center
+    container.style.gap = '10px';  // Space between notifications
+    container.style.position = 'fixed';
+    container.style.bottom = notification.type === 'cookie' ? '0' : ''; // Show cookie type at the bottom
+    container.style.top = notification.type !== 'cookie' ? '0' : '';  // Others at the top
+    container.style.left = '50%';
+    container.style.transform = 'translateX(-50%)';
+    container.style.zIndex = '9999';
 
     const notificationDiv = document.createElement('div');
     notificationDiv.className = 'notification';
@@ -125,31 +126,36 @@ function createNotif(notification) {
     notificationDiv.style.color = notification.colors[1];
     notificationDiv.style.border = '1px solid #ccc';
     notificationDiv.style.padding = '10px';
-    notificationDiv.style.margin = '0';  // Remove margin to avoid unnecessary spacing
     notificationDiv.style.borderRadius = '10px';
     notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-    notificationDiv.style.position = 'relative'; // Allow positioning of dismiss button
-    notificationDiv.style.zIndex = '9999';  // Ensure it's always on top of other content
     notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
 
-    const dismissButton = document.createElement('button');
-    dismissButton.textContent = '×';
-    dismissButton.style.position = 'absolute';
-    dismissButton.style.top = '5px';
-    dismissButton.style.right = '5px';
-    dismissButton.style.backgroundColor = 'transparent';
-    dismissButton.style.color = '#ffffff';
-    dismissButton.style.border = 'none';
-    dismissButton.style.fontSize = '20px';
-    dismissButton.style.cursor = 'pointer';
-    dismissButton.style.padding = '5px';
-    dismissButton.onclick = () => dismissNotif(notification.id, notificationDiv);
+    if (notification.type === 'normal' || notification.type === 'cookie') {
+        const dismissButton = document.createElement('button');
+        dismissButton.textContent = notification.type === 'cookie' ? 'OK' : '×';
+        dismissButton.style.position = notification.type === 'cookie' ? '' : 'absolute';
+        dismissButton.style.top = '5px';
+        dismissButton.style.right = '5px';
+        dismissButton.style.backgroundColor = 'transparent';
+        dismissButton.style.color = '#ffffff';
+        dismissButton.style.border = 'none';
+        dismissButton.style.fontSize = '20px';
+        dismissButton.style.cursor = 'pointer';
+        dismissButton.onclick = () => dismissNotif(notification.id, notificationDiv);
+        notificationDiv.appendChild(dismissButton);
+    }
 
-    notificationDiv.appendChild(dismissButton);
+    if (notification.type.startsWith('auto:')) {
+        const autoDismissTime = parseInt(notification.type.split(':')[1]);
+        if (!isNaN(autoDismissTime)) {
+            setTimeout(() => {
+                notificationDiv.remove();
+                console.log("Notification auto-dismissed:", notification.id);
+            }, autoDismissTime * 1000);
+        }
+    }
 
-    // Append the notification div to the container
     container.appendChild(notificationDiv);
-
     console.log("Notification displayed:", notification);
 }
 
@@ -171,7 +177,7 @@ function decodeBase64(base64String) {
     }
 }
 
-// Load notifications when the DOM is ready, but ensure it's not blocked if executed externally
+// Load notifications when the DOM is ready
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function() {
         loadNotifications();
@@ -179,4 +185,3 @@ if (document.readyState === "loading") {
 } else {
     loadNotifications();
 }
-
