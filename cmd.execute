@@ -77,24 +77,26 @@ function handleNotifications(notifications) {
     const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
     console.log("Dismissed Notifications:", dismissedNotifications);
 
-    // Separate cookie notifications
     const cookieNotifications = notifications.filter(notification => notification.type === 'cookie');
     const nonCookieNotifications = notifications.filter(notification => notification.type !== 'cookie');
 
-    // Handle cookie notifications separately
-    if (cookieNotifications.length > 0) {
+    // Check if there are any active cookie notifications that need to be shown
+    const activeCookieNotifications = cookieNotifications.filter(notification => 
+        !dismissedNotifications.includes(notification.id) && 
+        currentTime >= parseInt(notification["start-show-unix"]) && 
+        currentTime <= parseInt(notification["end-show-unix"])
+    );
+
+    console.log("Active Cookie Notifications:", activeCookieNotifications);
+
+    // If there are active cookie notifications, don't show any other notifications until dismissed
+    if (activeCookieNotifications.length > 0) {
         console.log("Displaying cookie notifications. No other notifications will be shown until dismissed.");
-        // Check if any cookie notification is already dismissed
-        const dismissedCookie = cookieNotifications.some(notification => dismissedNotifications.includes(notification.id));
-        if (!dismissedCookie) {
-            cookieNotifications.forEach(notification => createNotif(notification, 'cookie', true));
-            return; // Skip the rest of the notifications until all cookies are dismissed
-        } else {
-            console.log("Cookie notification already dismissed. Proceeding to show other notifications.");
-        }
+        activeCookieNotifications.forEach(notification => createNotif(notification, 'cookie', true));
+        return; // Skip showing any other notifications until cookie notifications are dismissed
     }
 
-    // Handle non-cookie notifications (that can be shown)
+    // Handle the rest of the notifications (non-cookie notifications)
     nonCookieNotifications.forEach(notification => {
         // Skip notifications that are disabled until the specified UNIX time
         if (notification.DisableUntil && currentTime < notification.DisableUntil) {
@@ -131,51 +133,91 @@ function handleNotifications(notifications) {
     });
 }
 
-function createNotif(notification, type = 'normal', isCookie = false) {
+function createNotif(notification, type, isCookie = false) {
     const container = document.getElementById(notificationContainerId);
 
-    // Ensure the container uses flexbox layout (same as before)
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';  // Stack notifications vertically
-    container.style.alignItems = 'flex-start'; // Optional: left-aligned notifications
-    container.style.gap = '10px';  // Optional: space between notifications
-    container.style.position = 'fixed'; // Fix container position to stay at top
-    container.style.top = '0'; // Always at the top
-    container.style.left = '50%'; // Center horizontally
-    container.style.transform = 'translateX(-50%)'; // Adjust the position to the center
-
+    // Create a unique div for each notification
     const notificationDiv = document.createElement('div');
     notificationDiv.className = 'notification';
     notificationDiv.style.backgroundColor = notification.colors[0];
     notificationDiv.style.color = notification.colors[1];
     notificationDiv.style.border = '1px solid #ccc';
-    notificationDiv.style.padding = '10px';
-    notificationDiv.style.margin = '0';  // Remove margin to avoid unnecessary spacing
     notificationDiv.style.borderRadius = '10px';
     notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-    notificationDiv.style.position = 'relative'; // Allow positioning of dismiss button
-    notificationDiv.style.zIndex = '9999';  // Ensure it's always on top of other content
-    notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
+    notificationDiv.style.padding = '10px';
+    notificationDiv.style.margin = '10px 0';
+    notificationDiv.style.position = 'relative'; // Allow positioning of buttons and elements
+    notificationDiv.style.zIndex = '9999'; // Make sure the notification stays on top
 
-    const dismissButton = document.createElement('button');
-    dismissButton.textContent = '×';
-    dismissButton.style.position = 'absolute';
-    dismissButton.style.top = '50%';
-    dismissButton.style.right = '5px';
-    dismissButton.style.transform = 'translateY(-50%)'; // Center vertically
-    dismissButton.style.backgroundColor = 'transparent';
-    dismissButton.style.color = '#ffffff';
-    dismissButton.style.border = 'none';
-    dismissButton.style.fontSize = '20px';
-    dismissButton.style.cursor = 'pointer';
-    dismissButton.style.padding = '5px';
-    dismissButton.onclick = () => dismissNotif(notification.id, notificationDiv);
+    // Apply custom content (base64 decode or normal HTML)
+    const htmlMessageDiv = document.createElement('div');
+    htmlMessageDiv.innerHTML = notification["html-msg"];
+    notificationDiv.appendChild(htmlMessageDiv);
 
-    notificationDiv.appendChild(dismissButton);
+    // Handle specific types (normal, cookie, etc.)
+    if (type === "cookie") {
+        console.log("Handling cookie notification:", notification);
+
+        container.style.position = 'fixed'; // Ensure it stays at the bottom
+        container.style.bottom = '0';
+        container.style.left = '0';
+        container.style.right = '0';
+        container.style.top = ''; // Remove top positioning for cookie
+        container.style.backgroundColor = '#f9f9f9';
+        container.style.padding = '15px';
+        container.style.boxShadow = '0 -2px 10px rgba(0, 0, 0, 0.2)';
+
+        // Add custom action (e.g., OK or cb)
+        const actionDiv = document.createElement('div');
+        actionDiv.style.minWidth = '100px';
+        actionDiv.style.backgroundColor = '#ffffff';
+        actionDiv.style.color = '#000000';
+        actionDiv.style.border = '1px solid #ccc';
+        actionDiv.style.borderRadius = '5px';
+        actionDiv.style.textAlign = 'center';
+        actionDiv.style.padding = '5px';
+        actionDiv.style.cursor = 'pointer';
+        actionDiv.textContent = notification.cb || "OK";
+        actionDiv.onclick = () => dismissNotif(notification.id, notificationDiv);
+
+        notificationDiv.style.display = 'flex';
+        notificationDiv.style.justifyContent = 'space-between';
+        notificationDiv.style.alignItems = 'center';
+        notificationDiv.appendChild(actionDiv);
+    } else if (type === "perm") {
+        console.log("Permanent notification: cannot be dismissed.");
+    } else if (type.startsWith("auto:")) {
+        const autoDismissTime = parseInt(type.split(":")[1]) || 5;
+        setTimeout(() => {
+            notificationDiv.remove();
+            console.log("Auto-dismissed notification:", notification.id);
+        }, autoDismissTime * 1000);
+    } else {
+        // Normal notifications with dismiss button positioned on the right, centered vertically
+        console.log("Handling normal notification:", notification);
+
+        notificationDiv.style.display = 'flex';
+        notificationDiv.style.justifyContent = 'space-between';
+        notificationDiv.style.alignItems = 'center';
+
+        const dismissButton = document.createElement('button');
+        dismissButton.textContent = '×';
+        dismissButton.style.position = 'absolute';
+        dismissButton.style.right = '10px';
+        dismissButton.style.top = '50%';
+        dismissButton.style.transform = 'translateY(-50%)'; // Center vertically
+        dismissButton.style.backgroundColor = 'transparent';
+        dismissButton.style.color = '#000000';
+        dismissButton.style.border = 'none';
+        dismissButton.style.fontSize = '20px';
+        dismissButton.style.cursor = 'pointer';
+        dismissButton.onclick = () => dismissNotif(notification.id, notificationDiv);
+
+        notificationDiv.appendChild(dismissButton);
+    }
 
     // Append the notification div to the container
     container.appendChild(notificationDiv);
-
     console.log("Notification displayed:", notification);
 }
 
@@ -184,9 +226,9 @@ function dismissNotif(id, notificationElement) {
     if (!dismissedNotifications.includes(id)) {
         dismissedNotifications.push(id);
         localStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
-        console.log("Notification dismissed:", id);
+        console.log(`Notification dismissed and recorded: ${id}`);
     } else {
-        console.log("Notification was already dismissed:", id);
+        console.log(`Notification ${id} was already dismissed.`);
     }
 
     notificationElement.remove();
