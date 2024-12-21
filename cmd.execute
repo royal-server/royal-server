@@ -1,165 +1,154 @@
-console.log("Hello! The script is executing successfully."); // Simple hello message
+console.log("Hello! The script is executing successfully.");
 
-        const NOTIFICATION_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
+const NOTIFICATION_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
 
-        // This function is marked as async to allow the use of await
-        async function fetchNotifications() {
-            try {
-                console.log("Attempting to fetch notifications from:", NOTIFICATION_URL);
-                const response = await fetch(NOTIFICATION_URL);  // Fetch JSON from the URL
-                console.log('Response Status:', response.status); // Log response status
+async function loadNotifications() {
+    try {
+        console.log("Attempting to fetch notifications from:", NOTIFICATION_URL);
+        const response = await fetch(NOTIFICATION_URL);
+        console.log('Response Status:', response.status);
 
-                // Check if the response is successful
-                if (!response.ok) {
-                    console.error(`Error fetching JSON: ${response.status} ${response.statusText}`);
-                    return;  // Return from function if the response is not successful
-                }
+        if (!response.ok) {
+            console.error(`Error fetching JSON: ${response.status} ${response.statusText}`);
+            return;
+        }
 
-                const rawText = await response.text();  // Get the raw text of the response
-                console.log('Raw JSON Text:', rawText);  // Log the raw text to debug
+        const rawText = await response.text();
+        console.log('Raw JSON Text:', rawText);
 
-                let data;
-                try {
-                    data = JSON.parse(rawText);  // Try to parse the JSON
-                    console.log("Parsed JSON data successfully:", data);
-                } catch (parseError) {
-                    console.warn("JSON parsing failed. Attempting to fix JSON...", parseError);
-                    data = fixAndParseJSON(rawText);  // Attempt to fix and parse JSON
-                    if (!data) {
-                        console.error("Failed to parse and fix JSON:", parseError);
-                        return;  // Return if the JSON is still invalid
-                    }
-                }
-
-                console.log("Current UNIX Time:", Math.floor(Date.now() / 1000)); // Log current UNIX time
-                console.log("Fetched Notifications JSON:", data); // Log the fetched JSON
-
-                if (!data.data || !Array.isArray(data.data)) {
-                    console.error("Invalid JSON structure: 'data' property missing or not an array.", data);
-                    return;  // Return if the JSON structure is invalid
-                }
-
-                processNotifications(data.data);  // Process notifications if the data is valid
-            } catch (error) {
-                console.error('Error fetching notifications:', error);  // Log any error that occurs during the fetch
+        let data;
+        try {
+            data = JSON.parse(rawText);
+            console.log("Parsed JSON data successfully:", data);
+        } catch (parseError) {
+            console.warn("JSON parsing failed. Attempting to fix JSON...", parseError);
+            data = attemptFixJSON(rawText);
+            if (!data) {
+                console.error("Failed to parse and fix JSON:", parseError);
+                return;
             }
         }
 
-        // Function to fix common issues with JSON (e.g., missing quotes, trailing commas)
-        function fixAndParseJSON(jsonString) {
-            try {
-                console.log("Attempting to fix malformed JSON...");
-                const fixedString = jsonString
-                    .replace(/(['"])?([a-zA-Z0-9_\-]+)(['"])?\s*:/g, '"$2":')  // Ensure property names are quoted.
-                    .replace(/,\s*}/g, '}')  // Remove trailing commas in objects.
-                    .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays.
-                    .replace(/\s*=\s*/g, ':');  // Replace '=' with ':' (in case the JSON was using incorrect assignment syntax).
+        console.log("Current UNIX Time:", Math.floor(Date.now() / 1000));
+        console.log("Fetched Notifications JSON:", data);
 
-                console.log("Fixed JSON string:", fixedString); // Log the fixed JSON string
-
-                return JSON.parse(fixedString);  // Try to parse the fixed JSON string
-            } catch (fixError) {
-                console.error("Failed to fix JSON string:", fixError);
-                return null;  // If fixing fails, return null
-            }
+        if (!data.data || !Array.isArray(data.data)) {
+            console.error("Invalid JSON structure: 'data' property missing or not an array.", data);
+            return;
         }
 
-        // Function to process notifications
-        function processNotifications(notifications) {
-            const currentTime = Math.floor(Date.now() / 1000);  // Current time in UNIX timestamp
-            console.log("Current Time (UNIX):", currentTime);  // Log current time
+        handleNotifications(data.data);
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+    }
+}
 
-            const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
-            console.log("Dismissed Notifications:", dismissedNotifications); // Log dismissed notifications
+function attemptFixJSON(jsonString) {
+    try {
+        console.log("Attempting to fix malformed JSON...");
+        const fixedString = jsonString
+            .replace(/(['"])?([a-zA-Z0-9_\-]+)(['"])?\s*:/g, '"$2":')
+            .replace(/,\s*}/g, '}')
+            .replace(/,\s*]/g, ']')
+            .replace(/\s*=\s*/g, ':');
 
-            notifications.forEach(notification => {
-                console.log("Processing notification:", notification);  // Log each notification being processed
+        console.log("Fixed JSON string:", fixedString);
 
-                if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors) {
-                    console.warn("Skipping invalid notification object:", notification);
-                    return;  // Skip invalid notifications
-                }
+        return JSON.parse(fixedString);
+    } catch (fixError) {
+        console.error("Failed to fix JSON string:", fixError);
+        return null;
+    }
+}
 
-                const startTime = parseInt(notification["start-show-unix"]);
-                const endTime = parseInt(notification["end-show-unix"]);
+function handleNotifications(notifications) {
+    const currentTime = Math.floor(Date.now() / 1000);
+    console.log("Current Time (UNIX):", currentTime);
 
-                if (isNaN(startTime) || isNaN(endTime)) {
-                    console.warn("Skipping notification with invalid time range:", notification);
-                    return;  // Skip notifications with invalid time range
-                }
+    const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
+    console.log("Dismissed Notifications:", dismissedNotifications);
 
-                // Check if the notification is within the valid time range and hasn't been dismissed
-                if (
-                    currentTime >= startTime &&
-                    currentTime <= endTime &&
-                    !dismissedNotifications.includes(notification.id)
-                ) {
-                    console.log("Displaying notification:", notification);  // Log the notification being displayed
-                    createNotification(notification);  // Create and display notification
-                } else {
-                    console.log("Skipping notification (outside valid time range or dismissed):", notification);
-                }
-            });
+    notifications.forEach(notification => {
+        console.log("Processing notification:", notification);
+
+        if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors) {
+            console.warn("Skipping invalid notification object:", notification);
+            return;
         }
 
-        // Function to create a notification
-        function createNotification(notification) {
-            const container = document.getElementById('notification-container');
+        const startTime = parseInt(notification["start-show-unix"]);
+        const endTime = parseInt(notification["end-show-unix"]);
 
-            // Create notification element
-            const notificationDiv = document.createElement('div');
-            notificationDiv.className = 'notification';
-            notificationDiv.style.backgroundColor = notification.colors[0];
-            notificationDiv.style.color = notification.colors[1];
-            notificationDiv.style.border = '1px solid #ccc';
-            notificationDiv.style.padding = '10px';
-            notificationDiv.style.margin = '10px 0';
-            notificationDiv.style.position = 'relative';
-            notificationDiv.style.borderRadius = '10px'; // Make it rounded
-            notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-            notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
-
-            // Add dismiss button
-            const dismissButton = document.createElement('button');
-            dismissButton.textContent = '×';  // Use "×" for the dismiss button
-            dismissButton.style.position = 'absolute';
-            dismissButton.style.top = '5px';
-            dismissButton.style.right = '5px';
-            dismissButton.style.backgroundColor = 'transparent';
-            dismissButton.style.color = '#ffffff';
-            dismissButton.style.border = 'none';
-            dismissButton.style.fontSize = '20px';
-            dismissButton.style.cursor = 'pointer';
-            dismissButton.style.padding = '5px';
-            dismissButton.onclick = () => dismissNotification(notification.id, notificationDiv);
-
-            notificationDiv.appendChild(dismissButton);
-            container.appendChild(notificationDiv);
-
-            console.log("Notification displayed:", notification);  // Log notification displayed
+        if (isNaN(startTime) || isNaN(endTime)) {
+            console.warn("Skipping notification with invalid time range:", notification);
+            return;
         }
 
-        // Function to dismiss a notification
-        function dismissNotification(id, notificationElement) {
-            const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
-            dismissedNotifications.push(id);
-            localStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
-
-            notificationElement.remove();
-            console.log("Notification dismissed:", id);  // Log dismissed notification
+        if (
+            currentTime >= startTime &&
+            currentTime <= endTime &&
+            !dismissedNotifications.includes(notification.id)
+        ) {
+            console.log("Displaying notification:", notification);
+            createNotif(notification);
+        } else {
+            console.log("Skipping notification (outside valid time range or dismissed):", notification);
         }
+    });
+}
 
-        // Function to decode Base64-encoded strings
-        function decodeBase64(base64String) {
-            try {
-                return atob(base64String);  // Decode the Base64 string
-            } catch (error) {
-                console.error('Error decoding base64 string:', error);
-                return '[Error decoding message]';  // Return error message if decoding fails
-            }
-        }
+function createNotif(notification) {
+    const container = document.getElementById('notification-container');
 
-        // Ensure notifications are fetched and displayed on page load
-        document.addEventListener("DOMContentLoaded", function() {
-            fetchNotifications();  // Fetch and display notifications when the page loads
-        });
+    const notificationDiv = document.createElement('div');
+    notificationDiv.className = 'notification';
+    notificationDiv.style.backgroundColor = notification.colors[0];
+    notificationDiv.style.color = notification.colors[1];
+    notificationDiv.style.border = '1px solid #ccc';
+    notificationDiv.style.padding = '10px';
+    notificationDiv.style.margin = '10px 0';
+    notificationDiv.style.position = 'relative';
+    notificationDiv.style.borderRadius = '10px';
+    notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+    notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
+
+    const dismissButton = document.createElement('button');
+    dismissButton.textContent = '×';
+    dismissButton.style.position = 'absolute';
+    dismissButton.style.top = '5px';
+    dismissButton.style.right = '5px';
+    dismissButton.style.backgroundColor = 'transparent';
+    dismissButton.style.color = '#ffffff';
+    dismissButton.style.border = 'none';
+    dismissButton.style.fontSize = '20px';
+    dismissButton.style.cursor = 'pointer';
+    dismissButton.style.padding = '5px';
+    dismissButton.onclick = () => dismissNotif(notification.id, notificationDiv);
+
+    notificationDiv.appendChild(dismissButton);
+    container.appendChild(notificationDiv);
+
+    console.log("Notification displayed:", notification);
+}
+
+function dismissNotif(id, notificationElement) {
+    const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
+    dismissedNotifications.push(id);
+    localStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
+
+    notificationElement.remove();
+    console.log("Notification dismissed:", id);
+}
+
+function decodeBase64(base64String) {
+    try {
+        return atob(base64String);
+    } catch (error) {
+        console.error('Error decoding base64 string:', error);
+        return '[Error decoding message]';
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadNotifications();
+});
