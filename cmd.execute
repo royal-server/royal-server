@@ -167,9 +167,22 @@ function createNotif(notification, type) {
     // Add content to the notification div only once
     const htmlMessageDiv = document.createElement('div');
     htmlMessageDiv.innerHTML = notification["html-msg"] || "No message available";
-    
-    // Prevent duplication: Only append if not already present
-    if (!notificationDiv.contains(htmlMessageDiv)) {
+
+    // Plan A: Prevent duplication by comparing innerHTML content
+    const existingText = notificationDiv.innerHTML.trim();
+    if (!existingText || existingText !== htmlMessageDiv.innerHTML.trim()) {
+        notificationDiv.appendChild(htmlMessageDiv);
+        console.log("Message added to notification:", notification["html-msg"]);
+    } else {
+        console.log("Duplicate message detected. Skipping addition.");
+    }
+
+    // Plan B: If somehow duplicates still appear, recheck by matching text content only (as a fallback)
+    const existingTextContent = notificationDiv.textContent.trim();
+    if (existingTextContent && existingTextContent === htmlMessageDiv.textContent.trim()) {
+        console.log("Plan B: Duplicate message detected by content. Skipping.");
+    } else {
+        console.log("Plan B: Message added to notification.");
         notificationDiv.appendChild(htmlMessageDiv);
     }
 
