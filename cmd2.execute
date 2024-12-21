@@ -58,12 +58,9 @@
         localStorage.setItem('timeSpentOnPages', JSON.stringify(timeSpentOnPages));
     });
 
-    // Create a blank space in the console for better readability
-    console.log("\n\n");
-
     // Function to print and log the visit statistics in console
     function printVisitStats() {
-        console.clear();
+        console.log("\n\n"); // Print some space to separate previous logs
         console.log("=====================================");
         console.log("  🚀 Visit Stats - Artefact Boost  🚀");
         console.log("=====================================");
@@ -100,6 +97,9 @@
         console.log(`🕒 Time Spent on Current Page: ${formatTime(currentPageTime)}`);
         
         console.log("=====================================");
+        
+        // Print a few more lines for better spacing and separation
+        console.log("\n\n\n");
     }
 
     // Function to format time in a human-readable format (milliseconds to minutes and seconds)
