@@ -60,7 +60,9 @@
 
     // Function to print and log the visit statistics in console
     function printVisitStats() {
-        console.log("\n\n"); // Print some space to separate previous logs
+        // Print spaces (blank lines) to separate the previous content
+        console.log("\n".repeat(3)); // Adds three blank lines
+
         console.log("=====================================");
         console.log("  🚀 Visit Stats - Artefact Boost  🚀");
         console.log("=====================================");
@@ -98,8 +100,8 @@
         
         console.log("=====================================");
         
-        // Print a few more lines for better spacing and separation
-        console.log("\n\n\n");
+        // Print a few more blank lines for better spacing and separation
+        console.log("\n".repeat(3)); // Adds three blank lines
     }
 
     // Function to format time in a human-readable format (milliseconds to minutes and seconds)
@@ -124,3 +126,4 @@
     // Print initial stats upon page load
     printVisitStats();
 })();
+
