@@ -1,121 +1,136 @@
-(async function() {
-  const EXCLUDED_URL = "https://drmineword.github.io/Artefact-Boost-Active/root/pages/corp/base.html";
-  const NOTIF_JSON_URL = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json";
-  const CMD_EXECUTE_URL = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/cmd2.execute";
+const JSON_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
 
-  // Function to get dismissed notifications from localStorage
-  function getDismissedNotifications() {
-    const dismissed = localStorage.getItem("dismissed_notifications");
-    return dismissed ? JSON.parse(dismissed) : [];
-  }
+        async function fetchNotifications() {
+            try {
+                const response = await fetch(JSON_URL);
 
-  // Function to save dismissed notifications to localStorage
-  function saveDismissedNotification(id) {
-    const dismissed = getDismissedNotifications();
-    if (!dismissed.includes(id)) {
-      dismissed.push(id);
-      localStorage.setItem("dismissed_notifications", JSON.stringify(dismissed));
-    }
-  }
+                if (!response.ok) {
+                    console.error(`Error fetching JSON: ${response.status} ${response.statusText}`);
+                    return;
+                }
 
-  // Function to display notifications
-  function showNotification(message, backgroundColor, textColor, id = null, autoDismiss = true, dismissTimeout = 10000) {
-    const notifContainer = document.createElement("div");
-    notifContainer.innerHTML = `<strong>${message}</strong>`;
-    notifContainer.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: ${backgroundColor};
-      color: ${textColor};
-      padding: 15px;
-      z-index: 10000;
-      text-align: center;
-      font-size: 16px;
-    `;
+                const rawText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(rawText);
+                } catch (parseError) {
+                    console.warn("JSON parsing failed. Attempting to fix JSON...", parseError);
+                    data = fixAndParseJSON(rawText);
+                    if (!data) {
+                        console.error("Failed to parse and fix JSON:", parseError);
+                        return;
+                    }
+                }
 
-    // Dismiss button
-    const dismissBtn = document.createElement("button");
-    dismissBtn.textContent = "Dismiss";
-    dismissBtn.style.cssText = `
-      margin-left: 15px;
-      padding: 5px 10px;
-      background-color: ${textColor};
-      color: ${backgroundColor};
-      border: none;
-      cursor: pointer;
-    `;
-    dismissBtn.addEventListener("click", () => {
-      notifContainer.remove();
-      if (id) saveDismissedNotification(id); // Save dismissed notification ID
-    });
+                console.log("Current UNIX Time:", Math.floor(Date.now() / 1000)); // Log current UNIX time
+                console.log("Fetched Notifications JSON:", data); // Log the fetched JSON
 
-    notifContainer.appendChild(dismissBtn);
-    document.body.appendChild(notifContainer);
+                if (!data.data || !Array.isArray(data.data)) {
+                    console.error("Invalid JSON structure: 'data' property missing or not an array.", data);
+                    return;
+                }
 
-    // Auto-dismiss if required
-    if (autoDismiss) {
-      setTimeout(() => {
-        notifContainer.remove();
-        if (id) saveDismissedNotification(id); // Save dismissed notification ID
-      }, dismissTimeout);
-    }
-  }
-
-  // Wait for the document to fully load
-  document.addEventListener("DOMContentLoaded", async () => {
-    try {
-      const currentUrl = window.location.href;
-
-      // Save page content under `page_$current-url`
-      const pageContent = document.documentElement.outerHTML;
-      const storageKey = `page_${currentUrl}`;
-      localStorage.setItem(storageKey, pageContent);
-
-      if (currentUrl !== EXCLUDED_URL) {
-        // Retrieve the stored content for change detection
-        const storedContent = localStorage.getItem(storageKey);
-
-        if (storedContent && storedContent !== pageContent) {
-          console.log("Page content has changed!");
-          
-          // Fetch messages from the JSON
-          const response = await fetch(NOTIF_JSON_URL);
-          const notifData = await response.json();
-
-          // Show notification for edit changes using `editmsg` from JSON
-          showNotification(notifData.editmsg, "#ff0000", "#ffffff");
+                console.log(data.consolelog); // Log the consolelog value
+                processNotifications(data.data);
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+            }
         }
-      }
 
-      // Fetch notifications
-      const response = await fetch(NOTIF_JSON_URL);
-      const notifData = await response.json();
+        function fixAndParseJSON(jsonString) {
+            try {
+                // Attempt to fix common issues like missing quotes and trailing commas.
+                const fixedString = jsonString
+                    .replace(/(['"])?([a-zA-Z0-9_\-]+)(['"])?\s*:/g, '"$2":') // Ensure property names are quoted.
+                    .replace(/,\s*}/g, '}') // Remove trailing commas in objects.
+                    .replace(/,\s*]/g, ']') // Remove trailing commas in arrays.
+                    .replace(/\s*=\s*/g, ':'); // Replace '=' with ':' (in case the JSON was using incorrect assignment syntax).
 
-      // Current timestamp
-      const now = Math.floor(Date.now() / 1000);
-      const dismissedNotifications = getDismissedNotifications();
-
-      notifData.data.forEach((notif) => {
-        const { id, "html-msg": htmlMsg, "start-show-unix": startShow, "end-show-unix": endShow, colors } = notif;
-
-        // Check if the notification should be shown
-        if (now >= startShow && now <= endShow && !dismissedNotifications.includes(id)) {
-          showNotification(atob(htmlMsg), colors[0], colors[1], id, false);
+                return JSON.parse(fixedString);
+            } catch (fixError) {
+                console.error("Failed to fix JSON string:", fixError);
+                return null; // If fixing fails, return null.
+            }
         }
-      });
 
-      // Fetch and execute the external script
-      const cmdScriptResponse = await fetch(CMD_EXECUTE_URL);
-      const cmdScript = await cmdScriptResponse.text();
-      const scriptElement = document.createElement("script");
-      scriptElement.textContent = cmdScript;
-      document.body.appendChild(scriptElement);
+        function processNotifications(notifications) {
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in UNIX timestamp
+            const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
 
-      console.log("External script executed successfully.");
-    } catch (error) {
-      console.error("An error occurred:", error);
-    }
-  });
-})();
+            notifications.forEach(notification => {
+                if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors) {
+                    console.warn("Skipping invalid notification object:", notification);
+                    return;
+                }
+
+                const startTime = parseInt(notification["start-show-unix"]);
+                const endTime = parseInt(notification["end-show-unix"]);
+
+                if (isNaN(startTime) || isNaN(endTime)) {
+                    console.warn("Skipping notification with invalid time range:", notification);
+                    return;
+                }
+
+                if (
+                    currentTime >= startTime &&
+                    currentTime <= endTime &&
+                    !dismissedNotifications.includes(notification.id)
+                ) {
+                    createNotification(notification);
+                }
+            });
+        }
+
+        function createNotification(notification) {
+            const container = document.getElementById('notification-container');
+
+            // Create notification element
+            const notificationDiv = document.createElement('div');
+            notificationDiv.className = 'notification';
+            notificationDiv.style.backgroundColor = notification.colors[0];
+            notificationDiv.style.color = notification.colors[1];
+            notificationDiv.style.border = '1px solid #ccc';
+            notificationDiv.style.padding = '10px';
+            notificationDiv.style.margin = '10px 0';
+            notificationDiv.style.position = 'relative';
+            notificationDiv.style.borderRadius = '10px'; // Make it rounded
+            notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+            notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
+
+            // Add dismiss button
+            const dismissButton = document.createElement('button');
+            dismissButton.textContent = '×'; // Use "×" for the dismiss button
+            dismissButton.style.position = 'absolute';
+            dismissButton.style.top = '5px';
+            dismissButton.style.right = '5px';
+            dismissButton.style.backgroundColor = 'transparent';
+            dismissButton.style.color = '#ffffff';
+            dismissButton.style.border = 'none';
+            dismissButton.style.fontSize = '20px';
+            dismissButton.style.cursor = 'pointer';
+            dismissButton.style.padding = '5px';
+            dismissButton.onclick = () => dismissNotification(notification.id, notificationDiv);
+
+            notificationDiv.appendChild(dismissButton);
+            container.appendChild(notificationDiv);
+        }
+
+        function dismissNotification(id, notificationElement) {
+            const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
+            dismissedNotifications.push(id);
+            localStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
+
+            notificationElement.remove();
+        }
+
+        function decodeBase64(base64String) {
+            try {
+                return atob(base64String);
+            } catch (error) {
+                console.error('Error decoding base64 string:', error);
+                return '[Error decoding message]';
+            }
+        }
+
+        // Initial fetch
+        fetchNotifications();
