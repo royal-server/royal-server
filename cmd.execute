@@ -119,6 +119,8 @@ function createNotif(notification) {
     notificationDiv.className = 'notification';
     notificationDiv.style.backgroundColor = notification.colors[0];
     notificationDiv.style.color = notification.colors[1];
+notificationDiv.style.position = 'absolute';
+notificationDiv.style.top = '0';
     notificationDiv.style.border = '1px solid #ccc';
     notificationDiv.style.padding = '10px';
     notificationDiv.style.margin = '0';  // Remove margin to avoid unnecessary spacing
