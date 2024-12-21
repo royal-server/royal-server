@@ -147,10 +147,13 @@ function createNotif(notification, type, isCookie = false) {
     notificationDiv.style.padding = '10px';
     notificationDiv.style.margin = '10px 0';
     notificationDiv.style.position = 'fixed'; // Fixed position at the top of the screen
-    notificationDiv.style.top = `${10 + (container.children.length * 70)}px`; // Stack them vertically with 70px space
     notificationDiv.style.left = '50%';
     notificationDiv.style.transform = 'translateX(-50%)'; // Center horizontally
     notificationDiv.style.zIndex = '9999'; // Ensure it stays on top
+
+    // Stack notifications vertically from the top of the screen
+    const notificationTopOffset = 10 + (container.children.length * 80); // Adjust spacing for stacking
+    notificationDiv.style.top = `${notificationTopOffset}px`; // 10px margin from top and 80px space between notifications
 
     // Apply custom content (base64 decode or normal HTML)
     const htmlMessageDiv = document.createElement('div');
@@ -161,7 +164,7 @@ function createNotif(notification, type, isCookie = false) {
     if (type === "cookie") {
         console.log("Handling cookie notification:", notification);
 
-        container.style.position = 'fixed'; // Ensure it stays at the bottom
+        container.style.position = 'fixed'; // Ensure it stays at the bottom for cookies
         container.style.bottom = '0';
         container.style.left = '0';
         container.style.right = '0';
@@ -223,6 +226,7 @@ function createNotif(notification, type, isCookie = false) {
     container.appendChild(notificationDiv);
     console.log("Notification displayed:", notification);
 }
+
 
 
 function dismissNotif(id, notificationElement) {
