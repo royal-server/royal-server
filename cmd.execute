@@ -112,26 +112,16 @@ function handleNotifications(notifications) {
 function createNotif(notification, type) {
     const container = document.getElementById(notificationContainerId);
 
-    // Configure the container for notifications
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.gap = '10px';
-    container.style.position = 'fixed';
-    container.style.zIndex = '9999'; // Ensure notifications are on top
-
-    if (type === "cookie") {
-        // Special configuration for cookie notifications
-        container.style.bottom = '0';
-        container.style.left = '0';
-        container.style.right = '0';
-        container.style.backgroundColor = '#f9f9f9';
-        container.style.padding = '15px';
-        container.style.boxShadow = '0 -2px 10px rgba(0, 0, 0, 0.2)';
-    } else {
-        // Default: At the top center
-        container.style.top = '0';
-        container.style.left = '50%';
-        container.style.transform = 'translateX(-50%)';
+    // Reset container styles for normal notifications
+    if (type === "normal") {
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column'; // Stack notifications vertically
+        container.style.alignItems = 'flex-start'; // Left-aligned notifications
+        container.style.gap = '10px'; // Space between notifications
+        container.style.position = 'fixed'; // Fixed position
+        container.style.top = '0'; // Always at the top
+        container.style.left = '50%'; // Center horizontally
+        container.style.transform = 'translateX(-50%)'; // Adjust to the center
     }
 
     const notificationDiv = document.createElement('div');
@@ -139,34 +129,44 @@ function createNotif(notification, type) {
     notificationDiv.style.backgroundColor = notification.colors[0];
     notificationDiv.style.color = notification.colors[1];
     notificationDiv.style.border = '1px solid #ccc';
-    notificationDiv.style.borderRadius = '8px';
+    notificationDiv.style.borderRadius = '10px';
     notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
-    notificationDiv.style.display = 'flex';
-    notificationDiv.style.justifyContent = 'space-between';
-    notificationDiv.style.alignItems = 'center';
     notificationDiv.style.padding = '10px';
     notificationDiv.style.margin = '10px 0';
 
     const htmlMessageDiv = document.createElement('div');
-    htmlMessageDiv.style.flex = '1';
-    htmlMessageDiv.style.marginRight = '15px';
     htmlMessageDiv.innerHTML = notification["html-msg"];
 
-    const actionDiv = document.createElement('div');
-    actionDiv.style.minWidth = '100px';
-    actionDiv.style.padding = '10px';
-    actionDiv.style.borderRadius = '5px';
-    actionDiv.style.textAlign = 'center';
-    actionDiv.style.cursor = 'pointer';
+    notificationDiv.appendChild(htmlMessageDiv);
 
+    // Add additional behavior based on type
     if (type === "cookie") {
+        container.style.bottom = '0';
+        container.style.left = '0';
+        container.style.right = '0';
+        container.style.top = ''; // Remove top positioning for cookie
+        container.style.backgroundColor = '#f9f9f9';
+        container.style.padding = '15px';
+        container.style.boxShadow = '0 -2px 10px rgba(0, 0, 0, 0.2)';
+
+        const actionDiv = document.createElement('div');
+        actionDiv.style.minWidth = '100px';
         actionDiv.style.backgroundColor = '#ffffff';
         actionDiv.style.color = '#000000';
         actionDiv.style.border = '1px solid #ccc';
+        actionDiv.style.borderRadius = '5px';
+        actionDiv.style.textAlign = 'center';
+        actionDiv.style.padding = '5px';
+        actionDiv.style.cursor = 'pointer';
         actionDiv.textContent = notification.cb || "OK";
         actionDiv.onclick = () => dismissNotif(notification.id, notificationDiv);
+
+        notificationDiv.style.display = 'flex';
+        notificationDiv.style.justifyContent = 'space-between';
+        notificationDiv.style.alignItems = 'center';
+        notificationDiv.appendChild(actionDiv);
     } else if (type === "perm") {
-        console.log("Permanent notification, no dismiss button.");
+        console.log("Permanent notification: cannot be dismissed.");
     } else if (type.startsWith("auto:")) {
         const autoDismissTime = parseInt(type.split(":")[1]) || 5;
         setTimeout(() => {
@@ -174,7 +174,7 @@ function createNotif(notification, type) {
             console.log("Auto-dismissed notification:", notification.id);
         }, autoDismissTime * 1000);
     } else {
-        // Add a dismiss button for normal notifications
+        // Normal notifications or other types with dismiss button
         const dismissButton = document.createElement('button');
         dismissButton.textContent = '×';
         dismissButton.style.position = 'absolute';
@@ -189,12 +189,7 @@ function createNotif(notification, type) {
         notificationDiv.appendChild(dismissButton);
     }
 
-    notificationDiv.appendChild(htmlMessageDiv);
-    if (type === "cookie") {
-        notificationDiv.appendChild(actionDiv);
-    }
     container.appendChild(notificationDiv);
-
     console.log("Notification displayed:", notification);
 }
 
@@ -216,7 +211,7 @@ function decodeBase64(base64String) {
     }
 }
 
-// Load notifications when the DOM is ready, but ensure it's not blocked if executed externally
+// Load notifications when the DOM is ready
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function() {
         loadNotifications();
