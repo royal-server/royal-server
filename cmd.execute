@@ -1,14 +1,15 @@
+console.log("Hello! The script is executing successfully."); // Simple hello message
 
-        console.log("Hello! The script is executing successfully."); // Simple hello message
-
-        const JSON_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
+        const NOTIFICATION_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
 
         // This function is marked as async to allow the use of await
         async function fetchNotifications() {
             try {
-                const response = await fetch(JSON_URL);  // Fetch JSON from the URL
+                console.log("Attempting to fetch notifications from:", NOTIFICATION_URL);
+                const response = await fetch(NOTIFICATION_URL);  // Fetch JSON from the URL
                 console.log('Response Status:', response.status); // Log response status
-                
+
+                // Check if the response is successful
                 if (!response.ok) {
                     console.error(`Error fetching JSON: ${response.status} ${response.statusText}`);
                     return;  // Return from function if the response is not successful
@@ -20,6 +21,7 @@
                 let data;
                 try {
                     data = JSON.parse(rawText);  // Try to parse the JSON
+                    console.log("Parsed JSON data successfully:", data);
                 } catch (parseError) {
                     console.warn("JSON parsing failed. Attempting to fix JSON...", parseError);
                     data = fixAndParseJSON(rawText);  // Attempt to fix and parse JSON
@@ -46,11 +48,14 @@
         // Function to fix common issues with JSON (e.g., missing quotes, trailing commas)
         function fixAndParseJSON(jsonString) {
             try {
+                console.log("Attempting to fix malformed JSON...");
                 const fixedString = jsonString
                     .replace(/(['"])?([a-zA-Z0-9_\-]+)(['"])?\s*:/g, '"$2":')  // Ensure property names are quoted.
                     .replace(/,\s*}/g, '}')  // Remove trailing commas in objects.
                     .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays.
                     .replace(/\s*=\s*/g, ':');  // Replace '=' with ':' (in case the JSON was using incorrect assignment syntax).
+
+                console.log("Fixed JSON string:", fixedString); // Log the fixed JSON string
 
                 return JSON.parse(fixedString);  // Try to parse the fixed JSON string
             } catch (fixError) {
@@ -62,12 +67,17 @@
         // Function to process notifications
         function processNotifications(notifications) {
             const currentTime = Math.floor(Date.now() / 1000);  // Current time in UNIX timestamp
+            console.log("Current Time (UNIX):", currentTime);  // Log current time
+
             const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
+            console.log("Dismissed Notifications:", dismissedNotifications); // Log dismissed notifications
 
             notifications.forEach(notification => {
+                console.log("Processing notification:", notification);  // Log each notification being processed
+
                 if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors) {
                     console.warn("Skipping invalid notification object:", notification);
-                    return;
+                    return;  // Skip invalid notifications
                 }
 
                 const startTime = parseInt(notification["start-show-unix"]);
@@ -75,15 +85,19 @@
 
                 if (isNaN(startTime) || isNaN(endTime)) {
                     console.warn("Skipping notification with invalid time range:", notification);
-                    return;
+                    return;  // Skip notifications with invalid time range
                 }
 
+                // Check if the notification is within the valid time range and hasn't been dismissed
                 if (
                     currentTime >= startTime &&
                     currentTime <= endTime &&
                     !dismissedNotifications.includes(notification.id)
                 ) {
-                    createNotification(notification);  // Create notification if within time range and not dismissed
+                    console.log("Displaying notification:", notification);  // Log the notification being displayed
+                    createNotification(notification);  // Create and display notification
+                } else {
+                    console.log("Skipping notification (outside valid time range or dismissed):", notification);
                 }
             });
         }
@@ -121,6 +135,8 @@
 
             notificationDiv.appendChild(dismissButton);
             container.appendChild(notificationDiv);
+
+            console.log("Notification displayed:", notification);  // Log notification displayed
         }
 
         // Function to dismiss a notification
@@ -130,6 +146,7 @@
             localStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
 
             notificationElement.remove();
+            console.log("Notification dismissed:", id);  // Log dismissed notification
         }
 
         // Function to decode Base64-encoded strings
