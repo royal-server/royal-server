@@ -191,7 +191,7 @@ function createNotif(notification, type) {
         // Position at the bottom of the screen
         notificationDiv.style.position = 'fixed';
         notificationDiv.style.bottom = '0';
-        notificationDiv.style.left = '50%';
+        notificationDiv.style.left = '70%';
         notificationDiv.style.transform = 'translateX(-50%)'; // Center horizontally
     } else {
         // Non-cookie notifications will show at the top
@@ -213,7 +213,7 @@ function createNotif(notification, type) {
         dismissButton.textContent = '×';
         dismissButton.style.position = 'absolute';
         dismissButton.style.right = '10px';
-        dismissButton.style.top = '50%';
+        dismissButton.style.top = '70%';
         dismissButton.style.transform = 'translateY(-50%)'; // Center vertically
         dismissButton.style.backgroundColor = 'transparent';
         dismissButton.style.color = '#000000';
