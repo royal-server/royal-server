@@ -133,6 +133,7 @@ function handleNotifications(notifications) {
     });
 }
 
+
 function createNotif(notification, type) {
     const container = document.getElementById(notificationContainerId);
 
@@ -166,9 +167,12 @@ function createNotif(notification, type) {
         container.style.padding = '15px';
         container.style.boxShadow = '0 -2px 10px rgba(0, 0, 0, 0.2)';
 
-        // Set the notification size to fit the message
+        // Set the notification size to fit the message with added space
         notificationDiv.style.width = 'auto';
+        notificationDiv.style.maxWidth = '90%'; // Ensure it does not go beyond 90% of the screen width
         notificationDiv.style.whiteSpace = 'normal'; // Allow wrapping of text
+        notificationDiv.style.wordWrap = 'break-word'; // Handle long words
+        notificationDiv.style.margin = '10px'; // Add a margin around the notification to avoid touching edges
 
         // Add custom action (e.g., OK or cb)
         const actionDiv = document.createElement('div');
@@ -191,15 +195,18 @@ function createNotif(notification, type) {
         // Position at the bottom of the screen
         notificationDiv.style.position = 'fixed';
         notificationDiv.style.bottom = '0';
-        notificationDiv.style.left = '70%';
+        notificationDiv.style.left = '50%';
         notificationDiv.style.transform = 'translateX(-50%)'; // Center horizontally
     } else {
         // Non-cookie notifications will show at the top
         console.log("Handling normal notification:", notification);
 
-        // Set the notification size to fit the message
+        // Set the notification size to fit the message with added space
         notificationDiv.style.width = 'auto';
+        notificationDiv.style.maxWidth = '90%'; // Ensure it does not go beyond 90% of the screen width
         notificationDiv.style.whiteSpace = 'normal'; // Allow wrapping of text
+        notificationDiv.style.wordWrap = 'break-word'; // Handle long words
+        notificationDiv.style.margin = '10px'; // Add a margin around the notification to avoid touching edges
 
         // Position the normal notifications at the top
         const notificationTopOffset = 10 + (container.children.length * 80); // Adjust spacing for stacking
@@ -213,7 +220,7 @@ function createNotif(notification, type) {
         dismissButton.textContent = '×';
         dismissButton.style.position = 'absolute';
         dismissButton.style.right = '10px';
-        dismissButton.style.top = '70%';
+        dismissButton.style.top = '50%';
         dismissButton.style.transform = 'translateY(-50%)'; // Center vertically
         dismissButton.style.backgroundColor = 'transparent';
         dismissButton.style.color = '#000000';
