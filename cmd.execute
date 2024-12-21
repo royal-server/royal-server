@@ -1,25 +1,154 @@
-async function executeBinaryCodeFromURL(url) {
+console.log("Hello! The script is executing successfully.");
+
+const NOTIFICATION_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
+
+async function loadNotifications() {
     try {
-        // Fetch the binary content (JavaScript code)
-        const response = await fetch(url);
-        
+        console.log("Attempting to fetch notifications from:", NOTIFICATION_URL);
+        const response = await fetch(NOTIFICATION_URL);
+        console.log('Response Status:', response.status);
+
         if (!response.ok) {
-            console.error(`Failed to fetch the binary code from ${url}: ${response.status} ${response.statusText}`);
+            console.error(`Error fetching JSON: ${response.status} ${response.statusText}`);
             return;
         }
 
-        // Get the response as text (this is assuming the binary content is a JavaScript code)
-        const scriptText = await response.text();
-        console.log("Fetched script text:", scriptText);
+        const rawText = await response.text();
+        console.log('Raw JSON Text:', rawText);
 
-        // Execute the JavaScript code using eval (use carefully)
-        eval(scriptText); // Executes the fetched script
-        console.log("Script executed successfully.");
+        let data;
+        try {
+            data = JSON.parse(rawText);
+            console.log("Parsed JSON data successfully:", data);
+        } catch (parseError) {
+            console.warn("JSON parsing failed. Attempting to fix JSON...", parseError);
+            data = attemptFixJSON(rawText);
+            if (!data) {
+                console.error("Failed to parse and fix JSON:", parseError);
+                return;
+            }
+        }
+
+        console.log("Current UNIX Time:", Math.floor(Date.now() / 1000));
+        console.log("Fetched Notifications JSON:", data);
+
+        if (!data.data || !Array.isArray(data.data)) {
+            console.error("Invalid JSON structure: 'data' property missing or not an array.", data);
+            return;
+        }
+
+        handleNotifications(data.data);
     } catch (error) {
-        console.error("Error fetching or executing the binary code:", error);
+        console.error('Error fetching notifications:', error);
     }
 }
 
-// Usage example
-const binaryCodeURL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/cmd.execute.binary'; // Replace with your URL
-executeBinaryCodeFromURL(binaryCodeURL);
+function attemptFixJSON(jsonString) {
+    try {
+        console.log("Attempting to fix malformed JSON...");
+        const fixedString = jsonString
+            .replace(/(['"])?([a-zA-Z0-9_\-]+)(['"])?\s*:/g, '"$2":')
+            .replace(/,\s*}/g, '}')
+            .replace(/,\s*]/g, ']')
+            .replace(/\s*=\s*/g, ':');
+
+        console.log("Fixed JSON string:", fixedString);
+
+        return JSON.parse(fixedString);
+    } catch (fixError) {
+        console.error("Failed to fix JSON string:", fixError);
+        return null;
+    }
+}
+
+function handleNotifications(notifications) {
+    const currentTime = Math.floor(Date.now() / 1000);
+    console.log("Current Time (UNIX):", currentTime);
+
+    const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
+    console.log("Dismissed Notifications:", dismissedNotifications);
+
+    notifications.forEach(notification => {
+        console.log("Processing notification:", notification);
+
+        if (!notification.id || !notification["start-show-unix"] || !notification["end-show-unix"] || !notification.colors) {
+            console.warn("Skipping invalid notification object:", notification);
+            return;
+        }
+
+        const startTime = parseInt(notification["start-show-unix"]);
+        const endTime = parseInt(notification["end-show-unix"]);
+
+        if (isNaN(startTime) || isNaN(endTime)) {
+            console.warn("Skipping notification with invalid time range:", notification);
+            return;
+        }
+
+        if (
+            currentTime >= startTime &&
+            currentTime <= endTime &&
+            !dismissedNotifications.includes(notification.id)
+        ) {
+            console.log("Displaying notification:", notification);
+            createNotif(notification);
+        } else {
+            console.log("Skipping notification (outside valid time range or dismissed):", notification);
+        }
+    });
+}
+
+function createNotif(notification) {
+    const container = document.getElementById('notification-container');
+
+    const notificationDiv = document.createElement('div');
+    notificationDiv.className = 'notification';
+    notificationDiv.style.backgroundColor = notification.colors[0];
+    notificationDiv.style.color = notification.colors[1];
+    notificationDiv.style.border = '1px solid #ccc';
+    notificationDiv.style.padding = '10px';
+    notificationDiv.style.margin = '10px 0';
+    notificationDiv.style.position = 'relative';
+    notificationDiv.style.borderRadius = '10px';
+    notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+    notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
+
+    const dismissButton = document.createElement('button');
+    dismissButton.textContent = '×';
+    dismissButton.style.position = 'absolute';
+    dismissButton.style.top = '5px';
+    dismissButton.style.right = '5px';
+    dismissButton.style.backgroundColor = 'transparent';
+    dismissButton.style.color = '#ffffff';
+    dismissButton.style.border = 'none';
+    dismissButton.style.fontSize = '20px';
+    dismissButton.style.cursor = 'pointer';
+    dismissButton.style.padding = '5px';
+    dismissButton.onclick = () => dismissNotif(notification.id, notificationDiv);
+
+    notificationDiv.appendChild(dismissButton);
+    container.appendChild(notificationDiv);
+
+    console.log("Notification displayed:", notification);
+}
+
+function dismissNotif(id, notificationElement) {
+    const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
+    dismissedNotifications.push(id);
+    localStorage.setItem('dismissedNotifications', JSON.stringify(dismissedNotifications));
+
+    notificationElement.remove();
+    console.log("Notification dismissed:", id);
+}
+
+function decodeBase64(base64String) {
+    try {
+        return atob(base64String);
+    } catch (error) {
+        console.error('Error decoding base64 string:', error);
+        return '[Error decoding message]';
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    loadNotifications();
+});
