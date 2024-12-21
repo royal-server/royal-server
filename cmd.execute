@@ -77,8 +77,23 @@ function handleNotifications(notifications) {
     const dismissedNotifications = JSON.parse(localStorage.getItem('dismissedNotifications')) || [];
     console.log("Dismissed Notifications:", dismissedNotifications);
 
-    notifications.forEach(notification => {
-        console.log("Processing notification:", notification);
+    const cookieNotifications = notifications.filter(notification => notification.type === 'cookie');
+    const nonCookieNotifications = notifications.filter(notification => notification.type !== 'cookie');
+
+    // Handle cookie notifications separately
+    if (cookieNotifications.length > 0) {
+        console.log("Displaying cookie notifications. No other notifications will be shown until dismissed.");
+        cookieNotifications.forEach(notification => createNotif(notification, 'cookie', true));
+        return; // Skip the rest of the notifications until all cookies are dismissed
+    }
+
+    // Handle the rest of the notifications
+    nonCookieNotifications.forEach(notification => {
+        // Skip notifications that are disabled until the specified UNIX time
+        if (notification.DisableUntil && currentTime < notification.DisableUntil) {
+            console.log(`Skipping notification (disabled until ${new Date(notification.DisableUntil * 1000).toLocaleString()}):`, notification);
+            return;
+        }
 
         // Default type to "normal" if type is null or missing
         const type = notification.type || "normal";
@@ -109,7 +124,7 @@ function handleNotifications(notifications) {
     });
 }
 
-function createNotif(notification, type) {
+function createNotif(notification, type, isCookie = false) {
     const container = document.getElementById(notificationContainerId);
 
     // Create a unique div for each notification
@@ -167,12 +182,17 @@ function createNotif(notification, type) {
             console.log("Auto-dismissed notification:", notification.id);
         }, autoDismissTime * 1000);
     } else {
-        // Normal notifications or other types with dismiss button
+        // Normal notifications with dismiss button positioned on the right, centered vertically
+        notificationDiv.style.display = 'flex';
+        notificationDiv.style.justifyContent = 'space-between';
+        notificationDiv.style.alignItems = 'center';
+
         const dismissButton = document.createElement('button');
         dismissButton.textContent = '×';
         dismissButton.style.position = 'absolute';
-        dismissButton.style.top = '5px';
-        dismissButton.style.right = '5px';
+        dismissButton.style.right = '10px';
+        dismissButton.style.top = '50%';
+        dismissButton.style.transform = 'translateY(-50%)'; // Center vertically
         dismissButton.style.backgroundColor = 'transparent';
         dismissButton.style.color = '#000000';
         dismissButton.style.border = 'none';
