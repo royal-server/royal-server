@@ -1,1 +1,27 @@
-null
+(function() {
+    const baseUrl = 'https://drmineword.github.io/Artefact-Boost-Active/';
+    
+    // Retrieve the total page visits count and the sub-path visits count
+    let totalVisits = localStorage.getItem('totalVisits') || 0;
+    let subPathVisits = localStorage.getItem(window.location.pathname) || 0;
+
+    // Increment the total visits and sub-path visits
+    totalVisits++;
+    subPathVisits++;
+
+    // Store updated values in localStorage
+    localStorage.setItem('totalVisits', totalVisits);
+    localStorage.setItem(window.location.pathname, subPathVisits);
+
+    // Create a blank space in the console for better readability
+    console.log("\n\n");
+
+    // Log the visit statistics with nice formatting
+    console.log("=====================================");
+    console.log("  🚀 Visit Stats - Artefact Boost  🚀");
+    console.log("=====================================");
+    console.log(`🔹 Total Page Visits: ${totalVisits}`);
+    console.log(`🔹 Visits to this sub-path (${window.location.pathname}): ${subPathVisits}`);
+    console.log("=====================================");
+
+})();
