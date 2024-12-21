@@ -157,6 +157,21 @@ function createNotif(notification, type) {
     notificationDiv.style.wordWrap = 'break-word'; // Handle long words
     notificationDiv.style.margin = '10px'; // Add a margin around the notification to avoid touching edges
 
+    // Check if 'html-msg' exists and is valid
+    if (notification["html-msg"]) {
+        console.log("Notification HTML Message:", notification["html-msg"]);
+    } else {
+        console.warn("No html-msg found for notification:", notification);
+    }
+
+    // Add content to the notification div
+    const htmlMessageDiv = document.createElement('div');
+    htmlMessageDiv.innerHTML = notification["html-msg"] || "No message available";
+    notificationDiv.appendChild(htmlMessageDiv);
+
+    // Check if the message was added to the div
+    console.log("Notification Content (after adding html-msg):", htmlMessageDiv.innerHTML);
+
     // Determine if it's a cookie notification or a normal notification
     const isCookie = type === "cookie"; // Set isCookie flag based on the type of notification
 
@@ -172,11 +187,6 @@ function createNotif(notification, type) {
         container.style.backgroundColor = '#f9f9f9';
         container.style.padding = '15px';
         container.style.boxShadow = '0 -2px 10px rgba(0, 0, 0, 0.2)';
-
-        // Add content to the notification div
-        const htmlMessageDiv = document.createElement('div');
-        htmlMessageDiv.innerHTML = notification["html-msg"] || "No message available";
-        notificationDiv.appendChild(htmlMessageDiv);
 
         // Add custom action (e.g., OK or cb)
         const actionDiv = document.createElement('div');
@@ -209,6 +219,9 @@ function createNotif(notification, type) {
         const htmlMessageDiv = document.createElement('div');
         htmlMessageDiv.innerHTML = notification["html-msg"] || "No message available";
         notificationDiv.appendChild(htmlMessageDiv);
+
+        // Check if the message was inserted properly
+        console.log("Notification Content (normal type):", htmlMessageDiv.innerHTML);
 
         // Set notification's display properties
         notificationDiv.style.display = 'flex';
