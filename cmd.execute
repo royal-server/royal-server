@@ -121,7 +121,7 @@ function createNotif(notification) {
     notificationDiv.style.border = '1px solid #ccc';
     notificationDiv.style.padding = '10px';
     notificationDiv.style.margin = '10px 0';
-    notificationDiv.style.position = 'relative';
+    notificationDiv.style.position = 'fixed';
     notificationDiv.style.borderRadius = '10px';
     notificationDiv.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
     notificationDiv.innerHTML = notification["html-msg"].replace('<base64=string to decode>', decodeBase64("string to decode"));
