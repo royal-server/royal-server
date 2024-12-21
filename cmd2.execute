@@ -61,29 +61,46 @@
     // Create a blank space in the console for better readability
     console.log("\n\n");
 
-    // Log the visit statistics with nice formatting
-    console.log("=====================================");
-    console.log("  🚀 Visit Stats - Artefact Boost  🚀");
-    console.log("=====================================");
-    console.log(`🔹 Total Page Visits: ${totalVisitSummary.totalVisits}`);
+    // Function to print and log the visit statistics in console
+    function printVisitStats() {
+        console.clear();
+        console.log("=====================================");
+        console.log("  🚀 Visit Stats - Artefact Boost  🚀");
+        console.log("=====================================");
+        console.log(`🔹 Total Page Visits: ${totalVisitSummary.totalVisits}`);
 
-    // Log visits for each sub-path
-    console.log("🔹 Visits to each sub-path:");
-    visitCounts.forEach(item => {
-        console.log(`   - ${item.subPath}: ${item.visitCount} visit(s)`);
-    });
+        // Sort visits by visit count (from largest to smallest)
+        visitCounts.sort((a, b) => b.visitCount - a.visitCount);
+        
+        // Log visits for each sub-path (sorted)
+        console.log("🔹 Visits to each sub-path (Largest to Smallest):");
+        visitCounts.forEach(item => {
+            console.log(`   - ${item.subPath}: ${item.visitCount} visit(s)`);
+        });
 
-    console.log("=====================================");
+        console.log("=====================================");
 
-    // Log total time spent on the website
-    const totalWebsiteTime = getTotalWebsiteTime();
-    console.log(`🕒 Total Time Spent on Website: ${formatTime(totalWebsiteTime)}`);
-    
-    // Log the time spent on the current page
-    const currentPageTime = timeSpentOnPages.find(item => item.subPath === currentSubPath)?.timeSpent || 0;
-    console.log(`🕒 Time Spent on Current Page: ${formatTime(currentPageTime)}`);
-    
-    console.log("=====================================");
+        // Sort time spent on pages by time spent (from largest to smallest)
+        timeSpentOnPages.sort((a, b) => b.timeSpent - a.timeSpent);
+
+        // Log total time spent on the website
+        const totalWebsiteTime = getTotalWebsiteTime();
+        console.log(`🕒 Total Time Spent on Website: ${formatTime(totalWebsiteTime)}`);
+        
+        // Log time spent on each sub-path (sorted)
+        console.log("🔹 Time Spent on Each Sub-path (Largest to Smallest):");
+        timeSpentOnPages.forEach(item => {
+            console.log(`   - ${item.subPath}: ${formatTime(item.timeSpent)}`);
+        });
+
+        console.log("=====================================");
+
+        // Log the time spent on the current page
+        const currentPageTime = timeSpentOnPages.find(item => item.subPath === currentSubPath)?.timeSpent || 0;
+        console.log(`🕒 Time Spent on Current Page: ${formatTime(currentPageTime)}`);
+        
+        console.log("=====================================");
+    }
 
     // Function to format time in a human-readable format (milliseconds to minutes and seconds)
     function formatTime(timeInMilliseconds) {
@@ -92,4 +109,18 @@
         const remainingSeconds = seconds % 60;
         return `${minutes} minute(s) ${remainingSeconds} second(s)`;
     }
+
+    // Listen for the !stats command in the console
+    window.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key === 'Enter') {
+            // Trigger !stats on specific console input (if possible)
+            const command = prompt('Enter console command:');
+            if (command === '!stats') {
+                printVisitStats();
+            }
+        }
+    });
+
+    // Print initial stats upon page load
+    printVisitStats();
 })();
