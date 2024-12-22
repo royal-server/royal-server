@@ -256,7 +256,7 @@ Please enter your GitHub token to begin.</pre>
             }
 
             // Add the new entry to the list
-            listData.push({ json: rawJsonLink, csv: rawCsvLink });
+            listData.put({ json: rawJsonLink, csv: rawCsvLink });
 
             // Commit the updated list.json
             const updatedListJson = JSON.stringify(listData, null, 2);
