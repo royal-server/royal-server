@@ -255,9 +255,7 @@ Please enter your GitHub token to begin.</pre>
                 consoleLog("No existing list.json file found, creating a new one.");
             }
 
-            // Add the new entry to the list
-            listData.set({ json: rawJsonLink, csv: rawCsvLink });
-
+            
             // Commit the updated list.json
             const updatedListJson = JSON.stringify(listData, null, 2);
             await postToGitHub(listJsonPath, updatedListJson, "Update list.json with new links");
@@ -285,7 +283,16 @@ Please enter your GitHub token to begin.</pre>
         });
 
         document.getElementById('stop-button').addEventListener('click', () => {
-            isRunning = false; // Stop the data collection process
+            isRunning = fal
+            // Assuming listData is an object
+listData = {}; // Initialize it if it's not already
+
+// Update or set the value for a key
+listData.info = { json: rawJsonLink, csv: rawCsvLink };
+
+// Access the value later
+console.log(listData.info);
+se; // Stop the data collection process
             consoleLog("Data collection stopped. Exporting files...");
 
             // Prepare and export any collected data
