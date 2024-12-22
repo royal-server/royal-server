@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Data Collector</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Consolas, "Courier New", monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: start;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #console-output {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            width: 80%;
+            height: 60%;
+            overflow-y: auto;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            box-shadow: 0 0 10px #00ff00;
+        }
+
+        #token-input, #stop-button {
+            margin: 10px;
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        #token-input {
+            width: 80%;
+        }
+
+        #stop-button {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #token-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="token-container">
+        <input type="text" id="token-input" placeholder="Enter your GitHub token here...">
+        <button id="start-button">START</button>
+    </div>
+    <button id="stop-button" style="display: none;">STOP & EXPORT</button>
+    <pre id="console-output">Initializing...
+Please enter your GitHub token to begin.</pre>
+
+    <script>
+        let GITHUB_TOKEN = "";
+        const GITHUB_API_URL = "https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents";
+        const EXCLUDE_PATHS = [/^archive\//, /^OLD\//];
+        let isRunning = true;
+
+        const consoleLog = (message) => {
+            const consoleElement = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            consoleElement.textContent += `[${timestamp}] ${message}\n`;
+            consoleElement.scrollTop = consoleElement.scrollHeight;
+            console.log(message);
+        };
+
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        async function postToGitHub(path, content, commitMessage) {
+            const url = `https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/${path}`;
+            const headers = {
+                Authorization: `Bearer ${GITHUB_TOKEN}`,
+                'Content-Type': 'application/json'
+            };
+
+            try {
+                // Check if the file exists to retrieve its SHA
+                let sha = null;
+                const getResponse = await fetch(url, { headers });
+                if (getResponse.ok) {
+                    const fileData = await getResponse.json();
+                    sha = fileData.sha;
+                }
+
+                // Prepare payload
+                const payload = {
+                    message: commitMessage,
+                    content: btoa(content), // Base64 encode the content
+                    sha: sha
+                };
+
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    consoleLog(`Error posting to GitHub: ${response.status}`);
+                    throw new Error(`HTTP error ${response.status}`);
+                }
+
+                consoleLog(`Successfully posted data to GitHub: ${path}`);
+            } catch (error) {
+                consoleLog(`Error posting to GitHub: ${error.message}`);
+            }
+        }
+
+        function shouldExcludePath(path) {
+            return EXCLUDE_PATHS.some(pattern => pattern.test(path));
+        }
+
+        async function fetchGitHubRepo(url, headers) {
+            try {
+                const response = await fetch(url, { headers });
+                if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                consoleLog(`Error fetching GitHub data: ${error.message}`);
+                throw error;
+            }
+        }
+
+        async function fetchFileContent(apiUrl, headers) {
+            try {
+                const response = await fetch(apiUrl, { headers });
+                if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                const fileData = await response.json();
+                return atob(fileData.content); // Decode Base64 content
+            } catch (error) {
+                consoleLog(`Error fetching file content: ${error.message}`);
+                throw error;
+            }
+        }
+
+        async function processGitHubFiles(apiUrl) {
+            const headers = {
+                Authorization: `Bearer ${GITHUB_TOKEN}`,
+                'User-Agent': 'GitHub-Data-Collector'
+            };
+
+            const files = [];
+
+            async function collectFiles(url) {
+                if (!isRunning) return; // Stop if the session is terminated
+
+                const contents = await fetchGitHubRepo(url, headers);
+
+                for (const item of contents) {
+                    if (item.type === 'dir') {
+                        if (!shouldExcludePath(item.path)) {
+                            consoleLog(`Entering directory: ${item.path}`);
+                            await collectFiles(item.url);
+                        } else {
+                            consoleLog(`Skipping excluded directory: ${item.path}`);
+                        }
+                    } else if (item.type === 'file' && !shouldExcludePath(item.path)) {
+                        try {
+                            const fileContent = await fetchFileContent(item.url, headers);
+                            files.push({
+                                path: item.path,
+                                content: fileContent
+                            });
+                            consoleLog(`File collected: ${item.path}`);
+                        } catch (error) {
+                            consoleLog(`Failed to fetch file ${item.path}: ${error.message}`);
+                        }
+                    } else {
+                        consoleLog(`Skipping excluded file or directory: ${item.path}`);
+                    }
+                }
+            }
+
+            await collectFiles(apiUrl);
+            return files;
+        }
+
+        function generateCSV(data) {
+            if (data.length === 0) {
+                consoleLog("No data to generate CSV.");
+                return "";
+            }
+
+            const headers = Object.keys(data[0]).join(",");
+            const rows = data.map(row =>
+                Object.values(row)
+                    .map(value => (typeof value === "string" ? `"${value.replace(/"/g, '""')}"` : value)) // Escape quotes for CSV
+                    .join(",")
+            );
+            return [headers, ...rows].join("\n");
+        }
+
+        async function main() {
+            if (!GITHUB_TOKEN) {
+                consoleLog("GitHub token is required. Please enter it above.");
+                return;
+            }
+
+            consoleLog("Starting GitHub data collection...");
+
+            const files = await processGitHubFiles(GITHUB_API_URL);
+            consoleLog(`Collected ${files.length} files.`);
+
+            const jsonOutput = JSON.stringify(files, null, 2); // Pretty-print JSON
+            const csvOutput = generateCSV(files.map(file => ({ path: file.path, content: file.content })));
+
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const randomUID = Math.random().toString(36).substring(2, 10);
+
+            const jsonPath = `archive/json/${year}/${month}/${day}/${randomUID}/data.json`;
+            const csvPath = `archive/csv/${year}/${month}/${day}/${randomUID}/data.csv`;
+
+            await postToGitHub(jsonPath, jsonOutput, "Automated commit for JSON data");
+            await postToGitHub(csvPath, csvOutput, "Automated commit for CSV data");
+
+            // Create the list.json file with links to the raw JSON and CSV files
+            const listJson = JSON.stringify({
+                json: `https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/${jsonPath}`,
+                csv: `https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/${csvPath}`
+            }, null, 2);
+
+            const listJsonPath = `archive/data/${year}/${month}/${day}/${randomUID}/list.json`;
+
+            await postToGitHub(listJsonPath, listJson, "Automated commit for list.json");
+
+            consoleLog("Data collection and export complete.");
+        }
+
+        document.getElementById('start-button').addEventListener('click', () => {
+            const tokenInput = document.getElementById('token-input');
+            GITHUB_TOKEN = tokenInput.value;
+
+            if (GITHUB_TOKEN) {
+                consoleLog("GitHub token accepted. Starting process...");
+                document.getElementById('start-button').style.display = 'none';
+                document.getElementById('stop-button').style.display = 'inline-block';
+
+                // Disable the input field for token after it is used
+                document.getElementById('token-input').disabled = true;
+
+                // Start the main function to collect and export data
+                main();
+            } else {
+                consoleLog("Please provide a valid GitHub token.");
+            }
+        });
+
+        document.getElementById('stop-button').addEventListener('click', () => {
+            isRunning = false; // Stop the data collection process
+            consoleLog("Data collection stopped. Exporting files...");
+
+            // Prepare and export any collected data
+            const files = []; // Here you would ideally export any collected files that were fetched prior to stopping
+            const jsonOutput = JSON.stringify(files, null, 2);
+            const csvOutput = generateCSV(files.map(file => ({ path: file.path, content: file.content })));
+
+            // Creating a date-based folder for storing the files
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const randomUID = Math.random().toString(36).substring(2, 10);
+
+            const jsonPath = `archive/json/${year}/${month}/${day}/${randomUID}/data.json`;
+            const csvPath = `archive/csv/${year}/${month}/${day}/${randomUID}/data.csv`;
+
+            postToGitHub(jsonPath, jsonOutput, "Automated commit for JSON data")
+                .then(() => postToGitHub(csvPath, csvOutput, "Automated commit for CSV data"))
+                .then(() => {
+                    consoleLog("Export complete.");
+                    alert("Data has been successfully exported.");
+                })
+                .catch(err => consoleLog("Error during export: " + err));
+        });
+    </script>
+</body>
+</html>
