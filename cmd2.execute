@@ -207,7 +207,7 @@
         };
     }
 
-    // Function to send a single merged file to Discord webhook
+    // Function to send the merged data as a file to Discord webhook
     async function sendToWebhook(mergedDataFile, embedMessage) {
         const formData = new FormData();
         formData.append("file", mergedDataFile);
@@ -264,11 +264,11 @@
         // Create a single JSON file with the merged data
         const mergedDataFile = new File(
             [JSON.stringify(mergedData, null, 2)],
-            "merged_data.json",
+            "visit_counts.json", // Replace visit_counts.json with merged_data.json
             { type: "application/json" }
         );
 
-        console.log("Created file: merged_data.json");
+        console.log("Created file: visit_counts.json");
 
         // Create an embed message
         const embedMessage = {
