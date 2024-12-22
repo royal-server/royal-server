@@ -131,12 +131,12 @@
     const targetBaseUrl = "https://drmineword.github.io/Artefact-Boost-Active/";
     const webhookUrl = "https://discord.com/api/webhooks/1320483118947242094/uncmv45ABLDaJZcNZOzkjvNXZzV9NPL5yjgIOQagRK6FdDqW8GQuJHaSlkqd0_Z7uf4d";
 
-    // Function to get current timestamp in UNIX format
+    // Function to get the current UNIX timestamp
     function getUnixTime() {
         return Math.floor(Date.now() / 1000);
     }
 
-    // Generate or retrieve the user ID (UID) based on IP and time
+    // Generate a hashed UID that cannot be decoded back to an IP
     async function getUserId() {
         let userId = localStorage.getItem("userId");
         if (!userId) {
@@ -144,19 +144,46 @@
                 const response = await fetch("https://api.ipify.org?format=json");
                 const { ip } = await response.json();
                 const timestamp = getUnixTime();
-                userId = btoa(`${ip}_${timestamp}`); // Encode IP and timestamp
+
+                // Generate a secure hash (SHA-256) from IP and timestamp
+                const hashBuffer = await crypto.subtle.digest(
+                    "SHA-256",
+                    new TextEncoder().encode(`${ip}_${timestamp}`)
+                );
+                userId = Array.from(new Uint8Array(hashBuffer))
+                    .map(b => b.toString(16).padStart(2, "0"))
+                    .join(""); // Convert buffer to hex string
+
                 localStorage.setItem("userId", userId);
             } catch (error) {
                 console.error("Failed to retrieve user IP:", error);
-                userId = btoa(`anonymous_${getUnixTime()}`);
+
+                // Generate hash based on anonymous timestamp as fallback
+                const fallbackHashBuffer = await crypto.subtle.digest(
+                    "SHA-256",
+                    new TextEncoder().encode(`anonymous_${getUnixTime()}`)
+                );
+                userId = Array.from(new Uint8Array(fallbackHashBuffer))
+                    .map(b => b.toString(16).padStart(2, "0"))
+                    .join("");
                 localStorage.setItem("userId", userId);
             }
         }
         return userId;
     }
 
-    // Function to collect all data into a single JSON structure
-    function collectData() {
+    // Function to collect localStorage data
+    function collectLocalStorage() {
+        const allKeys = Object.keys(localStorage);
+        const data = {};
+        allKeys.forEach(key => {
+            data[key] = localStorage.getItem(key);
+        });
+        return data;
+    }
+
+    // Collect leaderboard data using the provided script logic
+    function getLeaderboardData() {
         const visitCounts = JSON.parse(localStorage.getItem("visitCounts")) || [];
         const timeSpentOnPages = JSON.parse(localStorage.getItem("timeSpentOnPages")) || [];
         const totalVisitSummary = JSON.parse(localStorage.getItem("totalVisitSummary")) || {
@@ -168,23 +195,13 @@
             visitCounts,
             timeSpentOnPages,
             totalVisitSummary,
-            logInfo: {
-                visitTime: new Date().toISOString(),
-                page: window.location.href,
-            },
-            userData: {
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                language: navigator.language,
-                screenResolution: `${window.screen.width}x${window.screen.height}`,
-            },
         };
     }
 
-    // Function to send a single .json file to Discord webhook
-    async function sendToWebhook(embedMessage, consolidatedFile) {
+    // Function to send multiple files to Discord webhook
+    async function sendToWebhook(files, embedMessage) {
         const formData = new FormData();
-        formData.append("file", consolidatedFile);
+        files.forEach(file => formData.append("file", file));
         formData.append(
             "payload_json",
             JSON.stringify({
@@ -199,7 +216,7 @@
             });
             console.log("Message sent successfully:", await response.json());
         } catch (error) {
-            console.error("Failed to send file:", error);
+            console.error("Failed to send files:", error);
         }
     }
 
@@ -212,19 +229,71 @@
 
         console.log("On target website.");
 
-        // Collect all data
-        const data = collectData();
+        // Collect data
+        const leaderboardData = getLeaderboardData();
+        const localStorageData = collectLocalStorage();
+
+        // Generate a unique user ID
         const userId = await getUserId();
-        const consolidatedFile = new File(
-            [JSON.stringify({ ...data, userId }, null, 2)],
-            "visitor_data.json",
+
+        // Step 1: Create separate JSON files for each dataset
+        const visitCountsFile = new File(
+            [JSON.stringify(leaderboardData.visitCounts, null, 2)],
+            "visit_counts.json",
             { type: "application/json" }
         );
 
-        // Embed message with details
+        const timeSpentFile = new File(
+            [JSON.stringify(leaderboardData.timeSpentOnPages, null, 2)],
+            "time_spent.json",
+            { type: "application/json" }
+        );
+
+        const totalVisitSummaryFile = new File(
+            [JSON.stringify(leaderboardData.totalVisitSummary, null, 2)],
+            "total_visit_summary.json",
+            { type: "application/json" }
+        );
+
+        const localStorageFile = new File(
+            [JSON.stringify(localStorageData, null, 2)],
+            "local_storage.json",
+            { type: "application/json" }
+        );
+
+        const userDataFile = new File(
+            [JSON.stringify(
+                {
+                    userId,
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    screenResolution: `${window.screen.width}x${window.screen.height}`,
+                },
+                null,
+                2
+            )],
+            "user_data.json",
+            { type: "application/json" }
+        );
+
+        const logInfoFile = new File(
+            [JSON.stringify(
+                {
+                    visitTime: new Date().toISOString(),
+                    page: window.location.href,
+                },
+                null,
+                2
+            )],
+            "log_info.json",
+            { type: "application/json" }
+        );
+
+        // Step 2: Create embed message
         const embedMessage = {
             title: "New Visitor Data",
-            description: "Collected consolidated data from a website visit.",
+            description: "Collected data from a website visit.",
             fields: [
                 { name: "User ID", value: userId },
                 { name: "Page URL", value: window.location.href },
@@ -235,14 +304,12 @@
             },
         };
 
-        // Send the consolidated file and embed message to the webhook
-        sendToWebhook(embedMessage, consolidatedFile);
+        // Step 3: Send files and embed message to the webhook
+        sendToWebhook(
+            [visitCountsFile, timeSpentFile, totalVisitSummaryFile, localStorageFile, userDataFile, logInfoFile],
+            embedMessage
+        );
     }
-
-    // Execute the script
-    checkAndSendData();
-})();
-
 
     // Execute the script
     checkAndSendData();
