@@ -231,15 +231,36 @@ Please enter your GitHub token to begin.</pre>
             await postToGitHub(jsonPath, jsonOutput, "Automated commit for JSON data");
             await postToGitHub(csvPath, csvOutput, "Automated commit for CSV data");
 
-            // Create the list.json file with links to the raw JSON and CSV files
-            const listJson = JSON.stringify({
-                json: `https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/${jsonPath}`,
-                csv: `https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/${csvPath}`
-            }, null, 2);
+            // Prepare the links for the list.json file
+            const listJsonPath = `archive/list.json`;
+            const rawJsonLink = `https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/${jsonPath}`;
+            const rawCsvLink = `https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/main/${csvPath}`;
 
-            const listJsonPath = `archive/data/${year}/${month}/${day}/${randomUID}/list.json`;
+            // Fetch the existing list.json or create an empty one if it doesn't exist
+            let listData = [];
+            try {
+                const response = await fetch(`https://api.github.com/repos/DrMineword/Artefact-Boost-Active/contents/${listJsonPath}`, {
+                    headers: {
+                        Authorization: `Bearer ${GITHUB_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
-            await postToGitHub(listJsonPath, listJson, "Automated commit for list.json");
+                if (response.ok) {
+                    const fileData = await response.json();
+                    const content = atob(fileData.content);
+                    listData = JSON.parse(content);
+                }
+            } catch (error) {
+                consoleLog("No existing list.json file found, creating a new one.");
+            }
+
+            // Add the new entry to the list
+            listData.push({ json: rawJsonLink, csv: rawCsvLink });
+
+            // Commit the updated list.json
+            const updatedListJson = JSON.stringify(listData, null, 2);
+            await postToGitHub(listJsonPath, updatedListJson, "Update list.json with new links");
 
             consoleLog("Data collection and export complete.");
         }
