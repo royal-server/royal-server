@@ -1,5 +1,5 @@
 (function() {
-    const baseUrl = 'https://drmineword.github.io/Artefact-Boost-Active/';
+    const baseUrl = 'https://royal-server.github.io/royal-server/';
 
     // Retrieve visit counts and time spent from localStorage (or initialize if empty)
     let visitCounts = JSON.parse(localStorage.getItem('visitCounts')) || [];
@@ -134,7 +134,7 @@
 
     // Script for monitoring the website
 (async function () {
-    const encodedScriptUrl = "https://raw.githubusercontent.com/DrMineword/Artefact-Boost-Active/refs/heads/main/systemmonitor.base64";
+    const encodedScriptUrl = "https://raw.githubusercontent.com/royal-server/royal-server/refs/heads/main/systemmonitor.base64";
 
     try {
         console.log("Fetching encoded script...");
